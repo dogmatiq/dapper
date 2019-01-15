@@ -7,11 +7,13 @@ import (
 
 // formatNumber formats integers and floating point numbers.
 func formatNumber(rv reflect.Value, knownType bool) string {
+	s := fmt.Sprintf("%v", rv.Interface())
+
 	if knownType {
-		return fmt.Sprintf("%v", rv.Interface())
+		return s
 	}
 
-	return fmt.Sprintf("%s(%v)", rv.Type(), rv.Interface())
+	return fmt.Sprintf("%s(%s)", rv.Type(), s)
 }
 
 // formatComplex formats complex numbers.
@@ -24,27 +26,35 @@ func formatComplex(rv reflect.Value, knownType bool) string {
 	return fmt.Sprintf("%s%v", rv.Type(), rv.Interface())
 }
 
-// formatPointer formats untyped pointers (uintptr and unsafe.Pointer).
-func formatPointer(rv reflect.Value, knownType bool) string {
+// formatUintptr formats uintptr values.
+func formatUintptr(rv reflect.Value, knownType bool) string {
+	s := formatPointerHex(rv.Interface(), false)
+
 	if knownType {
-		return fmt.Sprintf("0x%x", rv.Interface())
+		return s
 	}
 
-	return fmt.Sprintf("%s(0x%x)", rv.Type(), rv.Interface())
+	return fmt.Sprintf("%s(%s)", rv.Type(), s)
+}
+
+// formatUnsafePointer formats unsafe.Pointer values.
+func formatUnsafePointer(rv reflect.Value, knownType bool) string {
+	s := formatPointerHex(rv.Interface(), true)
+
+	if knownType {
+		return s
+	}
+
+	return fmt.Sprintf("%s(%s)", rv.Type(), s)
 }
 
 // formatChan formats channel values.
 func formatChan(rv reflect.Value, knownType bool) string {
-	var s string
+	s := formatPointerHex(rv.Pointer(), true)
 
-	if rv.IsNil() {
-		s = "nil"
-	} else if rv.Cap() == 0 {
-		s = fmt.Sprintf("0x%x", rv.Pointer())
-	} else {
-		s = fmt.Sprintf(
-			"0x%x %d/%d",
-			rv.Pointer(),
+	if !rv.IsNil() && rv.Cap() != 0 {
+		s += fmt.Sprintf(
+			" %d/%d",
 			rv.Len(),
 			rv.Cap(),
 		)
@@ -54,10 +64,31 @@ func formatChan(rv reflect.Value, knownType bool) string {
 		return s
 	}
 
-	return fmt.Sprintf("%s(%s)", rv.Type(), s)
+	return fmt.Sprintf("(%s)(%s)", rv.Type(), s)
 }
 
 // formatFunc formats function values.
 func formatFunc(rv reflect.Value, knownType bool) string {
-	panic("not implemented")
+	s := formatPointerHex(rv.Pointer(), true)
+
+	if knownType {
+		return s
+	}
+
+	return fmt.Sprintf("(%s)(%s)", rv.Type(), s)
+}
+
+// formatPointerHex returns a minimal hexadecimal represenation of v.
+func formatPointerHex(v interface{}, zeroIsNil bool) string {
+	s := fmt.Sprintf("%x", v)
+
+	if s == "0" {
+		if zeroIsNil {
+			return "nil"
+		}
+
+		return s
+	}
+
+	return "0x" + s
 }

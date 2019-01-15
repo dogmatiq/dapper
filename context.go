@@ -39,8 +39,10 @@ func (c *context) visit(
 		c.write(w, formatNumber(rv, knownType))
 	case reflect.Complex64, reflect.Complex128:
 		c.write(w, formatComplex(rv, knownType))
-	case reflect.Uintptr, reflect.UnsafePointer:
-		c.write(w, formatPointer(rv, knownType))
+	case reflect.Uintptr:
+		c.write(w, formatUintptr(rv, knownType))
+	case reflect.UnsafePointer:
+		c.write(w, formatUnsafePointer(rv, knownType))
 	case reflect.Chan:
 		c.write(w, formatChan(rv, knownType))
 	case reflect.Func:

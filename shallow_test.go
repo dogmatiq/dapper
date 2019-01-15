@@ -2,6 +2,7 @@ package dapper_test
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
 	"unsafe"
 )
@@ -27,6 +28,7 @@ type shallow struct {
 	Uintptr       uintptr
 	UnsafePointer unsafe.Pointer
 	Channel       chan string
+	Func          func(int, string) (bool, error)
 }
 
 var shallowValues = shallow{
@@ -49,12 +51,16 @@ var shallowValues = shallow{
 	Uintptr:       0xABCD,
 	UnsafePointer: unsafe.Pointer(&unsafePointerTarget),
 	Channel:       make(chan string),
+	Func: func(int, string) (bool, error) {
+		panic("not implemented")
+	},
 }
 
 var (
 	unsafePointerTarget    int
 	unsafePointerTargetHex = fmt.Sprintf("0x%x", &unsafePointerTarget)
 	channelHex             = fmt.Sprintf("0x%x", shallowValues.Channel)
+	funcHex                = fmt.Sprintf("0x%x", reflect.ValueOf(shallowValues.Func).Pointer())
 )
 
 // This test verifies the formatting of "shallow" values.
@@ -82,7 +88,8 @@ func TestPrinter_ShallowValues(t *testing.T) {
 	test(t, "float64", shallowValues.Float64, "float64(1.23)")
 	test(t, "uintptr", shallowValues.Uintptr, "uintptr(0xabcd)")
 	test(t, "unsafe.Pointer", shallowValues.UnsafePointer, "unsafe.Pointer("+unsafePointerTargetHex+")")
-	test(t, "channel", shallowValues.Channel, "chan string("+channelHex+")")
+	test(t, "channel", shallowValues.Channel, "(chan string)("+channelHex+")")
+	test(t, "func", shallowValues.Func, "(func(int, string) (bool, error))("+funcHex+")")
 }
 
 // This test verifies the formatting of "shallow" values when the type
@@ -114,6 +121,7 @@ func TestPrinter_ShallowValuesInNamedStruct(t *testing.T) {
 		"	Uintptr:       0xabcd",
 		"	UnsafePointer: "+unsafePointerTargetHex,
 		"	Channel:       "+channelHex,
+		"	Func:          "+funcHex,
 		"}",
 	)
 }
@@ -143,6 +151,7 @@ func TestPrinter_ShallowValuesInAnonymousStruct(t *testing.T) {
 		Uintptr       uintptr
 		UnsafePointer unsafe.Pointer
 		Channel       chan string
+		Func          func(int, string) (bool, error)
 	}{}
 
 	anon = shallowValues // rely on the same layout
@@ -170,16 +179,24 @@ func TestPrinter_ShallowValuesInAnonymousStruct(t *testing.T) {
 		"	Float64:       float64(1.23)",
 		"	Uintptr:       uintptr(0xabcd)",
 		"	UnsafePointer: unsafe.Pointer("+unsafePointerTargetHex+")",
-		"	Channel:       chan string("+channelHex+")",
+		"	Channel:       (chan string)("+channelHex+")",
+		"	Func:          (func(int, string) (bool, error))("+funcHex+")",
 		"}",
 	)
 }
 
+// This test provides additional tests for untyped pointer rendering.
+
+func TestPrinter_UntypedPointer(t *testing.T) {
+	test(t, "zero uintptr", uintptr(0), "uintptr(0)")
+	test(t, "nil unsafe.Pointer", unsafe.Pointer(nil), "unsafe.Pointer(nil)")
+}
+
 // This test provides additional tests for channel rendering.
 func TestPrinter_Channel(t *testing.T) {
-	test(t, "nil channel", (chan string)(nil), "chan string(nil)")
-	test(t, "recv-only channel", (<-chan string)(nil), "<-chan string(nil)")
-	test(t, "send-only channel", (chan<- string)(nil), "chan<- string(nil)")
+	test(t, "nil channel", (chan string)(nil), "(chan string)(nil)")
+	test(t, "recv-only channel", (<-chan string)(nil), "(<-chan string)(nil)")
+	test(t, "send-only channel", (chan<- string)(nil), "(chan<- string)(nil)")
 
 	// a buffered channel will show it's "usage" ratio
 	ch := make(chan string, 10)
@@ -191,6 +208,11 @@ func TestPrinter_Channel(t *testing.T) {
 		t,
 		"buffered channel",
 		ch,
-		fmt.Sprintf("chan string(0x%x 3/10)", ch),
+		fmt.Sprintf("(chan string)(0x%x 3/10)", ch),
 	)
+}
+
+// This test provides additional tests for channel rendering.
+func TestPrinter_Func(t *testing.T) {
+	test(t, "nil func", (func(int))(nil), "(func(int))(nil)")
 }
