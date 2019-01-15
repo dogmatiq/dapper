@@ -53,10 +53,8 @@ func (c *context) visit(
 		c.visitMap(w, rv, knownType)
 	case reflect.Ptr:
 		c.visitPtr(w, rv, knownType)
-	case reflect.Array:
+	case reflect.Array, reflect.Slice:
 		c.visitArray(w, rv, knownType)
-	case reflect.Slice:
-		c.visitSlice(w, rv, knownType)
 	case reflect.Struct:
 		c.visitStruct(w, rv, knownType)
 	default:
