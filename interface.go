@@ -14,7 +14,9 @@ func (c *context) visitInterface(
 		if knownType {
 			c.write(w, "nil")
 		} else {
+			c.write(w, "(")
 			c.write(w, rv.Type().String())
+			c.write(w, ")")
 			c.write(w, "(nil)")
 		}
 

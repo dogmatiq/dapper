@@ -57,8 +57,8 @@ func (c *context) visit(
 		c.visitArray(w, rv, knownType)
 	case reflect.Struct:
 		c.visitStruct(w, rv, knownType)
-	default:
-		panic("not supported: " + rv.Kind().String())
+	case reflect.Invalid:
+		c.write(w, "(interface {})(nil)")
 	}
 
 	return
