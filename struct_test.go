@@ -40,3 +40,27 @@ func TestPrinter_AnonymousStructs(t *testing.T) {
 }`,
 	)
 }
+
+func TestPrinter_StructsWithInterfaceFields(t *testing.T) {
+	type dynamic struct {
+		Value interface{}
+	}
+
+	test(
+		t,
+		"field types are shown",
+		dynamic{100},
+		`dapper_test.dynamic{
+	Value: int(100)
+}`,
+	)
+
+	test(
+		t,
+		"field types are not shown when the value is nil",
+		dynamic{nil},
+		`dapper_test.dynamic{
+	Value: nil
+}`,
+	)
+}

@@ -10,5 +10,16 @@ func (c *context) visitInterface(
 	rv reflect.Value,
 	knownType bool,
 ) {
-	panic("not implemented")
+	if rv.IsNil() {
+		if knownType {
+			c.write(w, "nil")
+		} else {
+			c.write(w, rv.Type().String())
+			c.write(w, "(nil)")
+		}
+
+		return
+	}
+
+	c.visit(w, rv.Elem(), knownType)
 }

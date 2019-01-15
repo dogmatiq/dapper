@@ -55,12 +55,17 @@ func (c *context) visitStructFields(
 		c.write(w, ": ")
 		c.write(w, strings.Repeat(" ", padding-n))
 
-		c.visit(
-			w,
-			rv.Field(i),
-			knownType && f.Type.Kind() != reflect.Interface,
-		)
+		fv := rv.Field(i)
 
+		fieldKnownType := knownType
+
+		// if the field is a non-nil interface, there's some additional type
+		// information we want to see.
+		if f.Type.Kind() == reflect.Interface && !fv.IsNil() {
+			fieldKnownType = false
+		}
+
+		c.visit(w, fv, fieldKnownType)
 		c.write(w, "\n")
 	}
 }
