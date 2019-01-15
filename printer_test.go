@@ -16,10 +16,11 @@ func test(
 		n,
 		func(t *testing.T) {
 			p := Format(v)
+
+			t.Log("expected:\n\n" + x + "\n")
+
 			if p != x {
-				t.Log("expected:\n\n" + x + "\n")
-				t.Log("actual:\n\n" + p + "\n")
-				t.FailNow()
+				t.Fatal("actual:\n\n" + p + "\n")
 			}
 		},
 	)

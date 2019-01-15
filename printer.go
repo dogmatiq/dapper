@@ -56,6 +56,7 @@ func (p *Printer) Write(w io.Writer, v interface{}) (int, error) {
 		reflect.ValueOf(v),
 		false,
 	)
+
 	return c.bytes, err
 }
 

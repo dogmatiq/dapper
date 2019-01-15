@@ -33,8 +33,8 @@ func (c *context) visit(
 		// note that type names are never included for these types, as they can never
 		// be ambiguous
 		c.writef(w, "%#v", rv.Interface())
-	case reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-		reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
 		reflect.Float32, reflect.Float64:
 		c.write(w, formatNumber(rv, knownType))
 	case reflect.Complex64, reflect.Complex128:
@@ -57,6 +57,8 @@ func (c *context) visit(
 		c.visitSlice(w, rv, knownType)
 	case reflect.Struct:
 		c.visitStruct(w, rv, knownType)
+	default:
+		panic("not supported: " + rv.Kind().String())
 	}
 
 	return
