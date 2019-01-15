@@ -1,6 +1,7 @@
 package dapper_test
 
 import (
+	"strings"
 	"testing"
 
 	. "github.com/dogmatiq/dapper"
@@ -10,8 +11,10 @@ func test(
 	t *testing.T,
 	n string,
 	v interface{},
-	x string,
+	lines ...string,
 ) {
+	x := strings.Join(lines, "\n")
+
 	t.Run(
 		n,
 		func(t *testing.T) {

@@ -2,65 +2,69 @@ package dapper_test
 
 import "testing"
 
-func TestPrinter_Structs(t *testing.T) {
-	type empty struct{}
-	test(t, "empty struct", empty{}, "dapper_test.empty{}")
+type empty struct{}
+
+type named struct {
+	Int   int
+	Iface interface{}
 }
 
-func TestPrinter_AnonymousStructs(t *testing.T) {
-	test(t, "empty anonymous struct", struct{}{}, "struct{}")
+type namedWithAnonymousField struct {
+	Anon struct {
+		Int int
+	}
+}
 
+// This test verifies that empty structs are rendered on a single line.
+func TestPrinter_EmptyStruct(t *testing.T) {
+	test(t, "empty struct", empty{}, "dapper_test.empty{}")
+	test(t, "empty anonymous struct", struct{}{}, "{}")
+}
+
+// This test verifies the inclusion or omission of type information for fields
+// in various nested depths of anonymous and named structs.
+func TestPrinter_StructFieldTypes(t *testing.T) {
 	test(
 		t,
-		"field types are shown",
-		struct{ Value int }{100},
-		`struct{
-	Value: int(100)
-}`,
+		"types are only included for interface fields of named struct",
+		named{
+			Int:   100,
+			Iface: 200,
+		},
+		"dapper_test.named{",
+		"	Int:   100",
+		"	Iface: int(200)",
+		"}",
 	)
 
-	type nested struct {
-		Value struct {
-			Value int
-		}
-	}
+	test(
+		t,
+		"types are always included fields of anonymous struct",
+		struct {
+			Int   int
+			Iface interface{}
+		}{
+			Int:   100,
+			Iface: 200,
+		},
+		"{",
+		"	Int:   int(100)",
+		"	Iface: int(200)",
+		"}",
+	)
 
 	test(
 		t,
-		"field types are not shown when anonymous struct is a field in a non-anonymous struct",
-		nested{
-			Value: struct{ Value int }{
-				100,
+		"types are only included for interface fields of anonymous struct inside a named struct",
+		namedWithAnonymousField{
+			Anon: struct{ Int int }{
+				Int: 100,
 			},
 		},
-		`dapper_test.nested{
-	Value: {
-		Value: 100
-	}
-}`,
-	)
-}
-
-func TestPrinter_StructsWithInterfaceFields(t *testing.T) {
-	type dynamic struct {
-		Value interface{}
-	}
-
-	test(
-		t,
-		"field types are shown",
-		dynamic{100},
-		`dapper_test.dynamic{
-	Value: int(100)
-}`,
-	)
-
-	test(
-		t,
-		"field types are not shown when the value is nil",
-		dynamic{nil},
-		`dapper_test.dynamic{
-	Value: nil
-}`,
+		"dapper_test.namedWithAnonymousField{",
+		"	Anon: {",
+		"		Int: 100",
+		"	}",
+		"}",
 	)
 }

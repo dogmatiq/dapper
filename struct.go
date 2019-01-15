@@ -14,12 +14,8 @@ func (c *context) visitStruct(
 	rt := rv.Type()
 	anon := isAnon(rt)
 
-	if !knownType {
-		if anon {
-			c.write(w, "struct")
-		} else {
-			c.write(w, rt.String())
-		}
+	if !knownType && !anon {
+		c.write(w, rt.String())
 	}
 
 	if rt.NumField() == 0 {
