@@ -12,7 +12,7 @@ const (
 
 	// DefaultRecursionMarker is the default string to displayed when recursion is
 	// detected within a Go value.
-	DefaultRecursionMarker = "*recursion*"
+	DefaultRecursionMarker = "<recursion>"
 )
 
 // defaultPrinter is a Printer instance with default settings.

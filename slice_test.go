@@ -86,7 +86,7 @@ func TestPrinter_SliceRecursion(t *testing.T) {
 		"recursive slice",
 		r,
 		"[]interface{}{",
-		`    []interface{}(*recursion*)`,
+		`    []interface{}(<recursion>)`,
 		"}",
 	)
 }

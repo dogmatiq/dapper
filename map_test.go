@@ -150,7 +150,7 @@ func TestPrinter_MapRecursion(t *testing.T) {
 		"recursive map",
 		r,
 		"map[string]interface{}{",
-		`    "child": map[string]interface{}(*recursion*)`,
+		`    "child": map[string]interface{}(<recursion>)`,
 		"}",
 	)
 }

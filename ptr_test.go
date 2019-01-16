@@ -34,7 +34,7 @@ func TestPrinter_PtrRecursion(t *testing.T) {
 		`        Name:  "two"`,
 		"        Child: {",
 		`            Name:  "one"`,
-		"            Child: *recursion*",
+		"            Child: <recursion>",
 		"        }",
 		"    }",
 		"}",
