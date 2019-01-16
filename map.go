@@ -8,6 +8,7 @@ import (
 )
 
 // TODO: handle recursion
+// TODO: sort numerically-keyed maps numerically
 
 func (c *context) visitMap(
 	w io.Writer,
