@@ -39,13 +39,14 @@ func (c *context) visitMapElements(
 ) {
 	rt := rv.Type()
 	isInterface := rt.Elem().Kind() == reflect.Interface
-	keys, padding := c.formatMapKeys(rt, rv)
+	keys, alignment := c.formatMapKeys(rt, rv)
 
 	for _, k := range keys {
 		v := rv.MapIndex(k.Value)
 		c.write(w, k.String)
 		c.write(w, ": ")
-		c.write(w, strings.Repeat(" ", padding-k.Width))
+
+		c.write(w, strings.Repeat(" ", alignment-k.Width))
 
 		c.visit(
 			w,
@@ -66,14 +67,15 @@ type mapKey struct {
 // formatMapKeys formats the keys in maps, and returns a slice of the keys
 // sorted by their string representation.
 //
-// width is the longest line of any of the formatted key representations.
+// padding is the number of padding characters to add to the shortest key.
 func (c *context) formatMapKeys(
 	rt reflect.Type,
 	rv reflect.Value,
-) (keys []mapKey, width int) {
+) (keys []mapKey, alignment int) {
 	var b strings.Builder
 	isInterface := rt.Key().Kind() == reflect.Interface
 	keys = make([]mapKey, rv.Len())
+	alignToLastLine := false
 
 	for i, k := range rv.MapKeys() {
 		c.visit(
@@ -86,8 +88,9 @@ func (c *context) formatMapKeys(
 		b.Reset()
 
 		max, last := widths(s)
-		if max > width {
-			width = max
+		if max > alignment {
+			alignment = max
+			alignToLastLine = max == last
 		}
 
 		keys[i] = mapKey{k, s, last}
@@ -100,7 +103,12 @@ func (c *context) formatMapKeys(
 		},
 	)
 
-	return keys, width
+	// compensate for the ":" added to the last line"
+	if !alignToLastLine {
+		alignment--
+	}
+
+	return
 }
 
 // widths returns the numnber of characters in the longest, and last line of s.

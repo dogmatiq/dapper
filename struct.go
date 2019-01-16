@@ -41,7 +41,7 @@ func (c *context) visitStructFields(
 	rv reflect.Value,
 	knownType bool,
 ) {
-	padding := longestFieldName(rt)
+	alignment := longestFieldName(rt)
 
 	for i := 0; i < rt.NumField(); i++ {
 		f := rt.Field(i)
@@ -49,7 +49,7 @@ func (c *context) visitStructFields(
 
 		c.write(w, f.Name)
 		c.write(w, ": ")
-		c.write(w, strings.Repeat(" ", padding-n))
+		c.write(w, strings.Repeat(" ", alignment-n))
 
 		fv := rv.Field(i)
 
