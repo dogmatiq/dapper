@@ -4,8 +4,8 @@ import "testing"
 
 func TestPrinter_Ptr(t *testing.T) {
 	value := 100
-	test(t, "nil pointer", (*int)(nil), "&int(nil)")
-	test(t, "non-nil pointer", &value, "&int(100)")
+	test(t, "nil pointer", (*int)(nil), "*int(nil)")
+	test(t, "non-nil pointer", &value, "*int(100)")
 }
 
 type recursive struct {
@@ -30,9 +30,9 @@ func TestPrinter_PtrRecursion(t *testing.T) {
 		r,
 		"dapper_test.recursive{",
 		`    Name:  "one"`,
-		"    Child: &{",
+		"    Child: {",
 		`        Name:  "two"`,
-		"        Child: &{",
+		"        Child: {",
 		`            Name:  "one"`,
 		"            Child: *recursion*",
 		"        }",
