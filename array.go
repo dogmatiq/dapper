@@ -3,6 +3,8 @@ package dapper
 import (
 	"io"
 	"reflect"
+
+	"github.com/dogmatiq/iago/indent"
 )
 
 func (c *context) visitArray(
@@ -24,7 +26,7 @@ func (c *context) visitArray(
 	c.write(w, "{\n")
 
 	c.visitArrayValues(
-		newIndenter(w, c.indent),
+		indent.NewIndenter(w, c.indent),
 		rt,
 		rv,
 	)

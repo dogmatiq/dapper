@@ -5,6 +5,8 @@ import (
 	"reflect"
 	"sort"
 	"strings"
+
+	"github.com/dogmatiq/iago/indent"
 )
 
 // TODO: sort numerically-keyed maps numerically
@@ -50,7 +52,7 @@ func (c *context) visitMap(
 	c.write(w, "{\n")
 
 	c.visitMapElements(
-		newIndenter(w, c.indent),
+		indent.NewIndenter(w, c.indent),
 		rt,
 		rv,
 	)

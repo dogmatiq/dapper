@@ -4,12 +4,14 @@ import (
 	"io"
 	"reflect"
 	"strings"
+
+	"github.com/dogmatiq/iago"
 )
 
 // context holds the state necessary to format a value recursively.
 type context struct {
 	// indent is the string used to indent nested values.
-	indent string
+	indent []byte
 
 	// recursionMarker is the string used to represent recursion within a value.
 	recursionMarker string
@@ -27,7 +29,7 @@ func (c *context) visit(
 	rv reflect.Value,
 	knownType bool,
 ) (err error) {
-	defer recoverError(&err)
+	defer iago.Recover(&err)
 
 	switch rv.Kind() {
 	case reflect.String, reflect.Bool:
@@ -98,12 +100,12 @@ func (c *context) leave(rv reflect.Value) {
 
 // write writes s to w.
 func (c *context) write(w io.Writer, s string) {
-	c.bytes += mustWriteString(w, s)
+	c.bytes += iago.MustWriteString(w, s)
 }
 
 // write writes a formatted string to w.
 func (c *context) writef(w io.Writer, f string, v ...interface{}) {
-	c.bytes += mustFprintf(w, f, v...)
+	c.bytes += iago.MustFprintf(w, f, v...)
 }
 
 // isAnon returns true if rt is an anonymous type.

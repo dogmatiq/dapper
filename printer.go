@@ -39,12 +39,12 @@ type Printer struct {
 // It returns the number of bytes written.
 func (p *Printer) Write(w io.Writer, v interface{}) (int, error) {
 	c := context{
-		indent:          p.Indent,
+		indent:          []byte(p.Indent),
 		recursionMarker: p.RecursionMarker,
 	}
 
-	if c.indent == "" {
-		c.indent = DefaultIndent
+	if len(c.indent) == 0 {
+		c.indent = []byte(DefaultIndent)
 	}
 
 	if c.recursionMarker == "" {

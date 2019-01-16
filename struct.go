@@ -4,6 +4,8 @@ import (
 	"io"
 	"reflect"
 	"strings"
+
+	"github.com/dogmatiq/iago/indent"
 )
 
 func (c *context) visitStruct(
@@ -26,7 +28,7 @@ func (c *context) visitStruct(
 	c.write(w, "{\n")
 
 	c.visitStructFields(
-		newIndenter(w, c.indent),
+		indent.NewIndenter(w, c.indent),
 		rt,
 		rv,
 		knownType || !anon,
