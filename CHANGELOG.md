@@ -11,10 +11,15 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ## [Unreleased]
 
+- Next release
+
+## [0.1.0] - 2019-01-16
+
 - Initial release
 
 <!-- references -->
 [Unreleased]: https://github.com/dogmatiq/dapper
+[0.1.0]: https://github.com/dogmatiq/dapper/releases/tag/0.1.0
 
 <!-- version template
 ## [0.0.1] - YYYY-MM-DD
