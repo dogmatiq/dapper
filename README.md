@@ -16,37 +16,47 @@ This example renders a basic tree structure. Note that the output only includes
 type names where the value's type can not be inferred from the context.
 
 ### Code
+
 ```go
+package main
+
+import (
+	"fmt"
+	"github.com/dogmatiq/dapper"
+)
+
 type TreeNode struct {
-    Name     string
-    Value    interface{}
-    Children []*TreeNode
+	Name     string
+	Value    interface{}
+	Children []*TreeNode
 }
 
 type NodeValue struct{}
 
-v := TreeNode{
-    Name: "root",
-    Children: []*TreeNode{
-        {
-            Name:  "branch #1",
-            Value: 100,
-        },
-        {
-            Name:  "branch #2",
-            Value: NodeValue{},
-        },
-    },
-}
+func main() {
+	v := TreeNode{
+		Name: "root",
+		Children: []*TreeNode{
+			{
+				Name:  "branch #1",
+				Value: 100,
+			},
+			{
+				Name:  "branch #2",
+				Value: NodeValue{},
+			},
+		},
+	}
 
-s := Format(v)
-fmt.Println(s)
+	s := dapper.Format(v)
+	fmt.Println(s)
+}
 ```
 
 ### Output
 
 ```
-dapper_test.TreeNode{
+main.TreeNode{
     Name:     "root"
     Value:    nil
     Children: {
@@ -57,7 +67,7 @@ dapper_test.TreeNode{
         }
         {
             Name:     "branch #2"
-            Value:    dapper_test.SpecialValue{}
+            Value:    main.NodeValue{}
             Children: nil
         }
     }
