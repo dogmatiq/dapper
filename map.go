@@ -14,12 +14,15 @@ func (c *context) visitMap(
 	rv reflect.Value,
 	knownType bool,
 ) {
+	recursive := c.enter(rv)
+	defer c.leave(rv)
+
 	rt := rv.Type()
 	marker := ""
 
 	if rv.IsNil() {
 		marker = "nil"
-	} else if c.markVisited(rv) {
+	} else if recursive {
 		marker = c.recursionMarker
 	}
 

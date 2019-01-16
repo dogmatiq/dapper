@@ -5,7 +5,7 @@ import (
 	"reflect"
 )
 
-func (c *context) visitPtr(
+func (c *context) visitSlice(
 	w io.Writer,
 	rv reflect.Value,
 	knownType bool,
@@ -26,8 +26,7 @@ func (c *context) visitPtr(
 		if knownType {
 			c.write(w, marker)
 		} else {
-			c.write(w, "&")
-			c.write(w, formatTypeName(rt.Elem()))
+			c.write(w, formatTypeName(rt))
 			c.write(w, "(")
 			c.write(w, marker)
 			c.write(w, ")")
@@ -35,6 +34,5 @@ func (c *context) visitPtr(
 		return
 	}
 
-	c.write(w, "&")
-	c.visit(w, rv.Elem(), knownType)
+	c.visitArray(w, rv, knownType)
 }

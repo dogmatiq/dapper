@@ -14,9 +14,9 @@ type context struct {
 	// recursionMarker is the string used to represent recursion within a value.
 	recursionMarker string
 
-	// visited is a set of pointer values that have already been seen within this
-	// context. It is used to detect recursion.
-	visited map[uintptr]struct{}
+	// recursionSet is the set of potentially recursive values that are currently
+	// being visited.
+	recursionSet map[uintptr]int
 
 	// bytes is the number of bytes written overall
 	bytes int
@@ -54,8 +54,10 @@ func (c *context) visit(
 		c.visitMap(w, rv, knownType)
 	case reflect.Ptr:
 		c.visitPtr(w, rv, knownType)
-	case reflect.Array, reflect.Slice:
+	case reflect.Array:
 		c.visitArray(w, rv, knownType)
+	case reflect.Slice:
+		c.visitSlice(w, rv, knownType)
 	case reflect.Struct:
 		c.visitStruct(w, rv, knownType)
 	case reflect.Invalid:
@@ -65,28 +67,41 @@ func (c *context) visit(
 	return
 }
 
-// markVisited marks a value as having been visited.
-// It returns true if the value has already been visited.
-func (c *context) markVisited(rv reflect.Value) bool {
+func (c *context) enter(rv reflect.Value) bool {
+	if rv.IsNil() {
+		return false
+	}
+
+	if c.recursionSet == nil {
+		c.recursionSet = map[uintptr]int{}
+	}
+
 	ptr := rv.Pointer()
+	n := c.recursionSet[ptr]
+	c.recursionSet[ptr] = n + 1
 
-	if _, ok := c.visited[ptr]; ok {
-		return true
-	}
-
-	if c.visited == nil {
-		c.visited = map[uintptr]struct{}{}
-	}
-
-	c.visited[ptr] = struct{}{}
-
-	return false
+	return n != 0
 }
 
+func (c *context) leave(rv reflect.Value) {
+	if rv.IsNil() {
+		return
+	}
+
+	ptr := rv.Pointer()
+	if n := c.recursionSet[ptr]; n == 1 {
+		delete(c.recursionSet, ptr)
+	} else {
+		c.recursionSet[ptr] = n - 1
+	}
+}
+
+// write writes s to w.
 func (c *context) write(w io.Writer, s string) {
 	c.bytes += mustWriteString(w, s)
 }
 
+// write writes a formatted string to w.
 func (c *context) writef(w io.Writer, f string, v ...interface{}) {
 	c.bytes += mustFprintf(w, f, v...)
 }
@@ -96,6 +111,7 @@ func isAnon(rt reflect.Type) bool {
 	return rt.Name() == ""
 }
 
+// formatTypeName renders the name of a type.
 func formatTypeName(rt reflect.Type) string {
 	n := rt.String()
 	n = strings.Replace(n, "interface {", "interface{", -1)
