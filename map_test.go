@@ -16,6 +16,7 @@ type maps struct {
 // be inferred from the context.
 
 func TestPrinter_Map(t *testing.T) {
+	test(t, "nil map", (map[int]int)(nil), "map[int]int(nil)")
 	test(t, "empty map", map[int]int{}, "map[int]int{}")
 
 	test(
@@ -36,8 +37,23 @@ func TestPrinter_Map(t *testing.T) {
 func TestPrinter_MapInNamedStruct(t *testing.T) {
 	test(
 		t,
-		"empty maps",
+		"nil maps",
 		maps{},
+		"dapper_test.maps{",
+		"    Ints:        nil",
+		"    IfaceKeys:   nil",
+		"    IfaceValues: nil",
+		"}",
+	)
+
+	test(
+		t,
+		"empty maps",
+		maps{
+			Ints:        map[int]int{},
+			IfaceKeys:   map[interface{}]int{},
+			IfaceValues: map[int]interface{}{},
+		},
 		"dapper_test.maps{",
 		"    Ints:        {}",
 		"    IfaceKeys:   {}",
@@ -98,7 +114,7 @@ func TestPrinter_MultilineMapKeyAlignment(t *testing.T) {
 			"the longest key in the galaxy": "two",
 			multiline{Key: "multiline key"}: "three",
 		},
-		"map[interface {}]string{",
+		"map[interface{}]string{",
 		`    "short":                         "one"`,
 		`    "the longest key in the galaxy": "two"`,
 		"    dapper_test.multiline{",
@@ -114,11 +130,27 @@ func TestPrinter_MultilineMapKeyAlignment(t *testing.T) {
 			"short":                         "one",
 			multiline{Key: "multiline key"}: "three",
 		},
-		"map[interface {}]string{",
+		"map[interface{}]string{",
 		`    "short":                 "one"`,
 		"    dapper_test.multiline{",
 		`        Key: "multiline key"`,
 		`    }:                       "three"`,
+		"}",
+	)
+}
+
+// This test verifies that recursive maps are detected, and do not produce
+// an infinite loop or stack overflow.
+func TestPrinter_MapRecursion(t *testing.T) {
+	r := map[string]interface{}{}
+	r["child"] = r
+
+	test(
+		t,
+		"recursive map",
+		r,
+		"map[string]interface{}{",
+		`    "child": map[string]interface{}(*recursion*)`,
 		"}",
 	)
 }

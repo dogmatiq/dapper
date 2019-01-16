@@ -3,6 +3,7 @@ package dapper
 import (
 	"io"
 	"reflect"
+	"strings"
 )
 
 // context holds the state necessary to format a value recursively.
@@ -58,7 +59,7 @@ func (c *context) visit(
 	case reflect.Struct:
 		c.visitStruct(w, rv, knownType)
 	case reflect.Invalid:
-		c.write(w, "(interface {})(nil)")
+		c.write(w, "interface{}(nil)")
 	}
 
 	return
@@ -93,4 +94,15 @@ func (c *context) writef(w io.Writer, f string, v ...interface{}) {
 // isAnon returns true if rt is an anonymous type.
 func isAnon(rt reflect.Type) bool {
 	return rt.Name() == ""
+}
+
+func formatTypeName(rt reflect.Type) string {
+	n := rt.String()
+	n = strings.Replace(n, "interface {", "interface{", -1)
+
+	if strings.ContainsAny(n, " \t\n") {
+		return "(" + n + ")"
+	}
+
+	return n
 }

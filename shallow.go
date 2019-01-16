@@ -13,7 +13,11 @@ func formatNumber(rv reflect.Value, knownType bool) string {
 		return s
 	}
 
-	return fmt.Sprintf("%s(%s)", rv.Type(), s)
+	return fmt.Sprintf(
+		"%s(%s)",
+		formatTypeName(rv.Type()),
+		s,
+	)
 }
 
 // formatComplex formats complex numbers.
@@ -23,7 +27,11 @@ func formatComplex(rv reflect.Value, knownType bool) string {
 		return s[1 : len(s)-1] // trim the opening and closing parenthesis
 	}
 
-	return fmt.Sprintf("%s%v", rv.Type(), rv.Interface())
+	return fmt.Sprintf(
+		"%s%v",
+		formatTypeName(rv.Type()),
+		rv.Interface(),
+	)
 }
 
 // formatUintptr formats uintptr values.
@@ -34,7 +42,11 @@ func formatUintptr(rv reflect.Value, knownType bool) string {
 		return s
 	}
 
-	return fmt.Sprintf("%s(%s)", rv.Type(), s)
+	return fmt.Sprintf(
+		"%s(%s)",
+		formatTypeName(rv.Type()),
+		s,
+	)
 }
 
 // formatUnsafePointer formats unsafe.Pointer values.
@@ -45,7 +57,11 @@ func formatUnsafePointer(rv reflect.Value, knownType bool) string {
 		return s
 	}
 
-	return fmt.Sprintf("%s(%s)", rv.Type(), s)
+	return fmt.Sprintf(
+		"%s(%s)",
+		formatTypeName(rv.Type()),
+		s,
+	)
 }
 
 // formatChan formats channel values.
@@ -64,7 +80,11 @@ func formatChan(rv reflect.Value, knownType bool) string {
 		return s
 	}
 
-	return fmt.Sprintf("(%s)(%s)", rv.Type(), s)
+	return fmt.Sprintf(
+		"%s(%s)",
+		formatTypeName(rv.Type()),
+		s,
+	)
 }
 
 // formatFunc formats function values.
@@ -75,7 +95,13 @@ func formatFunc(rv reflect.Value, knownType bool) string {
 		return s
 	}
 
-	return fmt.Sprintf("(%s)(%s)", rv.Type(), s)
+	// always render function types with parenthesis, to avoid ambiguity when there
+	// are no return types
+	return fmt.Sprintf(
+		"(%s)(%s)",
+		rv.Type(),
+		s,
+	)
 }
 
 // formatPointerHex returns a minimal hexadecimal represenation of v.

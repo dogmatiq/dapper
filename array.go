@@ -6,6 +6,7 @@ import (
 )
 
 // TODO: handle recursion
+// TODO: differentiate between empty/nil slices
 
 func (c *context) visitArray(
 	w io.Writer,
@@ -13,7 +14,7 @@ func (c *context) visitArray(
 	knownType bool,
 ) {
 	if !knownType {
-		c.write(w, rv.Type().String())
+		c.write(w, formatTypeName(rv.Type()))
 	}
 
 	if rv.Len() == 0 {

@@ -24,7 +24,7 @@ func (c *context) visitPtr(
 			c.write(w, marker)
 		} else {
 			c.write(w, "&")
-			c.write(w, rt.Elem().String())
+			c.write(w, formatTypeName(rt.Elem()))
 			c.write(w, "(")
 			c.write(w, marker)
 			c.write(w, ")")

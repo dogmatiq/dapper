@@ -15,7 +15,7 @@ func (c *context) visitStruct(
 	anon := isAnon(rt)
 
 	if !knownType && !anon {
-		c.write(w, rt.String())
+		c.write(w, formatTypeName(rt))
 	}
 
 	if rt.NumField() == 0 {

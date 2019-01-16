@@ -9,7 +9,7 @@ type interfaces struct {
 func TestPrinter_Interface(t *testing.T) {
 	// note that capturing a reflect.Value of a nil interface does NOT produces a
 	// value with a "kind" of reflect.Invalid, NOT reflect.Interface.
-	test(t, "nil interface", interface{}(nil), "(interface {})(nil)")
+	test(t, "nil interface", interface{}(nil), "interface{}(nil)")
 
 	test(
 		t,
@@ -36,7 +36,7 @@ func TestPrinter_Interface(t *testing.T) {
 			Iface interface{}
 		}{},
 		"{",
-		"    Iface: (interface {})(nil)",
+		"    Iface: interface{}(nil)",
 		"}",
 	)
 
