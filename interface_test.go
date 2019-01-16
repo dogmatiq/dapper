@@ -16,7 +16,7 @@ func TestPrinter_Interface(t *testing.T) {
 		"nil interface in named struct",
 		interfaces{},
 		"dapper_test.interfaces{",
-		"	Iface: nil",
+		"    Iface: nil",
 		"}",
 	)
 
@@ -25,7 +25,7 @@ func TestPrinter_Interface(t *testing.T) {
 		"non-nil interface in named struct",
 		interfaces{int(100)},
 		"dapper_test.interfaces{",
-		"	Iface: int(100)",
+		"    Iface: int(100)",
 		"}",
 	)
 
@@ -36,7 +36,7 @@ func TestPrinter_Interface(t *testing.T) {
 			Iface interface{}
 		}{},
 		"{",
-		"	Iface: (interface {})(nil)",
+		"    Iface: (interface {})(nil)",
 		"}",
 	)
 
@@ -47,7 +47,7 @@ func TestPrinter_Interface(t *testing.T) {
 			Iface interface{}
 		}{uint(100)},
 		"{",
-		"	Iface: uint(100)",
+		"    Iface: uint(100)",
 		"}",
 	)
 }

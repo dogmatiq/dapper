@@ -32,8 +32,8 @@ func TestPrinter_StructFieldTypes(t *testing.T) {
 			Iface: 200,
 		},
 		"dapper_test.named{",
-		"	Int:   100",
-		"	Iface: int(200)",
+		"    Int:   100",
+		"    Iface: int(200)",
 		"}",
 	)
 
@@ -48,8 +48,8 @@ func TestPrinter_StructFieldTypes(t *testing.T) {
 			Iface: 200,
 		},
 		"{",
-		"	Int:   int(100)",
-		"	Iface: int(200)",
+		"    Int:   int(100)",
+		"    Iface: int(200)",
 		"}",
 	)
 
@@ -62,9 +62,9 @@ func TestPrinter_StructFieldTypes(t *testing.T) {
 			},
 		},
 		"dapper_test.namedWithAnonymousField{",
-		"	Anon: {",
-		"		Int: 100",
-		"	}",
+		"    Anon: {",
+		"        Int: 100",
+		"    }",
 		"}",
 	)
 }

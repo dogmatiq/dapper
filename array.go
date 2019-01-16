@@ -5,6 +5,8 @@ import (
 	"reflect"
 )
 
+// TODO: handle recursion
+
 func (c *context) visitArray(
 	w io.Writer,
 	rv reflect.Value,
@@ -38,11 +40,13 @@ func (c *context) visitArrayValues(
 
 	for i := 0; i < rv.Len(); i++ {
 		v := rv.Index(i)
+
 		c.visit(
 			w,
 			v,
 			!isInterface || v.IsNil(),
 		)
+
 		c.write(w, "\n")
 	}
 }

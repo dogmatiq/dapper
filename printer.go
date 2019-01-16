@@ -8,7 +8,7 @@ import (
 
 const (
 	// DefaultIndent is the default indent string used to indent nested values.
-	DefaultIndent = "\t"
+	DefaultIndent = "    "
 
 	// DefaultRecursionMarker is the default string to displayed when recursion is
 	// detected within a Go value.
