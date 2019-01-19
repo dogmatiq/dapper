@@ -5,15 +5,15 @@ import (
 )
 
 // visitPtr formats values with a kind of reflect.Ptr.
-func (c *context) visitPtr(w io.Writer, v value) {
-	if c.enter(w, v) {
+func (vis *visitor) visitPtr(w io.Writer, v value) {
+	if vis.enter(w, v) {
 		return
 	}
-	defer c.leave(v)
+	defer vis.leave(v)
 
 	if v.IsAmbiguousType {
-		c.write(w, "*")
+		vis.write(w, "*")
 	}
 
-	c.visit(w, v.Value.Elem(), v.IsAmbiguousType)
+	vis.visit(w, v.Value.Elem(), v.IsAmbiguousType)
 }

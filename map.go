@@ -12,37 +12,37 @@ import (
 // visitMap formats values with a kind of reflect.Map.
 //
 // TODO(jmalloc): sort numerically-keyed maps numerically
-func (c *context) visitMap(w io.Writer, v value) {
-	if c.enter(w, v) {
+func (vis *visitor) visitMap(w io.Writer, v value) {
+	if vis.enter(w, v) {
 		return
 	}
-	defer c.leave(v)
+	defer vis.leave(v)
 
 	if v.IsAmbiguousType {
-		c.write(w, v.TypeName())
+		vis.write(w, v.TypeName())
 	}
 
 	if v.Value.Len() == 0 {
-		c.write(w, "{}")
+		vis.write(w, "{}")
 		return
 	}
 
-	c.write(w, "{\n")
-	c.visitMapElements(indent.NewIndenter(w, c.indent), v)
-	c.write(w, "}")
+	vis.write(w, "{\n")
+	vis.visitMapElements(indent.NewIndenter(w, vis.indent), v)
+	vis.write(w, "}")
 }
 
-func (c *context) visitMapElements(w io.Writer, v value) {
+func (vis *visitor) visitMapElements(w io.Writer, v value) {
 	ambiguous := v.Type.Elem().Kind() == reflect.Interface
-	keys, alignment := c.formatMapKeys(v)
+	keys, alignment := vis.formatMapKeys(v)
 
 	for _, mk := range keys {
 		mv := v.Value.MapIndex(mk.Value)
-		c.write(w, mk.String)
-		c.write(w, ": ")
-		c.write(w, strings.Repeat(" ", alignment-mk.Width))
-		c.visit(w, mv, ambiguous)
-		c.write(w, "\n")
+		vis.write(w, mk.String)
+		vis.write(w, ": ")
+		vis.write(w, strings.Repeat(" ", alignment-mk.Width))
+		vis.visit(w, mv, ambiguous)
+		vis.write(w, "\n")
 	}
 }
 
@@ -56,14 +56,14 @@ type mapKey struct {
 // sorted by their string representation.
 //
 // padding is the number of padding characters to add to the shortest key.
-func (c *context) formatMapKeys(v value) (keys []mapKey, alignment int) {
+func (vis *visitor) formatMapKeys(v value) (keys []mapKey, alignment int) {
 	var w strings.Builder
 	isInterface := v.Type.Key().Kind() == reflect.Interface
 	keys = make([]mapKey, v.Value.Len())
 	alignToLastLine := false
 
 	for i, k := range v.Value.MapKeys() {
-		c.visit(&w, k, isInterface)
+		vis.visit(&w, k, isInterface)
 
 		s := w.String()
 		w.Reset()

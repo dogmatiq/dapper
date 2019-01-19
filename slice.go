@@ -5,11 +5,11 @@ import (
 )
 
 // visitSlice formats values with a kind of reflect.Slice.
-func (c *context) visitSlice(w io.Writer, v value) {
-	if c.enter(w, v) {
+func (vis *visitor) visitSlice(w io.Writer, v value) {
+	if vis.enter(w, v) {
 		return
 	}
-	defer c.leave(v)
+	defer vis.leave(v)
 
-	c.visitArray(w, v)
+	vis.visitArray(w, v)
 }

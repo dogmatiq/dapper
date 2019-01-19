@@ -9,22 +9,22 @@ import (
 )
 
 // visitStruct formats values with a kind of reflect.Struct.
-func (c *context) visitStruct(w io.Writer, v value) {
+func (vis *visitor) visitStruct(w io.Writer, v value) {
 	if v.IsAmbiguousType && !v.IsAnonymous() {
-		c.write(w, v.TypeName())
+		vis.write(w, v.TypeName())
 	}
 
 	if v.Type.NumField() == 0 {
-		c.write(w, "{}")
+		vis.write(w, "{}")
 		return
 	}
 
-	c.write(w, "{\n")
-	c.visitStructFields(indent.NewIndenter(w, c.indent), v)
-	c.write(w, "}")
+	vis.write(w, "{\n")
+	vis.visitStructFields(indent.NewIndenter(w, vis.indent), v)
+	vis.write(w, "}")
 }
 
-func (c *context) visitStructFields(w io.Writer, v value) {
+func (vis *visitor) visitStructFields(w io.Writer, v value) {
 	alignment := longestFieldName(v.Type)
 	anon := v.IsAnonymous()
 	var ambiguous bool
@@ -41,11 +41,11 @@ func (c *context) visitStructFields(w io.Writer, v value) {
 			ambiguous = false
 		}
 
-		c.write(w, f.Name)
-		c.write(w, ": ")
-		c.write(w, strings.Repeat(" ", alignment-len(f.Name)))
-		c.visit(w, fv, ambiguous)
-		c.write(w, "\n")
+		vis.write(w, f.Name)
+		vis.write(w, ": ")
+		vis.write(w, strings.Repeat(" ", alignment-len(f.Name)))
+		vis.visit(w, fv, ambiguous)
+		vis.write(w, "\n")
 	}
 }
 
