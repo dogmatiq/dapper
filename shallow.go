@@ -2,136 +2,117 @@ package dapper
 
 import (
 	"fmt"
-	"reflect"
+	"io"
 )
 
-// formatInt formats signed integers.
-func formatInt(rv reflect.Value, knownType bool) string {
-	s := fmt.Sprintf("%v", rv.Int())
+// visitInt formats values with a kind of reflect.Int, and the related
+// fixed-sized types.
+func (c *context) visitInt(w io.Writer, v value) {
+	if v.IsAmbiguousType {
+		c.write(w, v.TypeName())
+		c.writef(w, "(%v)", v.Value.Int())
+	} else {
+		c.writef(w, "%v", v.Value.Int())
+	}
+}
 
-	if knownType {
-		return s
+// visitUint formats values with a kind of reflect.Uint, and the related
+// fixed-sized types.
+func (c *context) visitUint(w io.Writer, v value) {
+	if v.IsAmbiguousType {
+		c.write(w, v.TypeName())
+		c.writef(w, "(%v)", v.Value.Uint())
+	} else {
+		c.writef(w, "%v", v.Value.Uint())
+	}
+}
+
+// visitFloat formats values with a kind of reflect.Float32 and Float64.
+func (c *context) visitFloat(w io.Writer, v value) {
+	if v.IsAmbiguousType {
+		c.write(w, v.TypeName())
+		c.writef(w, "(%v)", v.Value.Float())
+	} else {
+		c.writef(w, "%v", v.Value.Float())
+	}
+}
+
+// visitComplex formats values with a kind of reflect.Complex64 and Complex128.
+func (c *context) visitComplex(w io.Writer, v value) {
+	// note that %v formats a complex number already surrounded in parenthesis
+	s := fmt.Sprintf("%v", v.Value.Complex())
+
+	if v.IsAmbiguousType {
+		c.write(w, v.TypeName())
+		c.write(w, s)
+	} else {
+		c.write(w, s[1:len(s)-1]) // trim the opening and closing parenthesis
+	}
+}
+
+// visitUintptr formats values with a kind of reflect.Uintptr.
+func (c *context) visitUintptr(w io.Writer, v value) {
+	s := formatPointerHex(v.Value.Uint(), false)
+
+	if v.IsAmbiguousType {
+		c.write(w, v.TypeName())
+		c.writef(w, "(%s)", s)
+	} else {
+		c.write(w, s)
+	}
+}
+
+// visitUnsafePointer formats values with a kind of reflect.UnsafePointer.
+func (c *context) visitUnsafePointer(w io.Writer, v value) {
+	s := formatPointerHex(v.Value.Pointer(), true)
+
+	if v.IsAmbiguousType {
+		c.write(w, v.TypeName())
+		c.writef(w, "(%s)", s)
+	} else {
+		c.write(w, s)
+	}
+}
+
+// visitChan formats values with a kind of reflect.Chan.
+func (c *context) visitChan(w io.Writer, v value) {
+	if v.IsAmbiguousType {
+		c.write(w, v.TypeName())
+		c.write(w, "(")
 	}
 
-	return fmt.Sprintf(
-		"%s(%s)",
-		formatTypeName(rv.Type()),
-		s,
+	c.write(
+		w,
+		formatPointerHex(v.Value.Pointer(), true),
 	)
-}
 
-// formatUint formats unsigned integers.
-func formatUint(rv reflect.Value, knownType bool) string {
-	s := fmt.Sprintf("%v", rv.Uint())
-
-	if knownType {
-		return s
-	}
-
-	return fmt.Sprintf(
-		"%s(%s)",
-		formatTypeName(rv.Type()),
-		s,
-	)
-}
-
-// formatFloat formats floating point numbers.
-func formatFloat(rv reflect.Value, knownType bool) string {
-	s := fmt.Sprintf("%v", rv.Float())
-
-	if knownType {
-		return s
-	}
-
-	return fmt.Sprintf(
-		"%s(%s)",
-		formatTypeName(rv.Type()),
-		s,
-	)
-}
-
-// formatComplex formats complex numbers.
-func formatComplex(rv reflect.Value, knownType bool) string {
-	s := fmt.Sprintf("%v", rv.Complex())
-
-	if knownType {
-		return s[1 : len(s)-1] // trim the opening and closing parenthesis
-	}
-
-	return formatTypeName(rv.Type()) + s
-}
-
-// formatUintptr formats uintptr values.
-func formatUintptr(rv reflect.Value, knownType bool) string {
-	s := formatPointerHex(rv.Uint(), false)
-
-	if knownType {
-		return s
-	}
-
-	return fmt.Sprintf(
-		"%s(%s)",
-		formatTypeName(rv.Type()),
-		s,
-	)
-}
-
-// formatUnsafePointer formats unsafe.Pointer values.
-func formatUnsafePointer(rv reflect.Value, knownType bool) string {
-	s := formatPointerHex(rv.Pointer(), true)
-
-	if knownType {
-		return s
-	}
-
-	return fmt.Sprintf(
-		"%s(%s)",
-		formatTypeName(rv.Type()),
-		s,
-	)
-}
-
-// formatChan formats channel values.
-func formatChan(rv reflect.Value, knownType bool) string {
-	s := formatPointerHex(rv.Pointer(), true)
-
-	if !rv.IsNil() && rv.Cap() != 0 {
-		s += fmt.Sprintf(
+	if !v.Value.IsNil() && v.Value.Cap() != 0 {
+		c.writef(
+			w,
 			" %d/%d",
-			rv.Len(),
-			rv.Cap(),
+			v.Value.Len(),
+			v.Value.Cap(),
 		)
 	}
 
-	if knownType {
-		return s
+	if v.IsAmbiguousType {
+		c.write(w, ")")
 	}
-
-	return fmt.Sprintf(
-		"%s(%s)",
-		formatTypeName(rv.Type()),
-		s,
-	)
 }
 
-// formatFunc formats function values.
-func formatFunc(rv reflect.Value, knownType bool) string {
-	s := formatPointerHex(rv.Pointer(), true)
+// visitFunc formats values with a kind of reflect.Func.
+func (c *context) visitFunc(w io.Writer, v value) {
+	s := formatPointerHex(v.Value.Pointer(), true)
 
-	if knownType {
-		return s
+	if v.IsAmbiguousType {
+		c.write(w, v.TypeName())
+		c.writef(w, "(%s)", s)
+	} else {
+		c.write(w, s)
 	}
-
-	// always render function types with parenthesis, to avoid ambiguity when there
-	// are no return types
-	return fmt.Sprintf(
-		"(%s)(%s)",
-		rv.Type(),
-		s,
-	)
 }
 
-// formatPointerHex returns a minimal hexadecimal represenation of v.
+// visitPointerHex returns a minimal hexadecimal represenation of v.
 func formatPointerHex(v interface{}, zeroIsNil bool) string {
 	s := fmt.Sprintf("%x", v)
 

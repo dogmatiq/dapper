@@ -7,49 +7,27 @@ import (
 	"github.com/dogmatiq/iago/indent"
 )
 
-func (c *context) visitArray(
-	w io.Writer,
-	rv reflect.Value,
-	knownType bool,
-) {
-	rt := rv.Type()
-
-	if !knownType {
-		c.write(w, formatTypeName(rt))
+// visitArray formats values with a kind of reflect.Array or Slice.
+func (c *context) visitArray(w io.Writer, v value) {
+	if v.IsAmbiguousType {
+		c.write(w, v.TypeName())
 	}
 
-	if rv.Len() == 0 {
+	if v.Value.Len() == 0 {
 		c.write(w, "{}")
 		return
 	}
 
 	c.write(w, "{\n")
-
-	c.visitArrayValues(
-		indent.NewIndenter(w, c.indent),
-		rt,
-		rv,
-	)
-
+	c.visitArrayValues(indent.NewIndenter(w, c.indent), v)
 	c.write(w, "}")
 }
 
-func (c *context) visitArrayValues(
-	w io.Writer,
-	rt reflect.Type,
-	rv reflect.Value,
-) {
-	isInterface := rt.Elem().Kind() == reflect.Interface
+func (c *context) visitArrayValues(w io.Writer, v value) {
+	ambiguous := v.Type.Elem().Kind() == reflect.Interface
 
-	for i := 0; i < rv.Len(); i++ {
-		v := rv.Index(i)
-
-		c.visit(
-			w,
-			v,
-			!isInterface || v.IsNil(),
-		)
-
+	for i := 0; i < v.Value.Len(); i++ {
+		c.visit(w, v.Value.Index(i), ambiguous)
 		c.write(w, "\n")
 	}
 }

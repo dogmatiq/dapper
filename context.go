@@ -3,7 +3,6 @@ package dapper
 import (
 	"io"
 	"reflect"
-	"strings"
 
 	"github.com/dogmatiq/iago"
 )
@@ -18,88 +17,109 @@ type context struct {
 
 	// recursionSet is the set of potentially recursive values that are currently
 	// being visited.
-	recursionSet map[uintptr]int
+	recursionSet map[uintptr]struct{}
 
 	// bytes is the number of bytes written overall
 	bytes int
 }
 
-func (c *context) visit(
-	w io.Writer,
-	rv reflect.Value,
-	knownType bool,
-) (err error) {
+func (c *context) visit(w io.Writer, rv reflect.Value, ambiguous bool) (err error) {
 	defer iago.Recover(&err)
 
-	switch rv.Kind() {
+	if rv.Kind() == reflect.Invalid {
+		c.write(w, "interface{}(nil)")
+		return
+	}
+
+	v := value{
+		Value:           rv,
+		Type:            rv.Type(),
+		Kind:            rv.Kind(),
+		IsAmbiguousType: ambiguous,
+	}
+
+	switch v.Kind {
 	// type name is not rendered for these types, as the literals are unambiguous.
 	case reflect.String:
-		c.writef(w, "%#v", rv.String())
+		c.writef(w, "%#v", v.Value.String())
 	case reflect.Bool:
-		c.writef(w, "%#v", rv.Bool())
+		c.writef(w, "%#v", v.Value.Bool())
 
 	// the rest of the types can be amgiuous unless type information is included.
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		c.write(w, formatInt(rv, knownType))
+		c.visitInt(w, v)
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		c.write(w, formatUint(rv, knownType))
+		c.visitUint(w, v)
 	case reflect.Float32, reflect.Float64:
-		c.write(w, formatFloat(rv, knownType))
+		c.visitFloat(w, v)
 	case reflect.Complex64, reflect.Complex128:
-		c.write(w, formatComplex(rv, knownType))
+		c.visitComplex(w, v)
 	case reflect.Uintptr:
-		c.write(w, formatUintptr(rv, knownType))
+		c.visitUintptr(w, v)
 	case reflect.UnsafePointer:
-		c.write(w, formatUnsafePointer(rv, knownType))
+		c.visitUnsafePointer(w, v)
 	case reflect.Chan:
-		c.write(w, formatChan(rv, knownType))
+		c.visitChan(w, v)
 	case reflect.Func:
-		c.write(w, formatFunc(rv, knownType))
+		c.visitFunc(w, v)
 	case reflect.Interface:
-		c.visitInterface(w, rv, knownType)
+		c.visitInterface(w, v)
 	case reflect.Map:
-		c.visitMap(w, rv, knownType)
+		c.visitMap(w, v)
 	case reflect.Ptr:
-		c.visitPtr(w, rv, knownType)
+		c.visitPtr(w, v)
 	case reflect.Array:
-		c.visitArray(w, rv, knownType)
+		c.visitArray(w, v)
 	case reflect.Slice:
-		c.visitSlice(w, rv, knownType)
+		c.visitSlice(w, v)
 	case reflect.Struct:
-		c.visitStruct(w, rv, knownType)
-	case reflect.Invalid:
-		c.write(w, "interface{}(nil)")
+		c.visitStruct(w, v)
 	}
 
 	return
 }
 
-func (c *context) enter(rv reflect.Value) bool {
-	if rv.IsNil() {
-		return false
+// enter indicates that a potentially recursive value is about to be formatted.
+//
+// It returns true if the value is nil, or recursion has occurred, indicating
+// that the value should not be rendered.
+func (c *context) enter(w io.Writer, v value) bool {
+	marker := "nil"
+
+	if !v.Value.IsNil() {
+		ptr := v.Value.Pointer()
+
+		if _, ok := c.recursionSet[ptr]; !ok {
+			if c.recursionSet == nil {
+				c.recursionSet = map[uintptr]struct{}{}
+			}
+
+			c.recursionSet[ptr] = struct{}{}
+
+			return false
+		}
+
+		marker = c.recursionMarker
 	}
 
-	if c.recursionSet == nil {
-		c.recursionSet = map[uintptr]int{}
+	if v.IsAmbiguousType {
+		c.write(w, v.TypeName())
+		c.write(w, "(")
+		c.write(w, marker)
+		c.write(w, ")")
+	} else {
+		c.write(w, marker)
 	}
 
-	ptr := rv.Pointer()
-	n := c.recursionSet[ptr]
-	c.recursionSet[ptr] = n + 1
-
-	return n != 0
+	return true
 }
 
-func (c *context) leave(rv reflect.Value) {
-	if rv.IsNil() {
-		return
-	}
-
-	ptr := rv.Pointer()
-	if n := c.recursionSet[ptr]; n == 1 {
-		delete(c.recursionSet, ptr)
-	} else {
-		c.recursionSet[ptr] = n - 1
+// leave indicates that a potentially recursive value has finished rendering.
+//
+// It must be called after enter(v) returns true.
+func (c *context) leave(v value) {
+	if !v.Value.IsNil() {
+		delete(c.recursionSet, v.Value.Pointer())
 	}
 }
 
@@ -111,21 +131,4 @@ func (c *context) write(w io.Writer, s string) {
 // write writes a formatted string to w.
 func (c *context) writef(w io.Writer, f string, v ...interface{}) {
 	c.bytes += iago.MustFprintf(w, f, v...)
-}
-
-// isAnon returns true if rt is an anonymous type.
-func isAnon(rt reflect.Type) bool {
-	return rt.Name() == ""
-}
-
-// formatTypeName renders the name of a type.
-func formatTypeName(rt reflect.Type) string {
-	n := rt.String()
-	n = strings.Replace(n, "interface {", "interface{", -1)
-
-	if strings.ContainsAny(n, " \t\n") {
-		return "(" + n + ")"
-	}
-
-	return n
 }

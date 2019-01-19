@@ -9,78 +9,39 @@ import (
 	"github.com/dogmatiq/iago/indent"
 )
 
-// TODO: sort numerically-keyed maps numerically
-
-func (c *context) visitMap(
-	w io.Writer,
-	rv reflect.Value,
-	knownType bool,
-) {
-	recursive := c.enter(rv)
-	defer c.leave(rv)
-
-	rt := rv.Type()
-	marker := ""
-
-	if rv.IsNil() {
-		marker = "nil"
-	} else if recursive {
-		marker = c.recursionMarker
-	}
-
-	if marker != "" {
-		if knownType {
-			c.write(w, marker)
-		} else {
-			c.write(w, formatTypeName(rt))
-			c.write(w, "(")
-			c.write(w, marker)
-			c.write(w, ")")
-		}
+// visitMap formats values with a kind of reflect.Map.
+//
+// TODO(jmalloc): sort numerically-keyed maps numerically
+func (c *context) visitMap(w io.Writer, v value) {
+	if c.enter(w, v) {
 		return
 	}
+	defer c.leave(v)
 
-	if !knownType {
-		c.write(w, formatTypeName(rt))
+	if v.IsAmbiguousType {
+		c.write(w, v.TypeName())
 	}
 
-	if rv.Len() == 0 {
+	if v.Value.Len() == 0 {
 		c.write(w, "{}")
 		return
 	}
 
 	c.write(w, "{\n")
-
-	c.visitMapElements(
-		indent.NewIndenter(w, c.indent),
-		rt,
-		rv,
-	)
-
+	c.visitMapElements(indent.NewIndenter(w, c.indent), v)
 	c.write(w, "}")
 }
 
-func (c *context) visitMapElements(
-	w io.Writer,
-	rt reflect.Type,
-	rv reflect.Value,
-) {
-	isInterface := rt.Elem().Kind() == reflect.Interface
-	keys, alignment := c.formatMapKeys(rt, rv)
+func (c *context) visitMapElements(w io.Writer, v value) {
+	ambiguous := v.Type.Elem().Kind() == reflect.Interface
+	keys, alignment := c.formatMapKeys(v)
 
-	for _, k := range keys {
-		v := rv.MapIndex(k.Value)
-		c.write(w, k.String)
+	for _, mk := range keys {
+		mv := v.Value.MapIndex(mk.Value)
+		c.write(w, mk.String)
 		c.write(w, ": ")
-
-		c.write(w, strings.Repeat(" ", alignment-k.Width))
-
-		c.visit(
-			w,
-			v,
-			!isInterface || v.IsNil(),
-		)
-
+		c.write(w, strings.Repeat(" ", alignment-mk.Width))
+		c.visit(w, mv, ambiguous)
 		c.write(w, "\n")
 	}
 }
@@ -95,24 +56,17 @@ type mapKey struct {
 // sorted by their string representation.
 //
 // padding is the number of padding characters to add to the shortest key.
-func (c *context) formatMapKeys(
-	rt reflect.Type,
-	rv reflect.Value,
-) (keys []mapKey, alignment int) {
-	var b strings.Builder
-	isInterface := rt.Key().Kind() == reflect.Interface
-	keys = make([]mapKey, rv.Len())
+func (c *context) formatMapKeys(v value) (keys []mapKey, alignment int) {
+	var w strings.Builder
+	isInterface := v.Type.Key().Kind() == reflect.Interface
+	keys = make([]mapKey, v.Value.Len())
 	alignToLastLine := false
 
-	for i, k := range rv.MapKeys() {
-		c.visit(
-			&b,
-			k,
-			!isInterface || k.IsNil(),
-		)
+	for i, k := range v.Value.MapKeys() {
+		c.visit(&w, k, isInterface)
 
-		s := b.String()
-		b.Reset()
+		s := w.String()
+		w.Reset()
 
 		max, last := widths(s)
 		if max > alignment {
@@ -138,7 +92,7 @@ func (c *context) formatMapKeys(
 	return
 }
 
-// widths returns the numnber of characters in the longest, and last line of s.
+// widths returns the number of characters in the longest, and last line of s.
 func widths(s string) (max int, last int) {
 	for {
 		i := strings.IndexByte(s, '\n')

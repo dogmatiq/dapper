@@ -52,11 +52,7 @@ func (p *Printer) Write(w io.Writer, v interface{}) (int, error) {
 		c.recursionMarker = DefaultRecursionMarker
 	}
 
-	err := c.visit(
-		w,
-		reflect.ValueOf(v),
-		false,
-	)
+	err := c.visit(w, reflect.ValueOf(v), true)
 
 	return c.bytes, err
 }

@@ -2,41 +2,18 @@ package dapper
 
 import (
 	"io"
-	"reflect"
 )
 
-func (c *context) visitPtr(
-	w io.Writer,
-	rv reflect.Value,
-	knownType bool,
-) {
-	recursive := c.enter(rv)
-	defer c.leave(rv)
-
-	rt := rv.Type()
-	marker := ""
-
-	if rv.IsNil() {
-		marker = "nil"
-	} else if recursive {
-		marker = c.recursionMarker
-	}
-
-	if marker != "" {
-		if knownType {
-			c.write(w, marker)
-		} else {
-			c.write(w, formatTypeName(rt))
-			c.write(w, "(")
-			c.write(w, marker)
-			c.write(w, ")")
-		}
+// visitPtr formats values with a kind of reflect.Ptr.
+func (c *context) visitPtr(w io.Writer, v value) {
+	if c.enter(w, v) {
 		return
 	}
+	defer c.leave(v)
 
-	if !knownType {
+	if v.IsAmbiguousType {
 		c.write(w, "*")
 	}
 
-	c.visit(w, rv.Elem(), knownType)
+	c.visit(w, v.Value.Elem(), v.IsAmbiguousType)
 }
