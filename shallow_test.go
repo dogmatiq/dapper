@@ -49,7 +49,7 @@ var shallowValues = shallow{
 	Float32:       1.23,
 	Float64:       1.23,
 	Uintptr:       0xABCD,
-	UnsafePointer: unsafe.Pointer(&unsafePointerTarget),
+	UnsafePointer: unsafe.Pointer(&pointerTarget),
 	Channel:       make(chan string),
 	Func: func(int, string) (bool, error) {
 		panic("not implemented")
@@ -57,10 +57,10 @@ var shallowValues = shallow{
 }
 
 var (
-	unsafePointerTarget    int
-	unsafePointerTargetHex = fmt.Sprintf("0x%x", &unsafePointerTarget)
-	channelHex             = fmt.Sprintf("0x%x", shallowValues.Channel)
-	funcHex                = fmt.Sprintf("0x%x", reflect.ValueOf(shallowValues.Func).Pointer())
+	pointerTarget    int = 123
+	pointerTargetHex     = fmt.Sprintf("0x%x", &pointerTarget)
+	channelHex           = fmt.Sprintf("0x%x", shallowValues.Channel)
+	funcHex              = fmt.Sprintf("0x%x", reflect.ValueOf(shallowValues.Func).Pointer())
 )
 
 // This test verifies the formatting of "shallow" values.
@@ -84,10 +84,10 @@ func TestPrinter_ShallowValues(t *testing.T) {
 	test(t, "uint64", shallowValues.Uint64, "uint64(100)")
 	test(t, "complex64", shallowValues.Complex64, "complex64(100+5i)")
 	test(t, "complex128", shallowValues.Complex128, "complex128(100+5i)")
-	test(t, "float32", shallowValues.Float32, "float32(1.23)")
+	test(t, "float32", shallowValues.Float32, "float32(1.2300000190734863)")
 	test(t, "float64", shallowValues.Float64, "float64(1.23)")
 	test(t, "uintptr", shallowValues.Uintptr, "uintptr(0xabcd)")
-	test(t, "unsafe.Pointer", shallowValues.UnsafePointer, "unsafe.Pointer("+unsafePointerTargetHex+")")
+	test(t, "unsafe.Pointer", shallowValues.UnsafePointer, "unsafe.Pointer("+pointerTargetHex+")")
 	test(t, "channel", shallowValues.Channel, "(chan string)("+channelHex+")")
 	test(t, "func", shallowValues.Func, "(func(int, string) (bool, error))("+funcHex+")")
 }
@@ -116,10 +116,10 @@ func TestPrinter_ShallowValuesInNamedStruct(t *testing.T) {
 		"    Uint64:        100",
 		"    Complex64:     100+5i",
 		"    Complex128:    100+5i",
-		"    Float32:       1.23",
+		"    Float32:       1.2300000190734863",
 		"    Float64:       1.23",
 		"    Uintptr:       0xabcd",
-		"    UnsafePointer: "+unsafePointerTargetHex,
+		"    UnsafePointer: "+pointerTargetHex,
 		"    Channel:       "+channelHex,
 		"    Func:          "+funcHex,
 		"}",
@@ -175,10 +175,10 @@ func TestPrinter_ShallowValuesInAnonymousStruct(t *testing.T) {
 		"    Uint64:        uint64(100)",
 		"    Complex64:     complex64(100+5i)",
 		"    Complex128:    complex128(100+5i)",
-		"    Float32:       float32(1.23)",
+		"    Float32:       float32(1.2300000190734863)",
 		"    Float64:       float64(1.23)",
 		"    Uintptr:       uintptr(0xabcd)",
-		"    UnsafePointer: unsafe.Pointer("+unsafePointerTargetHex+")",
+		"    UnsafePointer: unsafe.Pointer("+pointerTargetHex+")",
 		"    Channel:       (chan string)("+channelHex+")",
 		"    Func:          (func(int, string) (bool, error))("+funcHex+")",
 		"}",

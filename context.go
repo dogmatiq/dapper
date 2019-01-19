@@ -32,14 +32,19 @@ func (c *context) visit(
 	defer iago.Recover(&err)
 
 	switch rv.Kind() {
-	case reflect.String, reflect.Bool:
-		// note that type names are never included for these types, as they can never
-		// be ambiguous
-		c.writef(w, "%#v", rv.Interface())
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
-		reflect.Float32, reflect.Float64:
-		c.write(w, formatNumber(rv, knownType))
+	// type name is not rendered for these types, as the literals are unambiguous.
+	case reflect.String:
+		c.writef(w, "%#v", rv.String())
+	case reflect.Bool:
+		c.writef(w, "%#v", rv.Bool())
+
+	// the rest of the types can be amgiuous unless type information is included.
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		c.write(w, formatInt(rv, knownType))
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		c.write(w, formatUint(rv, knownType))
+	case reflect.Float32, reflect.Float64:
+		c.write(w, formatFloat(rv, knownType))
 	case reflect.Complex64, reflect.Complex128:
 		c.write(w, formatComplex(rv, knownType))
 	case reflect.Uintptr:

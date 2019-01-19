@@ -5,9 +5,39 @@ import (
 	"reflect"
 )
 
-// formatNumber formats integers and floating point numbers.
-func formatNumber(rv reflect.Value, knownType bool) string {
-	s := fmt.Sprintf("%v", rv.Interface())
+// formatInt formats signed integers.
+func formatInt(rv reflect.Value, knownType bool) string {
+	s := fmt.Sprintf("%v", rv.Int())
+
+	if knownType {
+		return s
+	}
+
+	return fmt.Sprintf(
+		"%s(%s)",
+		formatTypeName(rv.Type()),
+		s,
+	)
+}
+
+// formatUint formats unsigned integers.
+func formatUint(rv reflect.Value, knownType bool) string {
+	s := fmt.Sprintf("%v", rv.Uint())
+
+	if knownType {
+		return s
+	}
+
+	return fmt.Sprintf(
+		"%s(%s)",
+		formatTypeName(rv.Type()),
+		s,
+	)
+}
+
+// formatFloat formats floating point numbers.
+func formatFloat(rv reflect.Value, knownType bool) string {
+	s := fmt.Sprintf("%v", rv.Float())
 
 	if knownType {
 		return s
@@ -22,21 +52,18 @@ func formatNumber(rv reflect.Value, knownType bool) string {
 
 // formatComplex formats complex numbers.
 func formatComplex(rv reflect.Value, knownType bool) string {
+	s := fmt.Sprintf("%v", rv.Complex())
+
 	if knownType {
-		s := fmt.Sprintf("%v", rv.Interface())
 		return s[1 : len(s)-1] // trim the opening and closing parenthesis
 	}
 
-	return fmt.Sprintf(
-		"%s%v",
-		formatTypeName(rv.Type()),
-		rv.Interface(),
-	)
+	return formatTypeName(rv.Type()) + s
 }
 
 // formatUintptr formats uintptr values.
 func formatUintptr(rv reflect.Value, knownType bool) string {
-	s := formatPointerHex(rv.Interface(), false)
+	s := formatPointerHex(rv.Uint(), false)
 
 	if knownType {
 		return s
@@ -51,7 +78,7 @@ func formatUintptr(rv reflect.Value, knownType bool) string {
 
 // formatUnsafePointer formats unsafe.Pointer values.
 func formatUnsafePointer(rv reflect.Value, knownType bool) string {
-	s := formatPointerHex(rv.Interface(), true)
+	s := formatPointerHex(rv.Pointer(), true)
 
 	if knownType {
 		return s
