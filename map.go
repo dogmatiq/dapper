@@ -9,79 +9,40 @@ import (
 	"github.com/dogmatiq/iago/indent"
 )
 
-// TODO: sort numerically-keyed maps numerically
+// visitMap formats values with a kind of reflect.Map.
+//
+// TODO(jmalloc): sort numerically-keyed maps numerically
+func (vis *visitor) visitMap(w io.Writer, v value) {
+	if vis.enter(w, v) {
+		return
+	}
+	defer vis.leave(v)
 
-func (c *context) visitMap(
-	w io.Writer,
-	rv reflect.Value,
-	knownType bool,
-) {
-	recursive := c.enter(rv)
-	defer c.leave(rv)
-
-	rt := rv.Type()
-	marker := ""
-
-	if rv.IsNil() {
-		marker = "nil"
-	} else if recursive {
-		marker = c.recursionMarker
+	if v.IsAmbiguousType {
+		vis.write(w, v.TypeName())
 	}
 
-	if marker != "" {
-		if knownType {
-			c.write(w, marker)
-		} else {
-			c.write(w, formatTypeName(rt))
-			c.write(w, "(")
-			c.write(w, marker)
-			c.write(w, ")")
-		}
+	if v.Value.Len() == 0 {
+		vis.write(w, "{}")
 		return
 	}
 
-	if !knownType {
-		c.write(w, formatTypeName(rt))
-	}
-
-	if rv.Len() == 0 {
-		c.write(w, "{}")
-		return
-	}
-
-	c.write(w, "{\n")
-
-	c.visitMapElements(
-		indent.NewIndenter(w, c.indent),
-		rt,
-		rv,
-	)
-
-	c.write(w, "}")
+	vis.write(w, "{\n")
+	vis.visitMapElements(indent.NewIndenter(w, vis.indent), v)
+	vis.write(w, "}")
 }
 
-func (c *context) visitMapElements(
-	w io.Writer,
-	rt reflect.Type,
-	rv reflect.Value,
-) {
-	isInterface := rt.Elem().Kind() == reflect.Interface
-	keys, alignment := c.formatMapKeys(rt, rv)
+func (vis *visitor) visitMapElements(w io.Writer, v value) {
+	ambiguous := v.Type.Elem().Kind() == reflect.Interface
+	keys, alignment := vis.formatMapKeys(v)
 
-	for _, k := range keys {
-		v := rv.MapIndex(k.Value)
-		c.write(w, k.String)
-		c.write(w, ": ")
-
-		c.write(w, strings.Repeat(" ", alignment-k.Width))
-
-		c.visit(
-			w,
-			v,
-			!isInterface || v.IsNil(),
-		)
-
-		c.write(w, "\n")
+	for _, mk := range keys {
+		mv := v.Value.MapIndex(mk.Value)
+		vis.write(w, mk.String)
+		vis.write(w, ": ")
+		vis.write(w, strings.Repeat(" ", alignment-mk.Width))
+		vis.visit(w, mv, ambiguous)
+		vis.write(w, "\n")
 	}
 }
 
@@ -95,24 +56,17 @@ type mapKey struct {
 // sorted by their string representation.
 //
 // padding is the number of padding characters to add to the shortest key.
-func (c *context) formatMapKeys(
-	rt reflect.Type,
-	rv reflect.Value,
-) (keys []mapKey, alignment int) {
-	var b strings.Builder
-	isInterface := rt.Key().Kind() == reflect.Interface
-	keys = make([]mapKey, rv.Len())
+func (vis *visitor) formatMapKeys(v value) (keys []mapKey, alignment int) {
+	var w strings.Builder
+	isInterface := v.Type.Key().Kind() == reflect.Interface
+	keys = make([]mapKey, v.Value.Len())
 	alignToLastLine := false
 
-	for i, k := range rv.MapKeys() {
-		c.visit(
-			&b,
-			k,
-			!isInterface || k.IsNil(),
-		)
+	for i, k := range v.Value.MapKeys() {
+		vis.visit(&w, k, isInterface)
 
-		s := b.String()
-		b.Reset()
+		s := w.String()
+		w.Reset()
 
 		max, last := widths(s)
 		if max > alignment {
@@ -138,7 +92,7 @@ func (c *context) formatMapKeys(
 	return
 }
 
-// widths returns the numnber of characters in the longest, and last line of s.
+// widths returns the number of characters in the longest, and last line of s.
 func widths(s string) (max int, last int) {
 	for {
 		i := strings.IndexByte(s, '\n')

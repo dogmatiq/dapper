@@ -39,33 +39,29 @@ type Printer struct {
 //
 // It returns the number of bytes written.
 func (p *Printer) Write(w io.Writer, v interface{}) (int, error) {
-	c := context{
+	vis := visitor{
 		indent:          []byte(p.Indent),
 		recursionMarker: p.RecursionMarker,
 	}
 
-	if len(c.indent) == 0 {
-		c.indent = []byte(DefaultIndent)
+	if len(vis.indent) == 0 {
+		vis.indent = []byte(DefaultIndent)
 	}
 
-	if c.recursionMarker == "" {
-		c.recursionMarker = DefaultRecursionMarker
+	if vis.recursionMarker == "" {
+		vis.recursionMarker = DefaultRecursionMarker
 	}
 
-	err := c.visit(
-		w,
-		reflect.ValueOf(v),
-		false,
-	)
+	err := vis.visit(w, reflect.ValueOf(v), true)
 
-	return c.bytes, err
+	return vis.bytes, err
 }
 
 // Format returns a pretty-printed representation of v.
 func (p *Printer) Format(v interface{}) string {
 	var b strings.Builder
 
-	if _, err := Write(&b, v); err != nil {
+	if _, err := p.Write(&b, v); err != nil {
 		panic(err)
 	}
 

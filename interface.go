@@ -2,24 +2,20 @@ package dapper
 
 import (
 	"io"
-	"reflect"
 )
 
-func (c *context) visitInterface(
-	w io.Writer,
-	rv reflect.Value,
-	knownType bool,
-) {
-	if rv.IsNil() {
-		if knownType {
-			c.write(w, "nil")
+// visitInterface formats values with a kind of reflect.Interface.
+func (vis *visitor) visitInterface(w io.Writer, v value) {
+	if v.Value.IsNil() {
+		if v.IsAmbiguousType {
+			vis.write(w, v.TypeName())
+			vis.write(w, "(nil)")
 		} else {
-			c.write(w, formatTypeName(rv.Type()))
-			c.write(w, "(nil)")
+			vis.write(w, "nil")
 		}
 
 		return
 	}
 
-	c.visit(w, rv.Elem(), knownType)
+	vis.visit(w, v.Value.Elem(), v.IsAmbiguousType)
 }
