@@ -112,7 +112,7 @@ func (vis *visitor) visitFunc(w io.Writer, v value) {
 	}
 }
 
-// visitPointerHex returns a minimal hexadecimal represenation of v.
+// formatPointerHex returns a minimal hexadecimal represenation of v.
 func formatPointerHex(v interface{}, zeroIsNil bool) string {
 	s := fmt.Sprintf("%x", v)
 
