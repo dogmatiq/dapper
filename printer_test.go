@@ -1,12 +1,10 @@
 package dapper_test
 
 import (
-	"fmt"
-
 	. "github.com/dogmatiq/dapper"
 )
 
-func ExampleFormat() {
+func ExamplePrint() {
 	type TreeNode struct {
 		Name     string
 		Value    interface{}
@@ -29,8 +27,7 @@ func ExampleFormat() {
 		},
 	}
 
-	s := Format(v)
-	fmt.Println(s)
+	Print(v)
 
 	// output: dapper_test.TreeNode{
 	//     Name:     "root"

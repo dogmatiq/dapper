@@ -2,6 +2,7 @@ package dapper
 
 import (
 	"io"
+	"os"
 	"reflect"
 	"strings"
 )
@@ -82,4 +83,9 @@ func Write(w io.Writer, v interface{}) (int, error) {
 // Format returns a pretty-printed representation of v.
 func Format(v interface{}) string {
 	return defaultPrinter.Format(v)
+}
+
+// Print writes a pretty-printed representation of v to os.Stdout.
+func Print(v interface{}) {
+	defaultPrinter.Write(os.Stdout, v)
 }
