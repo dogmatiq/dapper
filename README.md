@@ -48,8 +48,7 @@ func main() {
 		},
 	}
 
-	s := dapper.Format(v)
-	fmt.Println(s)
+	dapper.Print(v)
 }
 ```
 
