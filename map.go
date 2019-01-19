@@ -12,7 +12,7 @@ import (
 // visitMap formats values with a kind of reflect.Map.
 //
 // TODO(jmalloc): sort numerically-keyed maps numerically
-func (vis *visitor) visitMap(w io.Writer, v value) {
+func (vis *visitor) visitMap(w io.Writer, v Value) {
 	if vis.enter(w, v) {
 		return
 	}
@@ -32,7 +32,7 @@ func (vis *visitor) visitMap(w io.Writer, v value) {
 	vis.write(w, "}")
 }
 
-func (vis *visitor) visitMapElements(w io.Writer, v value) {
+func (vis *visitor) visitMapElements(w io.Writer, v Value) {
 	ambiguous := v.Type.Elem().Kind() == reflect.Interface
 	keys, alignment := vis.formatMapKeys(v)
 
@@ -56,7 +56,7 @@ type mapKey struct {
 // sorted by their string representation.
 //
 // padding is the number of padding characters to add to the shortest key.
-func (vis *visitor) formatMapKeys(v value) (keys []mapKey, alignment int) {
+func (vis *visitor) formatMapKeys(v Value) (keys []mapKey, alignment int) {
 	var w strings.Builder
 	isInterface := v.Type.Key().Kind() == reflect.Interface
 	keys = make([]mapKey, v.Value.Len())

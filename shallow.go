@@ -7,7 +7,7 @@ import (
 
 // visitInt formats values with a kind of reflect.Int, and the related
 // fixed-sized types.
-func (vis *visitor) visitInt(w io.Writer, v value) {
+func (vis *visitor) visitInt(w io.Writer, v Value) {
 	if v.IsAmbiguousType {
 		vis.write(w, v.TypeName())
 		vis.writef(w, "(%v)", v.Value.Int())
@@ -18,7 +18,7 @@ func (vis *visitor) visitInt(w io.Writer, v value) {
 
 // visitUint formats values with a kind of reflect.Uint, and the related
 // fixed-sized types.
-func (vis *visitor) visitUint(w io.Writer, v value) {
+func (vis *visitor) visitUint(w io.Writer, v Value) {
 	if v.IsAmbiguousType {
 		vis.write(w, v.TypeName())
 		vis.writef(w, "(%v)", v.Value.Uint())
@@ -28,7 +28,7 @@ func (vis *visitor) visitUint(w io.Writer, v value) {
 }
 
 // visitFloat formats values with a kind of reflect.Float32 and Float64.
-func (vis *visitor) visitFloat(w io.Writer, v value) {
+func (vis *visitor) visitFloat(w io.Writer, v Value) {
 	if v.IsAmbiguousType {
 		vis.write(w, v.TypeName())
 		vis.writef(w, "(%v)", v.Value.Float())
@@ -38,7 +38,7 @@ func (vis *visitor) visitFloat(w io.Writer, v value) {
 }
 
 // visitComplex formats values with a kind of reflect.Complex64 and Complex128.
-func (vis *visitor) visitComplex(w io.Writer, v value) {
+func (vis *visitor) visitComplex(w io.Writer, v Value) {
 	// note that %v formats a complex number already surrounded in parenthesis
 	s := fmt.Sprintf("%v", v.Value.Complex())
 
@@ -51,7 +51,7 @@ func (vis *visitor) visitComplex(w io.Writer, v value) {
 }
 
 // visitUintptr formats values with a kind of reflect.Uintptr.
-func (vis *visitor) visitUintptr(w io.Writer, v value) {
+func (vis *visitor) visitUintptr(w io.Writer, v Value) {
 	s := formatPointerHex(v.Value.Uint(), false)
 
 	if v.IsAmbiguousType {
@@ -63,7 +63,7 @@ func (vis *visitor) visitUintptr(w io.Writer, v value) {
 }
 
 // visitUnsafePointer formats values with a kind of reflect.UnsafePointer.
-func (vis *visitor) visitUnsafePointer(w io.Writer, v value) {
+func (vis *visitor) visitUnsafePointer(w io.Writer, v Value) {
 	s := formatPointerHex(v.Value.Pointer(), true)
 
 	if v.IsAmbiguousType {
@@ -75,7 +75,7 @@ func (vis *visitor) visitUnsafePointer(w io.Writer, v value) {
 }
 
 // visitChan formats values with a kind of reflect.Chan.
-func (vis *visitor) visitChan(w io.Writer, v value) {
+func (vis *visitor) visitChan(w io.Writer, v Value) {
 	if v.IsAmbiguousType {
 		vis.write(w, v.TypeName())
 		vis.write(w, "(")
@@ -101,7 +101,7 @@ func (vis *visitor) visitChan(w io.Writer, v value) {
 }
 
 // visitFunc formats values with a kind of reflect.Func.
-func (vis *visitor) visitFunc(w io.Writer, v value) {
+func (vis *visitor) visitFunc(w io.Writer, v Value) {
 	s := formatPointerHex(v.Value.Pointer(), true)
 
 	if v.IsAmbiguousType {

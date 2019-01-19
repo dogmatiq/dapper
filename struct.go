@@ -9,8 +9,8 @@ import (
 )
 
 // visitStruct formats values with a kind of reflect.Struct.
-func (vis *visitor) visitStruct(w io.Writer, v value) {
-	if v.IsAmbiguousType && !v.IsAnonymous() {
+func (vis *visitor) visitStruct(w io.Writer, v Value) {
+	if v.IsAmbiguousType && !v.IsAnonymousType() {
 		vis.write(w, v.TypeName())
 	}
 
@@ -24,9 +24,9 @@ func (vis *visitor) visitStruct(w io.Writer, v value) {
 	vis.write(w, "}")
 }
 
-func (vis *visitor) visitStructFields(w io.Writer, v value) {
+func (vis *visitor) visitStructFields(w io.Writer, v Value) {
 	alignment := longestFieldName(v.Type)
-	anon := v.IsAnonymous()
+	anon := v.IsAnonymousType()
 	var ambiguous bool
 
 	for i := 0; i < v.Type.NumField(); i++ {

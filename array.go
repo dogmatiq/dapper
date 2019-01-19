@@ -8,7 +8,7 @@ import (
 )
 
 // visitArray formats values with a kind of reflect.Array or Slice.
-func (vis *visitor) visitArray(w io.Writer, v value) {
+func (vis *visitor) visitArray(w io.Writer, v Value) {
 	if v.IsAmbiguousType {
 		vis.write(w, v.TypeName())
 	}
@@ -23,7 +23,7 @@ func (vis *visitor) visitArray(w io.Writer, v value) {
 	vis.write(w, "}")
 }
 
-func (vis *visitor) visitArrayValues(w io.Writer, v value) {
+func (vis *visitor) visitArrayValues(w io.Writer, v Value) {
 	ambiguous := v.Type.Elem().Kind() == reflect.Interface
 
 	for i := 0; i < v.Value.Len(); i++ {

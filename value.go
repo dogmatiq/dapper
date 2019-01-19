@@ -5,8 +5,8 @@ import (
 	"strings"
 )
 
-// value is a container for a value that can be formatted.
-type value struct {
+// Value contains information about a Go value that is to be formatted.
+type Value struct {
 	// Value is the value to be formatted.
 	Value reflect.Value
 
@@ -21,7 +21,8 @@ type value struct {
 	IsAmbiguousType bool
 }
 
-func (v value) TypeName() string {
+// TypeName returns the name of the value's type formatted for display.
+func (v *Value) TypeName() string {
 	n := v.Type.String()
 	n = strings.Replace(n, "interface {", "interface{", -1)
 
@@ -32,7 +33,7 @@ func (v value) TypeName() string {
 	return n
 }
 
-// IsAnonymous returns true if the value has an anonymous type.
-func (v value) IsAnonymous() bool {
+// IsAnonymousType returns true if the value has an anonymous type.
+func (v *Value) IsAnonymousType() bool {
 	return v.Type.Name() == ""
 }

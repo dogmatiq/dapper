@@ -31,7 +31,7 @@ func (vis *visitor) visit(w io.Writer, rv reflect.Value, ambiguous bool) (err er
 		return
 	}
 
-	v := value{
+	v := Value{
 		Value:           rv,
 		Type:            rv.Type(),
 		Kind:            rv.Kind(),
@@ -83,7 +83,7 @@ func (vis *visitor) visit(w io.Writer, rv reflect.Value, ambiguous bool) (err er
 //
 // It returns true if the value is nil, or recursion has occurred, indicating
 // that the value should not be rendered.
-func (vis *visitor) enter(w io.Writer, v value) bool {
+func (vis *visitor) enter(w io.Writer, v Value) bool {
 	marker := "nil"
 
 	if !v.Value.IsNil() {
@@ -117,7 +117,7 @@ func (vis *visitor) enter(w io.Writer, v value) bool {
 // leave indicates that a potentially recursive value has finished rendering.
 //
 // It must be called after enter(v) returns true.
-func (vis *visitor) leave(v value) {
+func (vis *visitor) leave(v Value) {
 	if !v.Value.IsNil() {
 		delete(vis.recursionSet, v.Value.Pointer())
 	}

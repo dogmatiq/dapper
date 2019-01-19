@@ -5,7 +5,7 @@ import (
 )
 
 // visitPtr formats values with a kind of reflect.Ptr.
-func (vis *visitor) visitPtr(w io.Writer, v value) {
+func (vis *visitor) visitPtr(w io.Writer, v Value) {
 	if vis.enter(w, v) {
 		return
 	}
