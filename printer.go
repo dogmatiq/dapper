@@ -65,7 +65,7 @@ func (p *Printer) Write(w io.Writer, v interface{}) (int, error) {
 func (p *Printer) Format(v interface{}) string {
 	var b strings.Builder
 
-	if _, err := Write(&b, v); err != nil {
+	if _, err := p.Write(&b, v); err != nil {
 		panic(err)
 	}
 
