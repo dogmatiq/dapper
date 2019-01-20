@@ -19,12 +19,18 @@ func test(
 	t.Run(
 		n,
 		func(t *testing.T) {
-			p := Format(v)
+			var w strings.Builder
+			_, err := Write(&w, v)
+
+			if err != nil {
+				t.Fatal(err)
+			}
 
 			t.Log("expected:\n\n" + x + "\n")
 
-			if p != x {
-				t.Fatal("actual:\n\n" + p + "\n")
+			s := w.String()
+			if s != x {
+				t.Fatal("actual:\n\n" + s + "\n")
 			}
 		},
 	)
