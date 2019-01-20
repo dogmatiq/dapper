@@ -1,10 +1,14 @@
 package dapper_test
 
 import (
+	"bytes"
+	"fmt"
+	"os"
+
 	. "github.com/dogmatiq/dapper"
 )
 
-func ExamplePrint() {
+func ExamplePrinter() {
 	type TreeNode struct {
 		Name     string
 		Value    interface{}
@@ -27,7 +31,9 @@ func ExamplePrint() {
 		},
 	}
 
-	Print(v)
+	p := Printer{}
+	s := p.Format(v)
+	fmt.Println(s)
 
 	// output: dapper_test.TreeNode{
 	//     Name:     "root"
@@ -45,4 +51,29 @@ func ExamplePrint() {
 	//         }
 	//     }
 	// }
+}
+
+func ExamplePrint() {
+	Print(123)
+
+	// output: int(123)
+}
+
+func ExampleFormat() {
+	s := Format(123)
+	fmt.Println(s)
+
+	// output: int(123)
+}
+
+func ExampleWrite() {
+	w := &bytes.Buffer{}
+
+	if _, err := Write(w, 123); err != nil {
+		panic(err)
+	}
+
+	w.WriteTo(os.Stdout)
+
+	// output: int(123)
 }
