@@ -3,6 +3,7 @@ package dapper
 import (
 	"fmt"
 	"io"
+	"strconv"
 )
 
 // visitInt formats values with a kind of reflect.Int, and the related
@@ -52,7 +53,7 @@ func (vis *visitor) visitComplex(w io.Writer, v Value) {
 
 // visitUintptr formats values with a kind of reflect.Uintptr.
 func (vis *visitor) visitUintptr(w io.Writer, v Value) {
-	s := formatPointerHex(v.Value.Uint(), false)
+	s := formatPointerHex(uintptr(v.Value.Uint()), false)
 
 	if v.IsAmbiguousType() {
 		vis.write(w, v.TypeName())
@@ -113,16 +114,14 @@ func (vis *visitor) visitFunc(w io.Writer, v Value) {
 }
 
 // formatPointerHex returns a minimal hexadecimal represenation of v.
-func formatPointerHex(v interface{}, zeroIsNil bool) string {
-	s := fmt.Sprintf("%x", v)
-
-	if s == "0" {
+func formatPointerHex(v uintptr, zeroIsNil bool) string {
+	if v == 0 {
 		if zeroIsNil {
 			return "nil"
 		}
 
-		return s
+		return "0"
 	}
 
-	return "0x" + s
+	return "0x" + strconv.FormatUint(uint64(v), 16)
 }
