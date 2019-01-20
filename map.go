@@ -18,7 +18,7 @@ func (vis *visitor) visitMap(w io.Writer, v Value) {
 	}
 	defer vis.leave(v)
 
-	if v.IsAmbiguousType {
+	if v.IsAmbiguousType() {
 		vis.write(w, v.TypeName())
 	}
 
@@ -33,7 +33,8 @@ func (vis *visitor) visitMap(w io.Writer, v Value) {
 }
 
 func (vis *visitor) visitMapElements(w io.Writer, v Value) {
-	ambiguous := v.Type.Elem().Kind() == reflect.Interface
+	staticType := v.DynamicType.Elem()
+	isInterface := staticType.Kind() == reflect.Interface
 	keys, alignment := vis.formatMapKeys(v)
 
 	for _, mk := range keys {
@@ -41,7 +42,17 @@ func (vis *visitor) visitMapElements(w io.Writer, v Value) {
 		vis.write(w, mk.String)
 		vis.write(w, ": ")
 		vis.write(w, strings.Repeat(" ", alignment-mk.Width))
-		vis.visit(w, mv, ambiguous)
+		vis.visit(
+			w,
+			Value{
+				Value:                  mv,
+				DynamicType:            mv.Type(),
+				StaticType:             staticType,
+				IsAmbiguousDynamicType: isInterface,
+				IsAmbiguousStaticType:  false,
+				IsUnexported:           v.IsUnexported,
+			},
+		)
 		vis.write(w, "\n")
 	}
 }
@@ -58,12 +69,23 @@ type mapKey struct {
 // padding is the number of padding characters to add to the shortest key.
 func (vis *visitor) formatMapKeys(v Value) (keys []mapKey, alignment int) {
 	var w strings.Builder
-	isInterface := v.Type.Key().Kind() == reflect.Interface
+	staticType := v.DynamicType.Key()
+	isInterface := staticType.Kind() == reflect.Interface
 	keys = make([]mapKey, v.Value.Len())
 	alignToLastLine := false
 
-	for i, k := range v.Value.MapKeys() {
-		vis.visit(&w, k, isInterface)
+	for i, mk := range v.Value.MapKeys() {
+		vis.visit(
+			&w,
+			Value{
+				Value:                  mk,
+				DynamicType:            mk.Type(),
+				StaticType:             staticType,
+				IsAmbiguousDynamicType: isInterface,
+				IsAmbiguousStaticType:  false,
+				IsUnexported:           v.IsUnexported,
+			},
+		)
 
 		s := w.String()
 		w.Reset()
@@ -74,7 +96,7 @@ func (vis *visitor) formatMapKeys(v Value) (keys []mapKey, alignment int) {
 			alignToLastLine = max == last
 		}
 
-		keys[i] = mapKey{k, s, last}
+		keys[i] = mapKey{mk, s, last}
 	}
 
 	sort.Slice(

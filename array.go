@@ -1,6 +1,7 @@
 package dapper
 
 import (
+	"fmt"
 	"io"
 	"reflect"
 
@@ -9,7 +10,7 @@ import (
 
 // visitArray formats values with a kind of reflect.Array or Slice.
 func (vis *visitor) visitArray(w io.Writer, v Value) {
-	if v.IsAmbiguousType {
+	if v.IsAmbiguousType() {
 		vis.write(w, v.TypeName())
 	}
 
@@ -24,10 +25,28 @@ func (vis *visitor) visitArray(w io.Writer, v Value) {
 }
 
 func (vis *visitor) visitArrayValues(w io.Writer, v Value) {
-	ambiguous := v.Type.Elem().Kind() == reflect.Interface
+	staticType := v.DynamicType.Elem()
+	isInterface := staticType.Kind() == reflect.Interface
 
 	for i := 0; i < v.Value.Len(); i++ {
-		vis.visit(w, v.Value.Index(i), ambiguous)
+		elem := v.Value.Index(i)
+
+		if isInterface {
+			fmt.Print("")
+		}
+
+		vis.visit(
+			w,
+			Value{
+				Value:                  elem,
+				DynamicType:            elem.Type(),
+				StaticType:             staticType,
+				IsAmbiguousDynamicType: isInterface,
+				IsAmbiguousStaticType:  false,
+				IsUnexported:           v.IsUnexported,
+			},
+		)
+
 		vis.write(w, "\n")
 	}
 }

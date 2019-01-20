@@ -11,9 +11,21 @@ func (vis *visitor) visitPtr(w io.Writer, v Value) {
 	}
 	defer vis.leave(v)
 
-	if v.IsAmbiguousType {
+	if v.IsAmbiguousType() {
 		vis.write(w, "*")
 	}
 
-	vis.visit(w, v.Value.Elem(), v.IsAmbiguousType)
+	elem := v.Value.Elem()
+
+	vis.visit(
+		w,
+		Value{
+			Value:                  elem,
+			DynamicType:            elem.Type(),
+			StaticType:             elem.Type(),
+			IsAmbiguousDynamicType: false,
+			IsAmbiguousStaticType:  v.IsAmbiguousStaticType,
+			IsUnexported:           v.IsUnexported,
+		},
+	)
 }
