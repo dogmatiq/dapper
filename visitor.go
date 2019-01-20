@@ -9,6 +9,9 @@ import (
 
 // visitor walks a Go value in order to render it.
 type visitor struct {
+	// filters is the set of filters to apply.
+	filters []Filter
+
 	// indent is the string used to indent nested values.
 	indent []byte
 
@@ -23,22 +26,21 @@ type visitor struct {
 	bytes int
 }
 
-func (vis *visitor) visit(w io.Writer, rv reflect.Value, ambiguous bool) (err error) {
-	defer iago.Recover(&err)
-
-	if rv.Kind() == reflect.Invalid {
+// TODO: don't return err or, let propagate and use iago.Recover() in Printer instead.
+func (vis *visitor) visit(w io.Writer, v Value) {
+	if v.Value.Kind() == reflect.Invalid {
 		vis.write(w, "interface{}(nil)")
 		return
 	}
 
-	v := value{
-		Value:           rv,
-		Type:            rv.Type(),
-		Kind:            rv.Kind(),
-		IsAmbiguousType: ambiguous,
+	for _, f := range vis.filters {
+		if n := iago.Must(f(w, v)); n > 0 {
+			vis.bytes += n
+			return
+		}
 	}
 
-	switch v.Kind {
+	switch v.DynamicType.Kind() {
 	// type name is not rendered for these types, as the literals are unambiguous.
 	case reflect.String:
 		vis.writef(w, "%#v", v.Value.String())
@@ -83,7 +85,7 @@ func (vis *visitor) visit(w io.Writer, rv reflect.Value, ambiguous bool) (err er
 //
 // It returns true if the value is nil, or recursion has occurred, indicating
 // that the value should not be rendered.
-func (vis *visitor) enter(w io.Writer, v value) bool {
+func (vis *visitor) enter(w io.Writer, v Value) bool {
 	marker := "nil"
 
 	if !v.Value.IsNil() {
@@ -102,7 +104,7 @@ func (vis *visitor) enter(w io.Writer, v value) bool {
 		marker = vis.recursionMarker
 	}
 
-	if v.IsAmbiguousType {
+	if v.IsAmbiguousType() {
 		vis.write(w, v.TypeName())
 		vis.write(w, "(")
 		vis.write(w, marker)
@@ -117,7 +119,7 @@ func (vis *visitor) enter(w io.Writer, v value) bool {
 // leave indicates that a potentially recursive value has finished rendering.
 //
 // It must be called after enter(v) returns true.
-func (vis *visitor) leave(v value) {
+func (vis *visitor) leave(v Value) {
 	if !v.Value.IsNil() {
 		delete(vis.recursionSet, v.Value.Pointer())
 	}

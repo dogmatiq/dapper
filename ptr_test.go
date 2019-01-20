@@ -2,10 +2,36 @@ package dapper_test
 
 import "testing"
 
+type ptr struct {
+	Value interface{}
+}
+
 func TestPrinter_Ptr(t *testing.T) {
 	value := 100
 	test(t, "nil pointer", (*int)(nil), "*int(nil)")
 	test(t, "non-nil pointer", &value, "*int(100)")
+
+	test(
+		t,
+		"nil pointer inside interface includes element type",
+		ptr{
+			(*int)(nil),
+		},
+		"dapper_test.ptr{",
+		"    Value: *int(nil)",
+		"}",
+	)
+
+	test(
+		t,
+		"non-nil pointer inside interface includes element type",
+		ptr{
+			&value,
+		},
+		"dapper_test.ptr{",
+		"    Value: *int(100)",
+		"}",
+	)
 }
 
 type recursive struct {

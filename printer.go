@@ -5,6 +5,8 @@ import (
 	"os"
 	"reflect"
 	"strings"
+
+	"github.com/dogmatiq/iago"
 )
 
 const (
@@ -16,15 +18,15 @@ const (
 	DefaultRecursionMarker = "<recursion>"
 )
 
-// defaultPrinter is a Printer instance with default settings.
-var defaultPrinter Printer
-
 // Printer generates human-readable representations of Go values.
 //
 // The output format is intended to be as minimal as possible, without being
 // ambigious. To that end, type information is only included where it can not be
 // reliably inferred from the structure of the value.
 type Printer struct {
+	// Filters is the set of filters to apply when formatting values.
+	Filters []Filter
+
 	// Indent is the string used to indent nested values.
 	// If it is empty, DefaultIndent is used.
 	Indent string
@@ -35,11 +37,17 @@ type Printer struct {
 	RecursionMarker string
 }
 
+// emptyInterfaceType is the reflect.Type for interface{}.
+var emptyInterfaceType = reflect.TypeOf((*interface{})(nil)).Elem()
+
 // Write writes a pretty-printed representation of v to w.
 //
 // It returns the number of bytes written.
-func (p *Printer) Write(w io.Writer, v interface{}) (int, error) {
+func (p *Printer) Write(w io.Writer, v interface{}) (n int, err error) {
+	defer iago.Recover(&err)
+
 	vis := visitor{
+		filters:         p.Filters,
 		indent:          []byte(p.Indent),
 		recursionMarker: p.RecursionMarker,
 	}
@@ -52,9 +60,27 @@ func (p *Printer) Write(w io.Writer, v interface{}) (int, error) {
 		vis.recursionMarker = DefaultRecursionMarker
 	}
 
-	err := vis.visit(w, reflect.ValueOf(v), true)
+	rv := reflect.ValueOf(v)
+	var rt reflect.Type
 
-	return vis.bytes, err
+	if rv.Kind() != reflect.Invalid {
+		rt = rv.Type()
+	}
+
+	vis.visit(
+		w,
+		Value{
+			Value:                  rv,
+			DynamicType:            rt,
+			StaticType:             emptyInterfaceType,
+			IsAmbiguousDynamicType: true,
+			IsAmbiguousStaticType:  true,
+			IsUnexported:           false,
+		},
+	)
+
+	n = vis.bytes
+	return
 }
 
 // Format returns a pretty-printed representation of v.
@@ -66,6 +92,13 @@ func (p *Printer) Format(v interface{}) string {
 	}
 
 	return b.String()
+}
+
+// defaultPrinter is a Printer instance with default settings.
+var defaultPrinter = Printer{
+	Filters: []Filter{
+		ReflectTypeFilter,
+	},
 }
 
 // Write writes a pretty-printed representation of v to w using the default

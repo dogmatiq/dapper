@@ -5,17 +5,20 @@ import (
 )
 
 // visitInterface formats values with a kind of reflect.Interface.
-func (vis *visitor) visitInterface(w io.Writer, v value) {
-	if v.Value.IsNil() {
-		if v.IsAmbiguousType {
-			vis.write(w, v.TypeName())
-			vis.write(w, "(nil)")
-		} else {
-			vis.write(w, "nil")
-		}
-
-		return
+func (vis *visitor) visitInterface(w io.Writer, v Value) {
+	if !v.Value.IsNil() {
+		// this should never happen, a more appropraite visit method should have been
+		// chosen based on the value's dynamic type.
+		panic("unexpectedly called visitInterface() with non-nil interface")
 	}
 
-	vis.visit(w, v.Value.Elem(), v.IsAmbiguousType)
+	// for a nil interface, we only want to render the type if the STATIC type is
+	// ambigious, since the only information we have available is the interface
+	// type itself, not the actual implementation's type.
+	if v.IsAmbiguousStaticType {
+		vis.write(w, v.TypeName())
+		vis.write(w, "(nil)")
+	} else {
+		vis.write(w, "nil")
+	}
 }

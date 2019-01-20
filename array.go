@@ -8,8 +8,8 @@ import (
 )
 
 // visitArray formats values with a kind of reflect.Array or Slice.
-func (vis *visitor) visitArray(w io.Writer, v value) {
-	if v.IsAmbiguousType {
+func (vis *visitor) visitArray(w io.Writer, v Value) {
+	if v.IsAmbiguousType() {
 		vis.write(w, v.TypeName())
 	}
 
@@ -23,11 +23,31 @@ func (vis *visitor) visitArray(w io.Writer, v value) {
 	vis.write(w, "}")
 }
 
-func (vis *visitor) visitArrayValues(w io.Writer, v value) {
-	ambiguous := v.Type.Elem().Kind() == reflect.Interface
+func (vis *visitor) visitArrayValues(w io.Writer, v Value) {
+	staticType := v.DynamicType.Elem()
+	isInterface := staticType.Kind() == reflect.Interface
 
 	for i := 0; i < v.Value.Len(); i++ {
-		vis.visit(w, v.Value.Index(i), ambiguous)
+		elem := v.Value.Index(i)
+
+		// unwrap interface values so that elem has it's actual type/kind, and not
+		// that of reflect.Interface.
+		if isInterface && !elem.IsNil() {
+			elem = elem.Elem()
+		}
+
+		vis.visit(
+			w,
+			Value{
+				Value:                  elem,
+				DynamicType:            elem.Type(),
+				StaticType:             staticType,
+				IsAmbiguousDynamicType: isInterface,
+				IsAmbiguousStaticType:  false,
+				IsUnexported:           v.IsUnexported,
+			},
+		)
+
 		vis.write(w, "\n")
 	}
 }

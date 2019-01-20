@@ -12,13 +12,13 @@ import (
 // visitMap formats values with a kind of reflect.Map.
 //
 // TODO(jmalloc): sort numerically-keyed maps numerically
-func (vis *visitor) visitMap(w io.Writer, v value) {
+func (vis *visitor) visitMap(w io.Writer, v Value) {
 	if vis.enter(w, v) {
 		return
 	}
 	defer vis.leave(v)
 
-	if v.IsAmbiguousType {
+	if v.IsAmbiguousType() {
 		vis.write(w, v.TypeName())
 	}
 
@@ -32,16 +32,34 @@ func (vis *visitor) visitMap(w io.Writer, v value) {
 	vis.write(w, "}")
 }
 
-func (vis *visitor) visitMapElements(w io.Writer, v value) {
-	ambiguous := v.Type.Elem().Kind() == reflect.Interface
+func (vis *visitor) visitMapElements(w io.Writer, v Value) {
+	staticType := v.DynamicType.Elem()
+	isInterface := staticType.Kind() == reflect.Interface
 	keys, alignment := vis.formatMapKeys(v)
 
 	for _, mk := range keys {
 		mv := v.Value.MapIndex(mk.Value)
+
+		// unwrap interface values so that elem has it's actual type/kind, and not
+		// that of reflect.Interface.
+		if isInterface && !mv.IsNil() {
+			mv = mv.Elem()
+		}
+
 		vis.write(w, mk.String)
 		vis.write(w, ": ")
 		vis.write(w, strings.Repeat(" ", alignment-mk.Width))
-		vis.visit(w, mv, ambiguous)
+		vis.visit(
+			w,
+			Value{
+				Value:                  mv,
+				DynamicType:            mv.Type(),
+				StaticType:             staticType,
+				IsAmbiguousDynamicType: isInterface,
+				IsAmbiguousStaticType:  false,
+				IsUnexported:           v.IsUnexported,
+			},
+		)
 		vis.write(w, "\n")
 	}
 }
@@ -56,14 +74,32 @@ type mapKey struct {
 // sorted by their string representation.
 //
 // padding is the number of padding characters to add to the shortest key.
-func (vis *visitor) formatMapKeys(v value) (keys []mapKey, alignment int) {
+func (vis *visitor) formatMapKeys(v Value) (keys []mapKey, alignment int) {
 	var w strings.Builder
-	isInterface := v.Type.Key().Kind() == reflect.Interface
+	staticType := v.DynamicType.Key()
+	isInterface := staticType.Kind() == reflect.Interface
 	keys = make([]mapKey, v.Value.Len())
 	alignToLastLine := false
 
-	for i, k := range v.Value.MapKeys() {
-		vis.visit(&w, k, isInterface)
+	for i, mk := range v.Value.MapKeys() {
+
+		// unwrap interface values so that elem has it's actual type/kind, and not
+		// that of reflect.Interface.
+		if isInterface && !mk.IsNil() {
+			mk = mk.Elem()
+		}
+
+		vis.visit(
+			&w,
+			Value{
+				Value:                  mk,
+				DynamicType:            mk.Type(),
+				StaticType:             staticType,
+				IsAmbiguousDynamicType: isInterface,
+				IsAmbiguousStaticType:  false,
+				IsUnexported:           v.IsUnexported,
+			},
+		)
 
 		s := w.String()
 		w.Reset()
@@ -74,7 +110,7 @@ func (vis *visitor) formatMapKeys(v value) (keys []mapKey, alignment int) {
 			alignToLastLine = max == last
 		}
 
-		keys[i] = mapKey{k, s, last}
+		keys[i] = mapKey{mk, s, last}
 	}
 
 	sort.Slice(

@@ -9,12 +9,15 @@ import (
 )
 
 // visitStruct formats values with a kind of reflect.Struct.
-func (vis *visitor) visitStruct(w io.Writer, v value) {
-	if v.IsAmbiguousType && !v.IsAnonymous() {
+func (vis *visitor) visitStruct(w io.Writer, v Value) {
+	// even if the type is ambiguous, we only render it if it's not anonymous this
+	// is to avoid rendering the full type with field definitions. instead we mark
+	// each field's value as ambiguous and render their types inline.
+	if v.IsAmbiguousType() && !v.IsAnonymousType() {
 		vis.write(w, v.TypeName())
 	}
 
-	if v.Type.NumField() == 0 {
+	if v.DynamicType.NumField() == 0 {
 		vis.write(w, "{}")
 		return
 	}
@@ -24,29 +27,42 @@ func (vis *visitor) visitStruct(w io.Writer, v value) {
 	vis.write(w, "}")
 }
 
-func (vis *visitor) visitStructFields(w io.Writer, v value) {
-	alignment := longestFieldName(v.Type)
-	anon := v.IsAnonymous()
-	var ambiguous bool
+func (vis *visitor) visitStructFields(w io.Writer, v Value) {
+	alignment := longestFieldName(v.DynamicType)
 
-	for i := 0; i < v.Type.NumField(); i++ {
-		f := v.Type.Field(i)
+	for i := 0; i < v.DynamicType.NumField(); i++ {
+		f := v.DynamicType.Field(i)
 		fv := v.Value.Field(i)
 
-		if anon {
-			ambiguous = v.IsAmbiguousType
-		} else if f.Type.Kind() == reflect.Interface {
-			ambiguous = !fv.IsNil()
-		} else {
-			ambiguous = false
+		isInterface := f.Type.Kind() == reflect.Interface
+
+		// unwrap interface values so that elem has it's actual type/kind, and not
+		// that of reflect.Interface.
+		if isInterface && !fv.IsNil() {
+			fv = fv.Elem()
 		}
 
 		vis.write(w, f.Name)
 		vis.write(w, ": ")
 		vis.write(w, strings.Repeat(" ", alignment-len(f.Name)))
-		vis.visit(w, fv, ambiguous)
+		vis.visit(
+			w,
+			Value{
+				Value:                  fv,
+				DynamicType:            fv.Type(),
+				StaticType:             f.Type,
+				IsAmbiguousDynamicType: isInterface,
+				IsAmbiguousStaticType:  v.IsAmbiguousStaticType && v.IsAnonymousType(),
+				IsUnexported:           v.IsUnexported || isUnexportedField(f),
+			},
+		)
 		vis.write(w, "\n")
 	}
+}
+
+// isUnxportedField returns true if f is an unexported field.
+func isUnexportedField(f reflect.StructField) bool {
+	return f.PkgPath != ""
 }
 
 // longestFieldName returns the length of the longest field name in a struct.
