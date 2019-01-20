@@ -22,7 +22,7 @@ func (vis *visitor) visitPtr(w io.Writer, v Value) {
 		Value{
 			Value:                  elem,
 			DynamicType:            elem.Type(),
-			StaticType:             elem.Type(),
+			StaticType:             v.StaticType,
 			IsAmbiguousDynamicType: v.IsAmbiguousDynamicType,
 			IsAmbiguousStaticType:  v.IsAmbiguousStaticType,
 			IsUnexported:           v.IsUnexported,
