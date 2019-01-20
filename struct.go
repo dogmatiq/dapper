@@ -34,6 +34,14 @@ func (vis *visitor) visitStructFields(w io.Writer, v Value) {
 		f := v.DynamicType.Field(i)
 		fv := v.Value.Field(i)
 
+		isInterface := f.Type.Kind() == reflect.Interface
+
+		// unwrap interface values so that elem has it's actual type/kind, and not
+		// that of reflect.Interface.
+		if isInterface && !fv.IsNil() {
+			fv = fv.Elem()
+		}
+
 		vis.write(w, f.Name)
 		vis.write(w, ": ")
 		vis.write(w, strings.Repeat(" ", alignment-len(f.Name)))
@@ -43,7 +51,7 @@ func (vis *visitor) visitStructFields(w io.Writer, v Value) {
 				Value:                  fv,
 				DynamicType:            fv.Type(),
 				StaticType:             f.Type,
-				IsAmbiguousDynamicType: f.Type.Kind() == reflect.Interface,
+				IsAmbiguousDynamicType: isInterface,
 				IsAmbiguousStaticType:  v.IsAmbiguousStaticType && v.IsAnonymousType(),
 				IsUnexported:           v.IsUnexported || isUnexportedField(f),
 			},

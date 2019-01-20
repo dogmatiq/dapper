@@ -95,7 +95,11 @@ func (p *Printer) Format(v interface{}) string {
 }
 
 // defaultPrinter is a Printer instance with default settings.
-var defaultPrinter Printer
+var defaultPrinter = Printer{
+	Filters: []Filter{
+		ReflectTypeFilter,
+	},
+}
 
 // Write writes a pretty-printed representation of v to w using the default
 // printer settings.

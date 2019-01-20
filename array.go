@@ -1,7 +1,6 @@
 package dapper
 
 import (
-	"fmt"
 	"io"
 	"reflect"
 
@@ -31,8 +30,10 @@ func (vis *visitor) visitArrayValues(w io.Writer, v Value) {
 	for i := 0; i < v.Value.Len(); i++ {
 		elem := v.Value.Index(i)
 
-		if isInterface {
-			fmt.Print("")
+		// unwrap interface values so that elem has it's actual type/kind, and not
+		// that of reflect.Interface.
+		if isInterface && !elem.IsNil() {
+			elem = elem.Elem()
 		}
 
 		vis.visit(
