@@ -6,9 +6,17 @@
 [![GoDoc](https://godoc.org/github.com/dogmatiq/dapper?status.svg)](https://godoc.org/github.com/dogmatiq/dapper)
 [![Go Report Card](https://goreportcard.com/badge/github.com/dogmatiq/dapper)](https://goreportcard.com/report/github.com/dogmatiq/dapper)
 
-Dapper is a pretty-printer for Go values that aims to produce the shortest
-possible output without ambiguity. Additionally, the output is deterministic,
-which allows for the generation of human-readable diffs using standard tools.
+Dapper is a pretty-printer for Go values.
+
+It is not intended to be used directly as a debugging tool, but as a library
+for applications that need to describe Go values to humans, such as testing
+frameworks.
+
+Some features include:
+
+- Concise formatting, without type ambiguity
+- Deterministic output, useful for generating diffs using standard tools
+- A filtering system for producing customized output on a per-value basis
 
 ## Example
 
