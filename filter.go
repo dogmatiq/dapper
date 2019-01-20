@@ -35,7 +35,7 @@ func ReflectTypeFilter(w io.Writer, v Value) (n int, err error) {
 		return 0, nil
 	}
 
-	var ambiguous bool
+	ambiguous := false
 
 	if v.IsAmbiguousStaticType {
 		// always render the type if the static type is ambiguous
@@ -44,8 +44,6 @@ func ReflectTypeFilter(w io.Writer, v Value) (n int, err error) {
 		// only consider the dynamic type to be ambiguous if the static type isn't reflect.Type
 		// we're not really concerned with rendering the underlying implementation's type.
 		ambiguous = v.StaticType != reflectTypeType
-	} else {
-		ambiguous = false
 	}
 
 	if ambiguous {
