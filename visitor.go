@@ -21,21 +21,17 @@ type visitor struct {
 	// recursionSet is the set of potentially recursive values that are currently
 	// being visited.
 	recursionSet map[uintptr]struct{}
-
-	// bytes is the number of bytes written overall
-	bytes int
 }
 
 // TODO: don't return err or, let propagate and use iago.Recover() in Printer instead.
 func (vis *visitor) visit(w io.Writer, v Value) {
 	if v.Value.Kind() == reflect.Invalid {
-		vis.write(w, "interface{}(nil)")
+		iago.MustWriteString(w, "interface{}(nil)")
 		return
 	}
 
 	for _, f := range vis.filters {
 		if n := iago.Must(f(w, v)); n > 0 {
-			vis.bytes += n
 			return
 		}
 	}
@@ -43,9 +39,9 @@ func (vis *visitor) visit(w io.Writer, v Value) {
 	switch v.DynamicType.Kind() {
 	// type name is not rendered for these types, as the literals are unambiguous.
 	case reflect.String:
-		vis.writef(w, "%#v", v.Value.String())
+		iago.MustFprintf(w, "%#v", v.Value.String())
 	case reflect.Bool:
-		vis.writef(w, "%#v", v.Value.Bool())
+		iago.MustFprintf(w, "%#v", v.Value.Bool())
 
 	// the rest of the types can be amgiuous unless type information is included.
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
@@ -105,12 +101,12 @@ func (vis *visitor) enter(w io.Writer, v Value) bool {
 	}
 
 	if v.IsAmbiguousType() {
-		vis.write(w, v.TypeName())
-		vis.write(w, "(")
-		vis.write(w, marker)
-		vis.write(w, ")")
+		iago.MustWriteString(w, v.TypeName())
+		iago.MustWriteString(w, "(")
+		iago.MustWriteString(w, marker)
+		iago.MustWriteString(w, ")")
 	} else {
-		vis.write(w, marker)
+		iago.MustWriteString(w, marker)
 	}
 
 	return true
@@ -123,14 +119,4 @@ func (vis *visitor) leave(v Value) {
 	if !v.Value.IsNil() {
 		delete(vis.recursionSet, v.Value.Pointer())
 	}
-}
-
-// write writes s to w.
-func (vis *visitor) write(w io.Writer, s string) {
-	vis.bytes += iago.MustWriteString(w, s)
-}
-
-// write writes a formatted string to w.
-func (vis *visitor) writef(w io.Writer, f string, v ...interface{}) {
-	vis.bytes += iago.MustFprintf(w, f, v...)
 }

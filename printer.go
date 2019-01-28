@@ -6,6 +6,8 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/dogmatiq/iago/count"
+
 	"github.com/dogmatiq/iago"
 )
 
@@ -67,8 +69,10 @@ func (p *Printer) Write(w io.Writer, v interface{}) (n int, err error) {
 		rt = rv.Type()
 	}
 
+	cw := count.NewWriter(w)
+
 	vis.visit(
-		w,
+		cw,
 		Value{
 			Value:                  rv,
 			DynamicType:            rt,
@@ -79,7 +83,7 @@ func (p *Printer) Write(w io.Writer, v interface{}) (n int, err error) {
 		},
 	)
 
-	n = vis.bytes
+	n = cw.Count()
 	return
 }
 

@@ -4,23 +4,24 @@ import (
 	"io"
 	"reflect"
 
+	"github.com/dogmatiq/iago"
 	"github.com/dogmatiq/iago/indent"
 )
 
 // visitArray formats values with a kind of reflect.Array or Slice.
 func (vis *visitor) visitArray(w io.Writer, v Value) {
 	if v.IsAmbiguousType() {
-		vis.write(w, v.TypeName())
+		iago.MustWriteString(w, v.TypeName())
 	}
 
 	if v.Value.Len() == 0 {
-		vis.write(w, "{}")
+		iago.MustWriteString(w, "{}")
 		return
 	}
 
-	vis.write(w, "{\n")
+	iago.MustWriteString(w, "{\n")
 	vis.visitArrayValues(indent.NewIndenter(w, vis.indent), v)
-	vis.write(w, "}")
+	iago.MustWriteString(w, "}")
 }
 
 func (vis *visitor) visitArrayValues(w io.Writer, v Value) {
@@ -48,6 +49,6 @@ func (vis *visitor) visitArrayValues(w io.Writer, v Value) {
 			},
 		)
 
-		vis.write(w, "\n")
+		iago.MustWriteString(w, "\n")
 	}
 }

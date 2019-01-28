@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/dogmatiq/iago"
 	"github.com/dogmatiq/iago/indent"
 )
 
@@ -19,17 +20,17 @@ func (vis *visitor) visitMap(w io.Writer, v Value) {
 	defer vis.leave(v)
 
 	if v.IsAmbiguousType() {
-		vis.write(w, v.TypeName())
+		iago.MustWriteString(w, v.TypeName())
 	}
 
 	if v.Value.Len() == 0 {
-		vis.write(w, "{}")
+		iago.MustWriteString(w, "{}")
 		return
 	}
 
-	vis.write(w, "{\n")
+	iago.MustWriteString(w, "{\n")
 	vis.visitMapElements(indent.NewIndenter(w, vis.indent), v)
-	vis.write(w, "}")
+	iago.MustWriteString(w, "}")
 }
 
 func (vis *visitor) visitMapElements(w io.Writer, v Value) {
@@ -46,9 +47,9 @@ func (vis *visitor) visitMapElements(w io.Writer, v Value) {
 			mv = mv.Elem()
 		}
 
-		vis.write(w, mk.String)
-		vis.write(w, ": ")
-		vis.write(w, strings.Repeat(" ", alignment-mk.Width))
+		iago.MustWriteString(w, mk.String)
+		iago.MustWriteString(w, ": ")
+		iago.MustWriteString(w, strings.Repeat(" ", alignment-mk.Width))
 		vis.visit(
 			w,
 			Value{
@@ -60,7 +61,7 @@ func (vis *visitor) visitMapElements(w io.Writer, v Value) {
 				IsUnexported:           v.IsUnexported,
 			},
 		)
-		vis.write(w, "\n")
+		iago.MustWriteString(w, "\n")
 	}
 }
 

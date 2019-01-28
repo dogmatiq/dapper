@@ -2,6 +2,8 @@ package dapper
 
 import (
 	"io"
+
+	"github.com/dogmatiq/iago"
 )
 
 // visitInterface formats values with a kind of reflect.Interface.
@@ -16,9 +18,9 @@ func (vis *visitor) visitInterface(w io.Writer, v Value) {
 	// ambigious, since the only information we have available is the interface
 	// type itself, not the actual implementation's type.
 	if v.IsAmbiguousStaticType {
-		vis.write(w, v.TypeName())
-		vis.write(w, "(nil)")
+		iago.MustWriteString(w, v.TypeName())
+		iago.MustWriteString(w, "(nil)")
 	} else {
-		vis.write(w, "nil")
+		iago.MustWriteString(w, "nil")
 	}
 }

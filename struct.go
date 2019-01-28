@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/dogmatiq/iago"
 	"github.com/dogmatiq/iago/indent"
 )
 
@@ -14,17 +15,17 @@ func (vis *visitor) visitStruct(w io.Writer, v Value) {
 	// is to avoid rendering the full type with field definitions. instead we mark
 	// each field's value as ambiguous and render their types inline.
 	if v.IsAmbiguousType() && !v.IsAnonymousType() {
-		vis.write(w, v.TypeName())
+		iago.MustWriteString(w, v.TypeName())
 	}
 
 	if v.DynamicType.NumField() == 0 {
-		vis.write(w, "{}")
+		iago.MustWriteString(w, "{}")
 		return
 	}
 
-	vis.write(w, "{\n")
+	iago.MustWriteString(w, "{\n")
 	vis.visitStructFields(indent.NewIndenter(w, vis.indent), v)
-	vis.write(w, "}")
+	iago.MustWriteString(w, "}")
 }
 
 func (vis *visitor) visitStructFields(w io.Writer, v Value) {
@@ -42,9 +43,9 @@ func (vis *visitor) visitStructFields(w io.Writer, v Value) {
 			fv = fv.Elem()
 		}
 
-		vis.write(w, f.Name)
-		vis.write(w, ": ")
-		vis.write(w, strings.Repeat(" ", alignment-len(f.Name)))
+		iago.MustWriteString(w, f.Name)
+		iago.MustWriteString(w, ": ")
+		iago.MustWriteString(w, strings.Repeat(" ", alignment-len(f.Name)))
 		vis.visit(
 			w,
 			Value{
@@ -56,7 +57,7 @@ func (vis *visitor) visitStructFields(w io.Writer, v Value) {
 				IsUnexported:           v.IsUnexported || isUnexportedField(f),
 			},
 		)
-		vis.write(w, "\n")
+		iago.MustWriteString(w, "\n")
 	}
 }
 

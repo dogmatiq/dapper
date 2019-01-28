@@ -65,7 +65,6 @@ func ReflectTypeFilter(w io.Writer, v Value) (n int, err error) {
 		} else {
 			n += iago.MustWriteString(w, t.String())
 		}
-
 	}
 
 	// always render the pointer value for the type, this way when the field is

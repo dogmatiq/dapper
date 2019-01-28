@@ -2,6 +2,8 @@ package dapper
 
 import (
 	"io"
+
+	"github.com/dogmatiq/iago"
 )
 
 // visitPtr formats values with a kind of reflect.Ptr.
@@ -12,7 +14,7 @@ func (vis *visitor) visitPtr(w io.Writer, v Value) {
 	defer vis.leave(v)
 
 	if v.IsAmbiguousType() {
-		vis.write(w, "*")
+		iago.MustWriteString(w, "*")
 	}
 
 	elem := v.Value.Elem()

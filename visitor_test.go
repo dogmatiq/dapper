@@ -20,7 +20,7 @@ func test(
 		n,
 		func(t *testing.T) {
 			var w strings.Builder
-			_, err := Write(&w, v)
+			n, err := Write(&w, v)
 
 			if err != nil {
 				t.Fatal(err)
@@ -31,6 +31,14 @@ func test(
 			s := w.String()
 			if s != x {
 				t.Fatal("actual:\n\n" + s + "\n")
+			}
+
+			if n != len(x) {
+				t.Fatalf(
+					"incorrect byte count: %d != %d",
+					n,
+					len(x),
+				)
 			}
 		},
 	)
