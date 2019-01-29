@@ -81,7 +81,7 @@ func (vis *visitor) visitUnsafePointer(w io.Writer, v Value) {
 func (vis *visitor) visitChan(w io.Writer, v Value) {
 	if v.IsAmbiguousType() {
 		iago.MustWriteString(w, v.TypeName())
-		iago.MustWriteString(w, "(")
+		iago.MustWriteByte(w, '(')
 	}
 
 	iago.MustWriteString(
@@ -99,7 +99,7 @@ func (vis *visitor) visitChan(w io.Writer, v Value) {
 	}
 
 	if v.IsAmbiguousType() {
-		iago.MustWriteString(w, ")")
+		iago.MustWriteByte(w, ')')
 	}
 }
 

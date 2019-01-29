@@ -21,7 +21,7 @@ func (vis *visitor) visitArray(w io.Writer, v Value) {
 
 	iago.MustWriteString(w, "{\n")
 	vis.visitArrayValues(indent.NewIndenter(w, vis.indent), v)
-	iago.MustWriteString(w, "}")
+	iago.MustWriteByte(w, '}')
 }
 
 func (vis *visitor) visitArrayValues(w io.Writer, v Value) {

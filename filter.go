@@ -57,7 +57,7 @@ func ReflectTypeFilter(w io.Writer, v Value) (n int, err error) {
 
 		if s := t.PkgPath(); s != "" {
 			n += iago.MustWriteString(w, s)
-			n += iago.MustWriteString(w, ".")
+			n += iago.MustWriteByte(w, '.')
 		}
 
 		if s := t.Name(); s != "" {
@@ -70,11 +70,11 @@ func ReflectTypeFilter(w io.Writer, v Value) (n int, err error) {
 	// always render the pointer value for the type, this way when the field is
 	// unexported we still get something we can compare to known types instead of a
 	// rendering of the reflect.rtype struct.
-	n += iago.MustWriteString(w, " ")
+	n += iago.MustWriteByte(w, ' ')
 	n += iago.MustWriteString(w, formatPointerHex(v.Value.Pointer(), false))
 
 	if ambiguous {
-		n += iago.MustWriteString(w, ")")
+		n += iago.MustWriteByte(w, ')')
 	}
 
 	return

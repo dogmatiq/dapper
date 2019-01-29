@@ -102,9 +102,9 @@ func (vis *visitor) enter(w io.Writer, v Value) bool {
 
 	if v.IsAmbiguousType() {
 		iago.MustWriteString(w, v.TypeName())
-		iago.MustWriteString(w, "(")
+		iago.MustWriteByte(w, '(')
 		iago.MustWriteString(w, marker)
-		iago.MustWriteString(w, ")")
+		iago.MustWriteByte(w, ')')
 	} else {
 		iago.MustWriteString(w, marker)
 	}

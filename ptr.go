@@ -14,7 +14,7 @@ func (vis *visitor) visitPtr(w io.Writer, v Value) {
 	defer vis.leave(v)
 
 	if v.IsAmbiguousType() {
-		iago.MustWriteString(w, "*")
+		iago.MustWriteByte(w, '*')
 	}
 
 	elem := v.Value.Elem()

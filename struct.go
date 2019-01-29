@@ -25,7 +25,7 @@ func (vis *visitor) visitStruct(w io.Writer, v Value) {
 
 	iago.MustWriteString(w, "{\n")
 	vis.visitStructFields(indent.NewIndenter(w, vis.indent), v)
-	iago.MustWriteString(w, "}")
+	iago.MustWriteByte(w, '}')
 }
 
 func (vis *visitor) visitStructFields(w io.Writer, v Value) {

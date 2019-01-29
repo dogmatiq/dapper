@@ -30,7 +30,7 @@ func (vis *visitor) visitMap(w io.Writer, v Value) {
 
 	iago.MustWriteString(w, "{\n")
 	vis.visitMapElements(indent.NewIndenter(w, vis.indent), v)
-	iago.MustWriteString(w, "}")
+	iago.MustWriteByte(w, '}')
 }
 
 func (vis *visitor) visitMapElements(w io.Writer, v Value) {
