@@ -1,7 +1,7 @@
 module github.com/dogmatiq/dapper
 
 require (
-	github.com/dogmatiq/iago v0.2.1-0.20190128235242-ab14860459c2
+	github.com/dogmatiq/iago v0.3.0
 	github.com/kr/pretty v0.1.0 // indirect
 	golang.org/x/net v0.0.0-20190125091013-d26f9f9a57f3 // indirect
 	golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4 // indirect
