@@ -9,11 +9,21 @@ The format is based on [Keep a Changelog], and this project adheres to
 [Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 
+## [Unreleased]
+
+### Changed
+
+- Bump Iago to v0.4.0
+
+### Fixed
+
+- `iago.Print()` now prints a trailing newline ([#7](https://github.com/dogmatiq/dapper/issues/7))
+
 ## [0.3.1] - 2019-01-29
 
 ### Changed
 
-- Bumped to Iago v0.3.0
+- Bump Iago to v0.3.0
 
 ## [0.3.0] - 2019-01-20
 
