@@ -4,7 +4,7 @@ import (
 	"io"
 	"reflect"
 
-	"github.com/dogmatiq/iago"
+	"github.com/dogmatiq/iago/must"
 )
 
 // visitor walks a Go value in order to render it.
@@ -26,12 +26,12 @@ type visitor struct {
 // TODO: don't return err or, let propagate and use iago.Recover() in Printer instead.
 func (vis *visitor) visit(w io.Writer, v Value) {
 	if v.Value.Kind() == reflect.Invalid {
-		iago.MustWriteString(w, "interface{}(nil)")
+		must.WriteString(w, "interface{}(nil)")
 		return
 	}
 
 	for _, f := range vis.filters {
-		if n := iago.Must(f(w, v)); n > 0 {
+		if n := must.Must(f(w, v)); n > 0 {
 			return
 		}
 	}
@@ -39,9 +39,9 @@ func (vis *visitor) visit(w io.Writer, v Value) {
 	switch v.DynamicType.Kind() {
 	// type name is not rendered for these types, as the literals are unambiguous.
 	case reflect.String:
-		iago.MustFprintf(w, "%#v", v.Value.String())
+		must.Fprintf(w, "%#v", v.Value.String())
 	case reflect.Bool:
-		iago.MustFprintf(w, "%#v", v.Value.Bool())
+		must.Fprintf(w, "%#v", v.Value.Bool())
 
 	// the rest of the types can be amgiuous unless type information is included.
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
@@ -101,12 +101,12 @@ func (vis *visitor) enter(w io.Writer, v Value) bool {
 	}
 
 	if v.IsAmbiguousType() {
-		iago.MustWriteString(w, v.TypeName())
-		iago.MustWriteByte(w, '(')
-		iago.MustWriteString(w, marker)
-		iago.MustWriteByte(w, ')')
+		must.WriteString(w, v.TypeName())
+		must.WriteByte(w, '(')
+		must.WriteString(w, marker)
+		must.WriteByte(w, ')')
 	} else {
-		iago.MustWriteString(w, marker)
+		must.WriteString(w, marker)
 	}
 
 	return true

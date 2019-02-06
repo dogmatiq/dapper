@@ -6,8 +6,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/dogmatiq/iago"
 	"github.com/dogmatiq/iago/indent"
+	"github.com/dogmatiq/iago/must"
 )
 
 // visitMap formats values with a kind of reflect.Map.
@@ -20,17 +20,17 @@ func (vis *visitor) visitMap(w io.Writer, v Value) {
 	defer vis.leave(v)
 
 	if v.IsAmbiguousType() {
-		iago.MustWriteString(w, v.TypeName())
+		must.WriteString(w, v.TypeName())
 	}
 
 	if v.Value.Len() == 0 {
-		iago.MustWriteString(w, "{}")
+		must.WriteString(w, "{}")
 		return
 	}
 
-	iago.MustWriteString(w, "{\n")
+	must.WriteString(w, "{\n")
 	vis.visitMapElements(indent.NewIndenter(w, vis.indent), v)
-	iago.MustWriteByte(w, '}')
+	must.WriteByte(w, '}')
 }
 
 func (vis *visitor) visitMapElements(w io.Writer, v Value) {
@@ -47,9 +47,9 @@ func (vis *visitor) visitMapElements(w io.Writer, v Value) {
 			mv = mv.Elem()
 		}
 
-		iago.MustWriteString(w, mk.String)
-		iago.MustWriteString(w, ": ")
-		iago.MustWriteString(w, strings.Repeat(" ", alignment-mk.Width))
+		must.WriteString(w, mk.String)
+		must.WriteString(w, ": ")
+		must.WriteString(w, strings.Repeat(" ", alignment-mk.Width))
 		vis.visit(
 			w,
 			Value{
@@ -61,7 +61,7 @@ func (vis *visitor) visitMapElements(w io.Writer, v Value) {
 				IsUnexported:           v.IsUnexported,
 			},
 		)
-		iago.MustWriteString(w, "\n")
+		must.WriteString(w, "\n")
 	}
 }
 

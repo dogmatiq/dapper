@@ -7,8 +7,7 @@ import (
 	"strings"
 
 	"github.com/dogmatiq/iago/count"
-
-	"github.com/dogmatiq/iago"
+	"github.com/dogmatiq/iago/must"
 )
 
 const (
@@ -46,7 +45,7 @@ var emptyInterfaceType = reflect.TypeOf((*interface{})(nil)).Elem()
 //
 // It returns the number of bytes written.
 func (p *Printer) Write(w io.Writer, v interface{}) (n int, err error) {
-	defer iago.Recover(&err)
+	defer must.Recover(&err)
 
 	vis := visitor{
 		filters:         p.Filters,

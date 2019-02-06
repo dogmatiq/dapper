@@ -5,17 +5,17 @@ import (
 	"io"
 	"strconv"
 
-	"github.com/dogmatiq/iago"
+	"github.com/dogmatiq/iago/must"
 )
 
 // visitInt formats values with a kind of reflect.Int, and the related
 // fixed-sized types.
 func (vis *visitor) visitInt(w io.Writer, v Value) {
 	if v.IsAmbiguousType() {
-		iago.MustWriteString(w, v.TypeName())
-		iago.MustFprintf(w, "(%v)", v.Value.Int())
+		must.WriteString(w, v.TypeName())
+		must.Fprintf(w, "(%v)", v.Value.Int())
 	} else {
-		iago.MustFprintf(w, "%v", v.Value.Int())
+		must.Fprintf(w, "%v", v.Value.Int())
 	}
 }
 
@@ -23,20 +23,20 @@ func (vis *visitor) visitInt(w io.Writer, v Value) {
 // fixed-sized types.
 func (vis *visitor) visitUint(w io.Writer, v Value) {
 	if v.IsAmbiguousType() {
-		iago.MustWriteString(w, v.TypeName())
-		iago.MustFprintf(w, "(%v)", v.Value.Uint())
+		must.WriteString(w, v.TypeName())
+		must.Fprintf(w, "(%v)", v.Value.Uint())
 	} else {
-		iago.MustFprintf(w, "%v", v.Value.Uint())
+		must.Fprintf(w, "%v", v.Value.Uint())
 	}
 }
 
 // visitFloat formats values with a kind of reflect.Float32 and Float64.
 func (vis *visitor) visitFloat(w io.Writer, v Value) {
 	if v.IsAmbiguousType() {
-		iago.MustWriteString(w, v.TypeName())
-		iago.MustFprintf(w, "(%v)", v.Value.Float())
+		must.WriteString(w, v.TypeName())
+		must.Fprintf(w, "(%v)", v.Value.Float())
 	} else {
-		iago.MustFprintf(w, "%v", v.Value.Float())
+		must.Fprintf(w, "%v", v.Value.Float())
 	}
 }
 
@@ -46,10 +46,10 @@ func (vis *visitor) visitComplex(w io.Writer, v Value) {
 	s := fmt.Sprintf("%v", v.Value.Complex())
 
 	if v.IsAmbiguousType() {
-		iago.MustWriteString(w, v.TypeName())
-		iago.MustWriteString(w, s)
+		must.WriteString(w, v.TypeName())
+		must.WriteString(w, s)
 	} else {
-		iago.MustWriteString(w, s[1:len(s)-1]) // trim the opening and closing parenthesis
+		must.WriteString(w, s[1:len(s)-1]) // trim the opening and closing parenthesis
 	}
 }
 
@@ -58,10 +58,10 @@ func (vis *visitor) visitUintptr(w io.Writer, v Value) {
 	s := formatPointerHex(uintptr(v.Value.Uint()), false)
 
 	if v.IsAmbiguousType() {
-		iago.MustWriteString(w, v.TypeName())
-		iago.MustFprintf(w, "(%s)", s)
+		must.WriteString(w, v.TypeName())
+		must.Fprintf(w, "(%s)", s)
 	} else {
-		iago.MustWriteString(w, s)
+		must.WriteString(w, s)
 	}
 }
 
@@ -70,27 +70,27 @@ func (vis *visitor) visitUnsafePointer(w io.Writer, v Value) {
 	s := formatPointerHex(v.Value.Pointer(), true)
 
 	if v.IsAmbiguousType() {
-		iago.MustWriteString(w, v.TypeName())
-		iago.MustFprintf(w, "(%s)", s)
+		must.WriteString(w, v.TypeName())
+		must.Fprintf(w, "(%s)", s)
 	} else {
-		iago.MustWriteString(w, s)
+		must.WriteString(w, s)
 	}
 }
 
 // visitChan formats values with a kind of reflect.Chan.
 func (vis *visitor) visitChan(w io.Writer, v Value) {
 	if v.IsAmbiguousType() {
-		iago.MustWriteString(w, v.TypeName())
-		iago.MustWriteByte(w, '(')
+		must.WriteString(w, v.TypeName())
+		must.WriteByte(w, '(')
 	}
 
-	iago.MustWriteString(
+	must.WriteString(
 		w,
 		formatPointerHex(v.Value.Pointer(), true),
 	)
 
 	if !v.Value.IsNil() && v.Value.Cap() != 0 {
-		iago.MustFprintf(
+		must.Fprintf(
 			w,
 			" %d/%d",
 			v.Value.Len(),
@@ -99,7 +99,7 @@ func (vis *visitor) visitChan(w io.Writer, v Value) {
 	}
 
 	if v.IsAmbiguousType() {
-		iago.MustWriteByte(w, ')')
+		must.WriteByte(w, ')')
 	}
 }
 
@@ -108,10 +108,10 @@ func (vis *visitor) visitFunc(w io.Writer, v Value) {
 	s := formatPointerHex(v.Value.Pointer(), true)
 
 	if v.IsAmbiguousType() {
-		iago.MustWriteString(w, v.TypeName())
-		iago.MustFprintf(w, "(%s)", s)
+		must.WriteString(w, v.TypeName())
+		must.Fprintf(w, "(%s)", s)
 	} else {
-		iago.MustWriteString(w, s)
+		must.WriteString(w, s)
 	}
 }
 

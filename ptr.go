@@ -3,7 +3,7 @@ package dapper
 import (
 	"io"
 
-	"github.com/dogmatiq/iago"
+	"github.com/dogmatiq/iago/must"
 )
 
 // visitPtr formats values with a kind of reflect.Ptr.
@@ -14,7 +14,7 @@ func (vis *visitor) visitPtr(w io.Writer, v Value) {
 	defer vis.leave(v)
 
 	if v.IsAmbiguousType() {
-		iago.MustWriteByte(w, '*')
+		must.WriteByte(w, '*')
 	}
 
 	elem := v.Value.Elem()

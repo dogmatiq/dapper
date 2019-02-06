@@ -4,7 +4,7 @@ import (
 	"io"
 	"reflect"
 
-	"github.com/dogmatiq/iago"
+	"github.com/dogmatiq/iago/must"
 )
 
 // Filter is a function that provides custom formatting logic for specific
@@ -25,7 +25,7 @@ var reflectTypeType = reflect.TypeOf((*reflect.Type)(nil)).Elem()
 
 // ReflectTypeFilter is a filter that formats reflect.Type values.
 func ReflectTypeFilter(w io.Writer, v Value) (n int, err error) {
-	defer iago.Recover(&err)
+	defer must.Recover(&err)
 
 	if !v.DynamicType.Implements(reflectTypeType) {
 		return 0, nil
@@ -47,34 +47,34 @@ func ReflectTypeFilter(w io.Writer, v Value) (n int, err error) {
 	}
 
 	if ambiguous {
-		n += iago.MustWriteString(w, "reflect.Type(")
+		n += must.WriteString(w, "reflect.Type(")
 	}
 
 	if v.IsUnexported {
-		n += iago.MustWriteString(w, "<unknown>")
+		n += must.WriteString(w, "<unknown>")
 	} else {
 		t := v.Value.Interface().(reflect.Type)
 
 		if s := t.PkgPath(); s != "" {
-			n += iago.MustWriteString(w, s)
-			n += iago.MustWriteByte(w, '.')
+			n += must.WriteString(w, s)
+			n += must.WriteByte(w, '.')
 		}
 
 		if s := t.Name(); s != "" {
-			n += iago.MustWriteString(w, s)
+			n += must.WriteString(w, s)
 		} else {
-			n += iago.MustWriteString(w, t.String())
+			n += must.WriteString(w, t.String())
 		}
 	}
 
 	// always render the pointer value for the type, this way when the field is
 	// unexported we still get something we can compare to known types instead of a
 	// rendering of the reflect.rtype struct.
-	n += iago.MustWriteByte(w, ' ')
-	n += iago.MustWriteString(w, formatPointerHex(v.Value.Pointer(), false))
+	n += must.WriteByte(w, ' ')
+	n += must.WriteString(w, formatPointerHex(v.Value.Pointer(), false))
 
 	if ambiguous {
-		n += iago.MustWriteByte(w, ')')
+		n += must.WriteByte(w, ')')
 	}
 
 	return
