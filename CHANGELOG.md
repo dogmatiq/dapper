@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 [Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 
-## [Unreleased]
+## [0.3.2] - 2019-02-06
 
 ### Changed
 
@@ -17,8 +17,8 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ### Fixed
 
-- `Printer()` now includes the name of user-defined `string` and `bool` types ([#6](https://github.com/dogmatiq/dapper/issues/6))
-- `iago.Print()` now prints a trailing newline ([#7](https://github.com/dogmatiq/dapper/issues/7))
+- `Printer()` now includes the name of user-defined `string` and `bool` types ([#6])
+- `iago.Print()` now prints a trailing newline ([#7])
 
 ## [0.3.1] - 2019-01-29
 
@@ -64,6 +64,10 @@ The format is based on [Keep a Changelog], and this project adheres to
 [0.2.0]: https://github.com/dogmatiq/dapper/releases/tag/v0.2.0
 [0.3.0]: https://github.com/dogmatiq/dapper/releases/tag/v0.3.0
 [0.3.1]: https://github.com/dogmatiq/dapper/releases/tag/v0.3.1
+[0.3.2]: https://github.com/dogmatiq/dapper/releases/tag/v0.3.2
+
+[#6]: https://github.com/dogmatiq/dapper/issues/6
+[#7]: https://github.com/dogmatiq/dapper/issues/7
 
 [Iago]: https://github.com/dogmatiq/iago
 
