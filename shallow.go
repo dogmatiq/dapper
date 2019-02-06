@@ -3,10 +3,36 @@ package dapper
 import (
 	"fmt"
 	"io"
+	"reflect"
 	"strconv"
 
 	"github.com/dogmatiq/iago/must"
 )
+
+var (
+	stringType = reflect.TypeOf("")
+	boolType   = reflect.TypeOf(true)
+)
+
+// visitString formats values with a kind of reflect.String.
+func (vis *visitor) visitString(w io.Writer, v Value) {
+	if v.IsAmbiguousType() && v.DynamicType != stringType {
+		must.WriteString(w, v.TypeName())
+		must.Fprintf(w, "(%#v)", v.Value.String())
+	} else {
+		must.Fprintf(w, "%#v", v.Value.String())
+	}
+}
+
+// visitBool formats values with a kind of reflect.Bool.
+func (vis *visitor) visitBool(w io.Writer, v Value) {
+	if v.IsAmbiguousType() && v.DynamicType != boolType {
+		must.WriteString(w, v.TypeName())
+		must.Fprintf(w, "(%#v)", v.Value.Bool())
+	} else {
+		must.Fprintf(w, "%#v", v.Value.Bool())
+	}
+}
 
 // visitInt formats values with a kind of reflect.Int, and the related
 // fixed-sized types.

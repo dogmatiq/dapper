@@ -216,3 +216,12 @@ func TestPrinter_Channel(t *testing.T) {
 func TestPrinter_Func(t *testing.T) {
 	test(t, "nil func", (func(int))(nil), "(func(int))(nil)")
 }
+
+// See https://github.com/dogmatiq/dapper/issues/6
+func TestPrinter_StringAndBoolTypeNames(t *testing.T) {
+	type MyString string
+	type MyBool bool
+
+	test(t, "typed string", MyString("foo\nbar"), `dapper_test.MyString("foo\nbar")`)
+	test(t, "typed bool", MyBool(true), `dapper_test.MyBool(true)`)
+}

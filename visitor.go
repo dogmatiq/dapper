@@ -37,13 +37,10 @@ func (vis *visitor) visit(w io.Writer, v Value) {
 	}
 
 	switch v.DynamicType.Kind() {
-	// type name is not rendered for these types, as the literals are unambiguous.
 	case reflect.String:
-		must.Fprintf(w, "%#v", v.Value.String())
+		vis.visitString(w, v)
 	case reflect.Bool:
-		must.Fprintf(w, "%#v", v.Value.Bool())
-
-	// the rest of the types can be amgiuous unless type information is included.
+		vis.visitBool(w, v)
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		vis.visitInt(w, v)
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:

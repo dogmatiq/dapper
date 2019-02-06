@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ### Fixed
 
+- `Printer()` now includes the name of user-defined `string` and `bool` types ([#6](https://github.com/dogmatiq/dapper/issues/6))
 - `iago.Print()` now prints a trailing newline ([#7](https://github.com/dogmatiq/dapper/issues/7))
 
 ## [0.3.1] - 2019-01-29
