@@ -9,6 +9,12 @@ The format is based on [Keep a Changelog], and this project adheres to
 [Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 
+## [Unreleased]
+
+### Fixed
+
+- Render `reflect.Type` names when obtained from unexported struct fields ([#9])
+
 ## [0.3.2] - 2019-02-06
 
 ### Changed
@@ -68,6 +74,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 [#6]: https://github.com/dogmatiq/dapper/issues/6
 [#7]: https://github.com/dogmatiq/dapper/issues/7
+[#9]: https://github.com/dogmatiq/dapper/issues/7
 
 [Iago]: https://github.com/dogmatiq/iago
 

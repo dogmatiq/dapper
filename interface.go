@@ -9,8 +9,8 @@ import (
 // visitInterface formats values with a kind of reflect.Interface.
 func (vis *visitor) visitInterface(w io.Writer, v Value) {
 	if !v.Value.IsNil() {
-		// this should never happen, a more appropraite visit method should have been
-		// chosen based on the value's dynamic type.
+		// CODE COVERAGE: this should never happen, a more appropriate visit
+		// method should have been chosen based on the value's dynamic type.
 		panic("unexpectedly called visitInterface() with non-nil interface")
 	}
 

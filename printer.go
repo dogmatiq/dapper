@@ -91,6 +91,8 @@ func (p *Printer) Format(v interface{}) string {
 	var b strings.Builder
 
 	if _, err := p.Write(&b, v); err != nil {
+		// CODE COVERAGE: At the time of writing, strings.Builder.Write() never
+		// returns an error.
 		panic(err)
 	}
 
