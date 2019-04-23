@@ -19,6 +19,8 @@ func MakeMutable(v reflect.Value) (reflect.Value, bool) {
 	}
 
 	if flagsErr != nil {
+		// CODE COVERAGE: This branch is never executed unless the internals of
+		// the reflect package have changed in some incompatible way.
 		return v, false
 	}
 
@@ -65,6 +67,8 @@ func computeFlagOffset() (uintptr, error) {
 	// Ensure that reflect.Value even has a "flag" field.
 	f, ok := rt.FieldByName("flag")
 	if !ok {
+		// CODE COVERAGE: This branch is never executed unless the internals of
+		// the reflect package have changed in some incompatible way.
 		return 0, errors.New("reflect.Value has no flag field")
 	}
 
@@ -72,6 +76,8 @@ func computeFlagOffset() (uintptr, error) {
 	// definition.
 	k := reflect.TypeOf(flagRO).Kind()
 	if f.Type.Kind() != k {
+		// CODE COVERAGE: This branch is never executed unless the internals of
+		// the reflect package have changed in some incompatible way.
 		return 0, fmt.Errorf("reflect.Value flag is not a %s", k)
 	}
 
@@ -108,6 +114,8 @@ func checkFlagValues() error {
 	deducedFlagRO := exportedFlags ^ (unexportedFlags | embeddedFlags)
 
 	if flagRO != deducedFlagRO {
+		// CODE COVERAGE: This branch is never executed unless the internals of
+		// the reflect package have changed in some incompatible way.
 		return fmt.Errorf(
 			"flagRO is defined as %v, but the actual value is likely %v",
 			flagRO,
@@ -121,6 +129,8 @@ func checkFlagValues() error {
 func init() {
 	flagOffset, flagsErr = computeFlagOffset()
 	if flagsErr != nil {
+		// CODE COVERAGE: This branch is never executed unless the internals of
+		// the reflect package have changed in some incompatible way.
 		return
 	}
 
