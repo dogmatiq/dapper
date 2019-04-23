@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 [Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 
-## [Unreleased]
+## [0.3.3] - 2019-04-23
 
 ### Fixed
 
@@ -74,7 +74,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 [#6]: https://github.com/dogmatiq/dapper/issues/6
 [#7]: https://github.com/dogmatiq/dapper/issues/7
-[#9]: https://github.com/dogmatiq/dapper/issues/7
+[#9]: https://github.com/dogmatiq/dapper/issues/9
 
 [Iago]: https://github.com/dogmatiq/iago
 
