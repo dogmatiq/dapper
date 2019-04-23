@@ -79,23 +79,12 @@ func TestPrinter_ReflectTypeFilter(t *testing.T) {
 		t,
 		"does not include type if static type is also reflect.Type",
 		reflectType{
-			Exported: reflect.TypeOf(0),
-		},
-		"dapper_test.reflectType{",
-		"    Exported:   int "+intTypePointer,
-		"    unexported: nil",
-		"}",
-	)
-
-	test(
-		t,
-		"still renders the pointer address when the value is unexported",
-		reflectType{
+			Exported:   reflect.TypeOf(0),
 			unexported: reflect.TypeOf(0),
 		},
 		"dapper_test.reflectType{",
-		"    Exported:   nil",
-		"    unexported: <unknown> "+intTypePointer,
+		"    Exported:   int "+intTypePointer,
+		"    unexported: int "+intTypePointer,
 		"}",
 	)
 }

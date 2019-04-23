@@ -4,6 +4,7 @@ import (
 	"io"
 	"reflect"
 
+	"github.com/dogmatiq/dapper/internal/unsafereflect"
 	"github.com/dogmatiq/iago/must"
 )
 
@@ -50,10 +51,8 @@ func ReflectTypeFilter(w io.Writer, v Value) (n int, err error) {
 		n += must.WriteString(w, "reflect.Type(")
 	}
 
-	if v.IsUnexported {
-		n += must.WriteString(w, "<unknown>")
-	} else {
-		t := v.Value.Interface().(reflect.Type)
+	if mv, ok := unsafereflect.MakeMutable(v.Value); ok {
+		t := mv.Interface().(reflect.Type)
 
 		if s := t.PkgPath(); s != "" {
 			n += must.WriteString(w, s)
@@ -65,6 +64,8 @@ func ReflectTypeFilter(w io.Writer, v Value) (n int, err error) {
 		} else {
 			n += must.WriteString(w, t.String())
 		}
+	} else {
+		n += must.WriteString(w, "<unknown>")
 	}
 
 	// always render the pointer value for the type, this way when the field is
