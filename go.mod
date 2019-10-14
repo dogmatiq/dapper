@@ -1,5 +1,7 @@
 module github.com/dogmatiq/dapper
 
+go 1.13
+
 require (
 	github.com/dogmatiq/iago v0.4.0
 	github.com/kr/pretty v0.1.0 // indirect
