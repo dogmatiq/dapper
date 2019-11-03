@@ -116,6 +116,8 @@ func (p *Printer) Format(v interface{}) string {
 var defaultPrinter = Printer{
 	Filters: []Filter{
 		ReflectTypeFilter,
+		TimeFilter,
+		DurationFilter,
 	},
 }
 
