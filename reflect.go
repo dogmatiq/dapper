@@ -8,19 +8,6 @@ import (
 	"github.com/dogmatiq/iago/must"
 )
 
-// Filter is a function that provides custom formatting logic for specific
-// values.
-//
-// It writes a formatted representation of v to w, and returns the number of
-// bytes written.
-//
-// If the number of bytes written is non-zero, the default formatting logic is
-// skipped.
-//
-// Particular attention should be paid to the v.IsUnexported field. If this flag
-// is true, many operations on v.Value are unavailable.
-type Filter func(w io.Writer, v Value) (int, error)
-
 // reflectTypeType is the reflect.Type for reflect.Type itself.
 var reflectTypeType = reflect.TypeOf((*reflect.Type)(nil)).Elem()
 
@@ -68,8 +55,8 @@ func ReflectTypeFilter(w io.Writer, v Value) (n int, err error) {
 		// CODE COVERAGE: This branch handles a failure within the unsafereflect
 		// package. Ideally this *should* never occur, but is included so as to
 		// avoid a panic on future Go versions. A test within the unsafereflect
-		// package will catch such a failure, at which Dapper will need to be
-		// updated.
+		// package will catch such a failure, at which point Dapper will need to
+		// be updated.
 		n += must.WriteString(w, "<unknown>")
 	}
 

@@ -19,6 +19,19 @@ const (
 	DefaultRecursionMarker = "<recursion>"
 )
 
+// Filter is a function that provides custom formatting logic for specific
+// values.
+//
+// It writes a formatted representation of v to w, and returns the number of
+// bytes written.
+//
+// If the number of bytes written is non-zero, the default formatting logic is
+// skipped.
+//
+// Particular attention should be paid to the v.IsUnexported field. If this flag
+// is true, many operations on v.Value are unavailable.
+type Filter func(w io.Writer, v Value) (int, error)
+
 // Printer generates human-readable representations of Go values.
 //
 // The output format is intended to be as minimal as possible, without being
@@ -103,6 +116,8 @@ func (p *Printer) Format(v interface{}) string {
 var defaultPrinter = Printer{
 	Filters: []Filter{
 		ReflectTypeFilter,
+		TimeFilter,
+		DurationFilter,
 	},
 }
 
