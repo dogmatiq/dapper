@@ -38,16 +38,13 @@ func mutexFilter(w io.Writer, v Value) (n int, err error) {
 
 	state := v.Value.FieldByName("state")
 
-	s := "<unlocked>"
-	if !isInt(state) {
-		// CODE COVERAGE: This branch handles the case when the internals of the
-		// sync package have changed. Ideally this *should* never occur, but is
-		// included so as to avoid a panic on future versions of the sync
-		// package. The tests will catch such a failure, at which point Dapper
-		// will need to be updated.
-		s = "<unknown state>"
-	} else if state.Int() != 0 {
-		s = "<locked>"
+	s := "<unknoen state>"
+	if isInt(state) {
+		if state.Int() != 0 {
+			s = "<locked>"
+		} else {
+			s = "<unlocked>"
+		}
 	}
 
 	if v.IsAmbiguousType() {
@@ -72,20 +69,15 @@ func rwMutexFilter(w io.Writer, v Value) (n int, err error) {
 		state = write.FieldByName("state")
 	}
 
-	s := "<unlocked>"
-	if !isInt(wait) ||
-		!isInt(count) ||
-		!isInt(state) {
-		// CODE COVERAGE: This branch handles the case when the internals of the
-		// sync package have changed. Ideally this *should* never occur, but is
-		// included so as to avoid a panic on future versions of the sync
-		// package. The tests will catch such a failure, at which point Dapper
-		// will need to be updated.
-		s = "<unknown state>"
-	} else if wait.Int() > 0 || count.Int() > 0 {
-		s = "<read locked>"
-	} else if state.Int() != 0 {
-		s = "<write locked>"
+	s := "<unknown state>"
+	if isInt(wait) && isInt(count) && isInt(state) {
+		if wait.Int() > 0 || count.Int() > 0 {
+			s = "<read locked>"
+		} else if state.Int() != 0 {
+			s = "<write locked>"
+		} else {
+			s = "<unlocked>"
+		}
 	}
 
 	if v.IsAmbiguousType() {
@@ -103,16 +95,13 @@ func onceFilter(w io.Writer, v Value) (n int, err error) {
 
 	done := v.Value.FieldByName("done")
 
-	s := "<pending>"
-	if !isUint(done) {
-		// CODE COVERAGE: This branch handles the case when the internals of the
-		// sync package have changed. Ideally this *should* never occur, but is
-		// included so as to avoid a panic on future versions of the sync
-		// package. The tests will catch such a failure, at which point Dapper
-		// will need to be updated.
-		s = "<unknown state>"
-	} else if done.Uint() != 0 {
-		s = "<complete>"
+	s := "<unknown state>"
+	if isUint(done) {
+		if done.Uint() != 0 {
+			s = "<complete>"
+		} else {
+			s = "<pending>"
+		}
 	}
 
 	if v.IsAmbiguousType() {
