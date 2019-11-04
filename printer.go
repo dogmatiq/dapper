@@ -118,6 +118,7 @@ var defaultPrinter = Printer{
 		ReflectTypeFilter,
 		TimeFilter,
 		DurationFilter,
+		SyncFilter,
 	},
 }
 
