@@ -38,7 +38,7 @@ func mutexFilter(w io.Writer, v Value) (n int, err error) {
 
 	state := v.Value.FieldByName("state")
 
-	s := "<unknoen state>"
+	s := "<unknown state>"
 	if isInt(state) {
 		if state.Int() != 0 {
 			s = "<locked>"
