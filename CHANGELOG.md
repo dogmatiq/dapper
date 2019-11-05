@@ -9,6 +9,14 @@ The format is based on [Keep a Changelog], and this project adheres to
 [Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 
+## [Unreleased]
+
+## Changed
+
+- Byte slices and arrays are now rendered in hexdump format
+- Improved rendering of `sync.Mutex`, `RWMutex` and `Once`
+- Improved rendering of `time.Time` and `Duration`
+
 ## [0.3.3] - 2019-04-23
 
 ### Fixed
