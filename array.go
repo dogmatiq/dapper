@@ -1,12 +1,16 @@
 package dapper
 
 import (
+	"encoding/hex"
 	"io"
 	"reflect"
 
 	"github.com/dogmatiq/iago/indent"
 	"github.com/dogmatiq/iago/must"
 )
+
+// byteType is the reflect.Type of the built-in byte type.
+var byteType = reflect.TypeOf((*byte)(nil)).Elem()
 
 // visitArray formats values with a kind of reflect.Array or Slice.
 func (vis *visitor) visitArray(w io.Writer, v Value) {
@@ -19,8 +23,14 @@ func (vis *visitor) visitArray(w io.Writer, v Value) {
 		return
 	}
 
+	i := indent.NewIndenter(w, vis.indent)
+
 	must.WriteString(w, "{\n")
-	vis.visitArrayValues(indent.NewIndenter(w, vis.indent), v)
+	if v.DynamicType.Elem() == byteType {
+		vis.visitByteArrayValues(i, v)
+	} else {
+		vis.visitArrayValues(i, v)
+	}
 	must.WriteByte(w, '}')
 }
 
@@ -50,5 +60,15 @@ func (vis *visitor) visitArrayValues(w io.Writer, v Value) {
 		)
 
 		must.WriteString(w, "\n")
+	}
+}
+
+func (vis *visitor) visitByteArrayValues(w io.Writer, v Value) {
+	d := hex.Dumper(w)
+	defer d.Close()
+
+	for i := 0; i < v.Value.Len(); i++ {
+		octet := byte(v.Value.Index(i).Uint())
+		must.WriteByte(d, octet)
 	}
 }
