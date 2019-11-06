@@ -135,8 +135,12 @@ func Format(v interface{}) string {
 	return defaultPrinter.Format(v)
 }
 
+var newLine = []byte{'\n'}
+
 // Print writes a pretty-printed representation of v to os.Stdout.
-func Print(v interface{}) {
-	defaultPrinter.Write(os.Stdout, v)
-	os.Stdout.Write([]byte{'\n'})
+func Print(values ...interface{}) {
+	for _, v := range values {
+		defaultPrinter.Write(os.Stdout, v)
+		os.Stdout.Write(newLine)
+	}
 }

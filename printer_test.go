@@ -54,8 +54,7 @@ func ExamplePrinter() {
 }
 
 func ExamplePrint() {
-	Print(123)
-	Print(456.0)
+	Print(123, 456.0)
 
 	// output: int(123)
 	// float64(456)
