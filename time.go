@@ -21,16 +21,16 @@ var (
 func TimeFilter(w io.Writer, v Value) (n int, err error) {
 	defer must.Recover(&err)
 
-	if v.DynamicType != timeType {
-		return 0, nil
+	if v.DynamicType == timeType {
+		mv, ok := unsafereflect.MakeMutable(v.Value)
+		if ok {
+			s := mv.Interface().(time.Time).Format(time.RFC3339Nano)
+			n += must.WriteString(w, s)
+			return
+		}
 	}
 
-	s := v.Value.
-		Convert(timeType).
-		Interface().(time.Time).
-		Format(time.RFC3339Nano)
-
-	return must.WriteString(w, s), nil
+	return 0, nil
 }
 
 // DurationFilter is a filter that formats time.Duration values.

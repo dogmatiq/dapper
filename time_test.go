@@ -23,9 +23,20 @@ func TestPrinter_TimeFilter(t *testing.T) {
 		tm,
 		"2019-11-03T10:13:08.839511Z",
 	)
+
+	test(
+		t,
+		"time.Time (unexported struct field)",
+		struct {
+			t time.Time
+		}{tm},
+		"{",
+		"    t: 2019-11-03T10:13:08.839511Z",
+		"}",
+	)
 }
 
-func TestPrinter_TimeDuration(t *testing.T) {
+func TestPrinter_DurationFilter(t *testing.T) {
 	dur := 20 * time.Second
 
 	test(
@@ -33,5 +44,16 @@ func TestPrinter_TimeDuration(t *testing.T) {
 		"time.Duration",
 		dur,
 		"20s",
+	)
+
+	test(
+		t,
+		"time.Duration (unexported struct field)",
+		struct {
+			d time.Duration
+		}{dur},
+		"{",
+		"    d: 20s",
+		"}",
 	)
 }

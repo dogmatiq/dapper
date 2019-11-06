@@ -25,6 +25,17 @@ func TestPrinter_SyncFilter(t *testing.T) {
 	)
 	w.Unlock()
 
+	test(
+		t,
+		"sync.Mutex (unexported struct field)",
+		struct {
+			w sync.Mutex
+		}{},
+		"{",
+		"    w: sync.Mutex(<unlocked>)",
+		"}",
+	)
+
 	var rw sync.RWMutex
 
 	test(
@@ -75,6 +86,17 @@ func TestPrinter_SyncFilter(t *testing.T) {
 	<-barrier
 	rw.Unlock()
 
+	test(
+		t,
+		"sync.RWMutex (unexported struct field)",
+		struct {
+			rw sync.RWMutex
+		}{},
+		"{",
+		"    rw: sync.RWMutex(<unlocked>)",
+		"}",
+	)
+
 	var o sync.Once
 	test(
 		t,
@@ -104,6 +126,17 @@ func TestPrinter_SyncFilter(t *testing.T) {
 		"    w:    <unlocked>",
 		"    rw:   <unlocked>",
 		"    once: <pending>",
+		"}",
+	)
+
+	test(
+		t,
+		"sync.Once (unexported struct field)",
+		struct {
+			o sync.Once
+		}{},
+		"{",
+		"    o: sync.Once(<pending>)",
 		"}",
 	)
 }
