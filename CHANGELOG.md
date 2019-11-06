@@ -9,23 +9,23 @@ The format is based on [Keep a Changelog], and this project adheres to
 [Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 
-## [Unreleased]
+## [0.3.5] - 2019-11-06
 
 ## Changed
 
-- `Print()` now accepts multiple values
+- `Print()` now accepts multiple arguments ([#23])
 
 ## Fixed
 
-- Fix panic when rendering unexported `time.Time` values
+- Fix panic when rendering unexported `time.Time` values ([#24])
 
 ## [0.3.4] - 2019-11-05
 
 ## Changed
 
-- Byte slices and arrays are now rendered in hexdump format
-- Improved rendering of `sync.Mutex`, `RWMutex` and `Once`
-- Improved rendering of `time.Time` and `Duration`
+- Byte slices and arrays are now rendered in hexdump format ([#15])
+- Improved rendering of `sync.Mutex`, `RWMutex` and `Once` ([#14])
+- Improved rendering of `time.Time` and `Duration` ([#8])
 
 ## [0.3.3] - 2019-04-23
 
@@ -91,10 +91,16 @@ The format is based on [Keep a Changelog], and this project adheres to
 [0.3.2]: https://github.com/dogmatiq/dapper/releases/tag/v0.3.2
 [0.3.3]: https://github.com/dogmatiq/dapper/releases/tag/v0.3.3
 [0.3.4]: https://github.com/dogmatiq/dapper/releases/tag/v0.3.4
+[0.3.5]: https://github.com/dogmatiq/dapper/releases/tag/v0.3.5
 
 [#6]: https://github.com/dogmatiq/dapper/issues/6
 [#7]: https://github.com/dogmatiq/dapper/issues/7
+[#8]: https://github.com/dogmatiq/dapper/issues/8
 [#9]: https://github.com/dogmatiq/dapper/issues/9
+[#14]: https://github.com/dogmatiq/dapper/issues/14
+[#15]: https://github.com/dogmatiq/dapper/issues/15
+[#23]: https://github.com/dogmatiq/dapper/issues/23
+[#24]: https://github.com/dogmatiq/dapper/issues/24
 
 [Iago]: https://github.com/dogmatiq/iago
 
