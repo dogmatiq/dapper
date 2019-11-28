@@ -49,7 +49,12 @@ func (vis *visitor) visitMapElements(w io.Writer, v Value) {
 
 		must.WriteString(w, mk.String)
 		must.WriteString(w, ": ")
-		must.WriteString(w, strings.Repeat(" ", alignment-mk.Width))
+
+		// align values only if the key fits in a single line
+		if !strings.ContainsRune(mk.String, '\n') {
+			must.WriteString(w, strings.Repeat(" ", alignment-mk.Width))
+		}
+
 		vis.visit(
 			w,
 			Value{

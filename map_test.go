@@ -119,7 +119,7 @@ func TestPrinter_MultilineMapKeyAlignment(t *testing.T) {
 		`    "the longest key in the galaxy": "two"`,
 		"    dapper_test.multiline{",
 		`        Key: "multiline key"`,
-		`    }:                               "three"`,
+		`    }: "three"`,
 		"}",
 	)
 
@@ -134,7 +134,7 @@ func TestPrinter_MultilineMapKeyAlignment(t *testing.T) {
 		`    "short":                 "one"`,
 		"    dapper_test.multiline{",
 		`        Key: "multiline key"`,
-		`    }:                       "three"`,
+		`    }: "three"`,
 		"}",
 	)
 }
