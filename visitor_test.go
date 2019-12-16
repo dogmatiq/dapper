@@ -14,11 +14,15 @@ func test(
 	v interface{},
 	lines ...string,
 ) {
+	t.Helper()
+
 	x := strings.Join(lines, "\n")
 
 	t.Run(
 		n,
 		func(t *testing.T) {
+			t.Helper()
+
 			var w strings.Builder
 			n, err := Write(&w, v)
 
