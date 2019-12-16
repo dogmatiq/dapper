@@ -17,6 +17,9 @@ var (
 
 	// onceType is the reflect.Type for the sync.Once type.
 	onceType = reflect.TypeOf((*sync.Once)(nil)).Elem()
+
+	// mapType is the reflect.Type for the sync.Map type.
+	mapType = reflect.TypeOf((*sync.Map)(nil)).Elem()
 )
 
 // SyncFilter is a filter that formats various types from the sync package.
