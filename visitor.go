@@ -30,6 +30,11 @@ func (vis *visitor) visit(w io.Writer, v Value) {
 		return
 	}
 
+	if vis.enter(w, v) {
+		return
+	}
+	defer vis.leave(v)
+
 	for _, f := range vis.filters {
 		if n := must.Must(f(w, v)); n > 0 {
 			return
@@ -79,6 +84,16 @@ func (vis *visitor) visit(w io.Writer, v Value) {
 // It returns true if the value is nil, or recursion has occurred, indicating
 // that the value should not be rendered.
 func (vis *visitor) enter(w io.Writer, v Value) bool {
+	if !v.CanNil() {
+		return false
+	}
+
+	// If the value is an empty interface, return false as there is a specific
+	// case for rendering empty interfaces.
+	if v.DynamicType.Kind() == reflect.Interface && v.Value.IsNil() {
+		return false
+	}
+
 	marker := "nil"
 
 	if !v.Value.IsNil() {
@@ -113,7 +128,7 @@ func (vis *visitor) enter(w io.Writer, v Value) bool {
 //
 // It must be called after enter(v) returns true.
 func (vis *visitor) leave(v Value) {
-	if !v.Value.IsNil() {
+	if v.CanNil() && !v.Value.IsNil() {
 		delete(vis.recursionSet, v.Value.Pointer())
 	}
 }

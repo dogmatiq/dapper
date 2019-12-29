@@ -57,3 +57,16 @@ func (v *Value) IsAnonymousType() bool {
 func (v *Value) IsAmbiguousType() bool {
 	return v.IsAmbiguousDynamicType || v.IsAmbiguousStaticType
 }
+
+// CanNil reports if the Value can be nil as a zero value. When this method
+// returns true, it is safe to call IsNil() on the value without causing
+// panicking.
+func (v *Value) CanNil() bool {
+	switch v.DynamicType.Kind() {
+	case reflect.Chan, reflect.Func, reflect.Interface,
+		reflect.Map, reflect.Ptr, reflect.Slice, reflect.UnsafePointer:
+		return true
+	default:
+		return false
+	}
+}
