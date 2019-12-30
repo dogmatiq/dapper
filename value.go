@@ -58,7 +58,7 @@ func (v *Value) IsAmbiguousType() bool {
 	return v.IsAmbiguousDynamicType || v.IsAmbiguousStaticType
 }
 
-// CanNil reports if the Value can be nil as a zero value. When this method
+// CanNil reports if v.Value can be nil. When this method
 // returns true, it is safe to call IsNil() on the value without causing
 // panicking.
 func (v *Value) CanNil() bool {
