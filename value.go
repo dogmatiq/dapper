@@ -58,10 +58,9 @@ func (v *Value) IsAmbiguousType() bool {
 	return v.IsAmbiguousDynamicType || v.IsAmbiguousStaticType
 }
 
-// CanNil reports if v.Value can be nil. When this method
-// returns true, it is safe to call IsNil() on the value without causing
-// panicking.
-func (v *Value) CanNil() bool {
+// canNil reports if v.Value can be nil. When this method returns true, it is
+// safe to call IsNil() on the value without causing panicking.
+func (v *Value) canNil() bool {
 	switch v.DynamicType.Kind() {
 	case reflect.Chan, reflect.Func, reflect.Interface,
 		reflect.Map, reflect.Ptr, reflect.Slice, reflect.UnsafePointer:

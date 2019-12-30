@@ -84,7 +84,7 @@ func (vis *visitor) visit(w io.Writer, v Value) {
 // It returns true if the value is nil, or recursion has occurred, indicating
 // that the value should not be rendered.
 func (vis *visitor) enter(w io.Writer, v Value) bool {
-	if !v.CanNil() {
+	if !v.canNil() {
 		return false
 	}
 
@@ -128,7 +128,7 @@ func (vis *visitor) enter(w io.Writer, v Value) bool {
 //
 // It must be called after enter(v) returns true.
 func (vis *visitor) leave(v Value) {
-	if v.CanNil() && !v.Value.IsNil() {
+	if v.canNil() && !v.Value.IsNil() {
 		delete(vis.recursionSet, v.Value.Pointer())
 	}
 }
