@@ -8,6 +8,11 @@ import (
 
 // visitPtr formats values with a kind of reflect.Ptr.
 func (vis *visitor) visitPtr(w io.Writer, v Value) {
+	if v.Value.IsNil() {
+		vis.renderNil(w, v)
+		return
+	}
+
 	if v.IsAmbiguousType() {
 		must.WriteByte(w, '*')
 	}

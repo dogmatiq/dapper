@@ -1,6 +1,7 @@
 package dapper
 
 import (
+	"fmt"
 	"io"
 	"reflect"
 
@@ -81,54 +82,49 @@ func (vis *visitor) visit(w io.Writer, v Value) {
 
 // enter indicates that a potentially recursive value is about to be formatted.
 //
-// It returns true if the value is nil, or recursion has occurred, indicating
-// that the value should not be rendered.
+// It returns true if the recursion has occurred, indicating that the value
+// should not be rendered.
 func (vis *visitor) enter(w io.Writer, v Value) bool {
-	if !v.canNil() {
-		return false
-	}
-
-	// If the value is an empty interface, return false as there is a specific
-	// case for rendering empty interfaces.
-	if v.DynamicType.Kind() == reflect.Interface && v.Value.IsNil() {
-		return false
-	}
-
-	marker := "nil"
-
-	if !v.Value.IsNil() {
+	if v.canPointer() {
 		ptr := v.Value.Pointer()
 
-		if _, ok := vis.recursionSet[ptr]; !ok {
-			if vis.recursionSet == nil {
-				vis.recursionSet = map[uintptr]struct{}{}
+		if _, ok := vis.recursionSet[ptr]; ok {
+			if v.IsAmbiguousType() {
+				must.WriteString(w, v.TypeName())
+				must.WriteByte(w, '(')
+				must.WriteString(w, vis.recursionMarker)
+				must.WriteByte(w, ')')
+			} else {
+				must.WriteString(w, vis.recursionMarker)
 			}
 
-			vis.recursionSet[ptr] = struct{}{}
-
-			return false
+			return true
 		}
 
-		marker = vis.recursionMarker
+		if vis.recursionSet == nil {
+			vis.recursionSet = map[uintptr]struct{}{}
+		}
+
+		vis.recursionSet[ptr] = struct{}{}
 	}
 
-	if v.IsAmbiguousType() {
-		must.WriteString(w, v.TypeName())
-		must.WriteByte(w, '(')
-		must.WriteString(w, marker)
-		must.WriteByte(w, ')')
-	} else {
-		must.WriteString(w, marker)
-	}
-
-	return true
+	return false
 }
 
 // leave indicates that a potentially recursive value has finished rendering.
 //
 // It must be called after enter(v) returns true.
 func (vis *visitor) leave(v Value) {
-	if v.canNil() && !v.Value.IsNil() {
+	if v.canPointer() {
 		delete(vis.recursionSet, v.Value.Pointer())
+	}
+}
+
+// renderNil renders the given Value as if it is nil.
+func (vis *visitor) renderNil(w io.Writer, v Value) {
+	if v.IsAmbiguousType() {
+		must.WriteString(w, fmt.Sprintf("%s(nil)", v.TypeName()))
+	} else {
+		must.WriteString(w, "nil")
 	}
 }

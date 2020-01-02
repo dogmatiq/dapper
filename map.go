@@ -14,6 +14,11 @@ import (
 //
 // TODO(jmalloc): sort numerically-keyed maps numerically
 func (vis *visitor) visitMap(w io.Writer, v Value) {
+	if v.Value.IsNil() {
+		vis.renderNil(w, v)
+		return
+	}
+
 	if v.IsAmbiguousType() {
 		must.WriteString(w, v.TypeName())
 	}
