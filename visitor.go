@@ -120,7 +120,7 @@ func (vis *visitor) leave(v Value) {
 	}
 }
 
-// renderNil renders the given Value as if it is nil.
+// renderNil renders a nil value of any type.
 func (vis *visitor) renderNil(w io.Writer, v Value) {
 	if v.IsAmbiguousType() {
 		must.WriteString(w, fmt.Sprintf("%s(nil)", v.TypeName()))
