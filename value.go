@@ -57,3 +57,15 @@ func (v *Value) IsAnonymousType() bool {
 func (v *Value) IsAmbiguousType() bool {
 	return v.IsAmbiguousDynamicType || v.IsAmbiguousStaticType
 }
+
+// canPointer reports if v.Value.Pointer() method can be called without
+// panicking.
+func (v *Value) canPointer() bool {
+	switch v.DynamicType.Kind() {
+	case reflect.Chan, reflect.Func, reflect.Map,
+		reflect.Ptr, reflect.Slice, reflect.UnsafePointer:
+		return true
+	default:
+		return false
+	}
+}
