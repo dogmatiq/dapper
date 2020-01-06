@@ -24,8 +24,10 @@ type visitor struct {
 	recursionSet map[uintptr]struct{}
 }
 
-// TODO: don't return err or, let propagate and use iago.Recover() in Printer instead.
-func (vis *visitor) visit(w io.Writer, v Value) {
+// mustVisit renders v to w.
+//
+// It panics if an error occurs writing to w.
+func (vis *visitor) mustVisit(w io.Writer, v Value) {
 	if v.Value.Kind() == reflect.Invalid {
 		must.WriteString(w, "interface{}(nil)")
 		return

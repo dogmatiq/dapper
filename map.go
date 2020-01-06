@@ -55,7 +55,7 @@ func (vis *visitor) visitMapElements(w io.Writer, v Value) {
 			must.WriteString(w, strings.Repeat(" ", alignment-mk.Width))
 		}
 
-		vis.visit(
+		vis.mustVisit(
 			w,
 			Value{
 				Value:                  mv,
@@ -95,7 +95,7 @@ func (vis *visitor) formatMapKeys(v Value) (keys []mapKey, alignment int) {
 			mk = mk.Elem()
 		}
 
-		vis.visit(
+		vis.mustVisit(
 			&w,
 			Value{
 				Value:                  mk,

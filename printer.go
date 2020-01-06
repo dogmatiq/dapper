@@ -83,7 +83,7 @@ func (p *Printer) Write(w io.Writer, v interface{}) (n int, err error) {
 
 	cw := count.NewWriter(w)
 
-	vis.visit(
+	vis.mustVisit(
 		cw,
 		Value{
 			Value:                  rv,
