@@ -35,7 +35,7 @@ type Filter func(w io.Writer, v Value) (int, error)
 // Printer generates human-readable representations of Go values.
 //
 // The output format is intended to be as minimal as possible, without being
-// ambigious. To that end, type information is only included where it can not be
+// ambiguous. To that end, type information is only included where it can not be
 // reliably inferred from the structure of the value.
 type Printer struct {
 	// Filters is the set of filters to apply when formatting values.

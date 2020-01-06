@@ -68,7 +68,7 @@ var (
 // not be inferred from context.
 //
 // Note that the type name is never rendered for strings or booleans, as these
-// literals are not ambigious as is.
+// literals are not ambiguous as is.
 func TestPrinter_ShallowValues(t *testing.T) {
 	test(t, "string", shallowValues.String, `"foo\nbar"`)
 	test(t, "bool", shallowValues.Bool, "true")

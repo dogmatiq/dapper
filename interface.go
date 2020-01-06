@@ -14,9 +14,9 @@ func (vis *visitor) visitInterface(w io.Writer, v Value) {
 		panic("unexpectedly called visitInterface() with non-nil interface")
 	}
 
-	// for a nil interface, we only want to render the type if the STATIC type is
-	// ambigious, since the only information we have available is the interface
-	// type itself, not the actual implementation's type.
+	// for a nil interface, we only want to render the type if the STATIC type
+	// is ambiguous, since the only information we have available is the
+	// interface type itself, not the actual implementation's type.
 	if v.IsAmbiguousStaticType {
 		must.WriteString(w, v.TypeName())
 		must.WriteString(w, "(nil)")
