@@ -18,33 +18,37 @@ var (
 )
 
 // TimeFilter is a filter that formats time.Time values.
-func TimeFilter(w io.Writer, v Value) (n int, err error) {
+func TimeFilter(
+	w io.Writer,
+	v Value,
+	f func(w io.Writer, v Value) error,
+) (err error) {
 	defer must.Recover(&err)
 
 	if v.DynamicType == timeType {
-		mv, ok := unsafereflect.MakeMutable(v.Value)
-		if ok {
+		if mv, ok := unsafereflect.MakeMutable(v.Value); ok {
 			s := mv.Interface().(time.Time).Format(time.RFC3339Nano)
-			n += must.WriteString(w, s)
-			return
+			must.WriteString(w, s)
 		}
 	}
 
-	return 0, nil
+	return nil
 }
 
 // DurationFilter is a filter that formats time.Duration values.
-func DurationFilter(w io.Writer, v Value) (n int, err error) {
+func DurationFilter(
+	w io.Writer,
+	v Value,
+	f func(w io.Writer, v Value) error,
+) (err error) {
 	defer must.Recover(&err)
 
-	if v.DynamicType != durationType {
-		return 0, nil
+	if v.DynamicType == durationType {
+		if mv, ok := unsafereflect.MakeMutable(v.Value); ok {
+			s := mv.Interface().(time.Duration).String()
+			must.WriteString(w, s)
+		}
 	}
 
-	if mv, ok := unsafereflect.MakeMutable(v.Value); ok {
-		s := mv.Interface().(time.Duration).String()
-		n = must.WriteString(w, s)
-	}
-
-	return
+	return nil
 }

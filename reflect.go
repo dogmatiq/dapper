@@ -12,11 +12,15 @@ import (
 var reflectTypeType = reflect.TypeOf((*reflect.Type)(nil)).Elem()
 
 // ReflectTypeFilter is a filter that formats reflect.Type values.
-func ReflectTypeFilter(w io.Writer, v Value) (n int, err error) {
+func ReflectTypeFilter(
+	w io.Writer,
+	v Value,
+	f func(w io.Writer, v Value) error,
+) (err error) {
 	defer must.Recover(&err)
 
 	if !v.DynamicType.Implements(reflectTypeType) {
-		return 0, nil
+		return nil
 	}
 
 	ambiguous := false
@@ -31,21 +35,21 @@ func ReflectTypeFilter(w io.Writer, v Value) (n int, err error) {
 	}
 
 	if ambiguous {
-		n += must.WriteString(w, "reflect.Type(")
+		must.WriteString(w, "reflect.Type(")
 	}
 
 	if mv, ok := unsafereflect.MakeMutable(v.Value); ok {
 		t := mv.Interface().(reflect.Type)
 
 		if s := t.PkgPath(); s != "" {
-			n += must.WriteString(w, s)
-			n += must.WriteByte(w, '.')
+			must.WriteString(w, s)
+			must.WriteByte(w, '.')
 		}
 
 		if s := t.Name(); s != "" {
-			n += must.WriteString(w, s)
+			must.WriteString(w, s)
 		} else {
-			n += must.WriteString(w, t.String())
+			must.WriteString(w, t.String())
 		}
 	} else {
 		// CODE COVERAGE: This branch handles a failure within the unsafereflect
@@ -53,18 +57,18 @@ func ReflectTypeFilter(w io.Writer, v Value) (n int, err error) {
 		// avoid a panic on future Go versions. A test within the unsafereflect
 		// package will catch such a failure, at which point Dapper will need to
 		// be updated.
-		n += must.WriteString(w, "<unknown>")
+		must.WriteString(w, "<unknown>")
 	}
 
 	// always render the pointer value for the type, this way when the field is
 	// unexported we still get something we can compare to known types instead of a
 	// rendering of the reflect.rtype struct.
-	n += must.WriteByte(w, ' ')
-	n += must.WriteString(w, formatPointerHex(v.Value.Pointer(), false))
+	must.WriteByte(w, ' ')
+	must.WriteString(w, formatPointerHex(v.Value.Pointer(), false))
 
 	if ambiguous {
-		n += must.WriteByte(w, ')')
+		must.WriteByte(w, ')')
 	}
 
-	return
+	return nil
 }

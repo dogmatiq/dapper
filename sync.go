@@ -20,20 +20,28 @@ var (
 )
 
 // SyncFilter is a filter that formats various types from the sync package.
-func SyncFilter(w io.Writer, v Value) (int, error) {
+func SyncFilter(
+	w io.Writer,
+	v Value,
+	f func(w io.Writer, v Value) error,
+) error {
 	switch v.DynamicType {
 	case mutexType:
-		return mutexFilter(w, v)
+		return mutexFilter(w, v, f)
 	case rwMutexType:
-		return rwMutexFilter(w, v)
+		return rwMutexFilter(w, v, f)
 	case onceType:
-		return onceFilter(w, v)
+		return onceFilter(w, v, f)
 	default:
-		return 0, nil
+		return nil
 	}
 }
 
-func mutexFilter(w io.Writer, v Value) (n int, err error) {
+func mutexFilter(
+	w io.Writer,
+	v Value,
+	format func(w io.Writer, v Value) error,
+) (err error) {
 	defer must.Recover(&err)
 
 	state := v.Value.FieldByName("state")
@@ -48,16 +56,20 @@ func mutexFilter(w io.Writer, v Value) (n int, err error) {
 	}
 
 	if v.IsAmbiguousType() {
-		n += must.WriteString(w, v.TypeName())
-		n += must.Fprintf(w, "(%v)", s)
+		must.WriteString(w, v.TypeName())
+		must.Fprintf(w, "(%v)", s)
 	} else {
-		n += must.Fprintf(w, "%v", s)
+		must.Fprintf(w, "%v", s)
 	}
 
-	return
+	return err
 }
 
-func rwMutexFilter(w io.Writer, v Value) (n int, err error) {
+func rwMutexFilter(
+	w io.Writer,
+	v Value,
+	f func(w io.Writer, v Value) error,
+) (err error) {
 	defer must.Recover(&err)
 
 	wait := v.Value.FieldByName("readerWait")
@@ -81,16 +93,20 @@ func rwMutexFilter(w io.Writer, v Value) (n int, err error) {
 	}
 
 	if v.IsAmbiguousType() {
-		n += must.WriteString(w, v.TypeName())
-		n += must.Fprintf(w, "(%v)", s)
+		must.WriteString(w, v.TypeName())
+		must.Fprintf(w, "(%v)", s)
 	} else {
-		n += must.Fprintf(w, "%v", s)
+		must.Fprintf(w, "%v", s)
 	}
 
-	return
+	return err
 }
 
-func onceFilter(w io.Writer, v Value) (n int, err error) {
+func onceFilter(
+	w io.Writer,
+	v Value,
+	f func(w io.Writer, v Value) error,
+) (err error) {
 	defer must.Recover(&err)
 
 	done := v.Value.FieldByName("done")
@@ -105,13 +121,13 @@ func onceFilter(w io.Writer, v Value) (n int, err error) {
 	}
 
 	if v.IsAmbiguousType() {
-		n += must.WriteString(w, v.TypeName())
-		n += must.Fprintf(w, "(%v)", s)
+		must.WriteString(w, v.TypeName())
+		must.Fprintf(w, "(%v)", s)
 	} else {
-		n += must.Fprintf(w, "%v", s)
+		must.Fprintf(w, "%v", s)
 	}
 
-	return
+	return err
 }
 
 // isInt returns true if v is one of the signed integer types.

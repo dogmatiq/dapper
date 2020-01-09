@@ -14,23 +14,27 @@ const (
 	// DefaultIndent is the default indent string used to indent nested values.
 	DefaultIndent = "    "
 
-	// DefaultRecursionMarker is the default string to displayed when recursion is
-	// detected within a Go value.
+	// DefaultRecursionMarker is the default string to displayed when recursion
+	// is detected within a Go value.
 	DefaultRecursionMarker = "<recursion>"
 )
 
 // Filter is a function that provides custom formatting logic for specific
 // values.
 //
-// It writes a formatted representation of v to w, and returns the number of
-// bytes written.
+// It optionally writes a formatted representation of v to w. If the filter does
+// not produce any output the default formatting logic is used.
 //
-// If the number of bytes written is non-zero, the default formatting logic is
-// skipped.
+// The f function can be used to render another value. This is useful when
+// producing filters that render collections of other values.
 //
 // Particular attention should be paid to the v.IsUnexported field. If this flag
 // is true, many operations on v.Value are unavailable.
-type Filter func(w io.Writer, v Value) (int, error)
+type Filter func(
+	w io.Writer,
+	v Value,
+	f func(w io.Writer, v Value) error,
+) error
 
 // Printer generates human-readable representations of Go values.
 //
