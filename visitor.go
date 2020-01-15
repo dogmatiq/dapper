@@ -5,6 +5,7 @@ import (
 	"io"
 	"reflect"
 
+	"github.com/dogmatiq/iago/count"
 	"github.com/dogmatiq/iago/must"
 )
 
@@ -38,8 +39,14 @@ func (vis *visitor) mustVisit(w io.Writer, v Value) {
 	}
 	defer vis.leave(v)
 
+	cw := count.NewWriter(w)
+
 	for _, f := range vis.filters {
-		if n := must.Must(f(w, v)); n > 0 {
+		if err := f(cw, v, vis.visit); err != nil {
+			panic(must.PanicSentinel{Cause: err})
+		}
+
+		if cw.Count() > 0 {
 			return
 		}
 	}
@@ -80,6 +87,15 @@ func (vis *visitor) mustVisit(w io.Writer, v Value) {
 	}
 
 	return
+}
+
+// visit renders v to w.
+func (vis *visitor) visit(w io.Writer, v Value) (err error) {
+	defer must.Recover(&err)
+
+	vis.mustVisit(w, v)
+
+	return nil
 }
 
 // enter indicates that a potentially recursive value is about to be formatted.
