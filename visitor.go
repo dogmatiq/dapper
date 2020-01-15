@@ -45,10 +45,10 @@ func (vis *visitor) mustVisit(w io.Writer, v Value) {
 		if err := f(cw, v, vis.visit); err != nil {
 			panic(must.PanicSentinel{Cause: err})
 		}
-	}
 
-	if cw.Count() > 0 {
-		return
+		if cw.Count() > 0 {
+			return
+		}
 	}
 
 	switch v.DynamicType.Kind() {
