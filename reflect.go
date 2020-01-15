@@ -19,10 +19,6 @@ func ReflectTypeFilter(w io.Writer, v Value) (n int, err error) {
 		return 0, nil
 	}
 
-	if v.DynamicType.Kind() == reflect.Interface && v.Value.IsNil() {
-		return 0, nil
-	}
-
 	ambiguous := false
 
 	if v.IsAmbiguousStaticType {
