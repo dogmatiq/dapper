@@ -5,7 +5,6 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/dogmatiq/dapper/internal/unsafereflect"
 	"github.com/dogmatiq/iago/must"
 )
 
@@ -26,10 +25,9 @@ func TimeFilter(
 	defer must.Recover(&err)
 
 	if v.DynamicType == timeType {
-		if mv, ok := unsafereflect.MakeMutable(v.Value); ok {
-			s := mv.Interface().(time.Time).Format(time.RFC3339Nano)
-			must.WriteString(w, s)
-		}
+		s := v.Value.Interface().(time.Time).Format(time.RFC3339Nano)
+		must.WriteString(w, s)
+
 	}
 
 	return nil
@@ -44,10 +42,8 @@ func DurationFilter(
 	defer must.Recover(&err)
 
 	if v.DynamicType == durationType {
-		if mv, ok := unsafereflect.MakeMutable(v.Value); ok {
-			s := mv.Interface().(time.Duration).String()
-			must.WriteString(w, s)
-		}
+		s := v.Value.Interface().(time.Duration).String()
+		must.WriteString(w, s)
 	}
 
 	return nil
