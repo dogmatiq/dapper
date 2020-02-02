@@ -50,12 +50,6 @@ func ReflectTypeFilter(
 		must.WriteString(w, t.String())
 	}
 
-	// always render the pointer value for the type, this way when the field is
-	// unexported we still get something we can compare to known types instead of a
-	// rendering of the reflect.rtype struct.
-	must.WriteByte(w, ' ')
-	must.WriteString(w, formatPointerHex(v.Value.Pointer(), false))
-
 	if ambiguous {
 		must.WriteByte(w, ')')
 	}

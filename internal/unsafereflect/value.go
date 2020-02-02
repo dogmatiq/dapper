@@ -12,22 +12,22 @@ import (
 // This allows invocation of methods on the value. Care must be taken not to
 // call methods that modify the returned value.
 //
-// It returns false if the value can not be made mutable.
-func MakeMutable(v reflect.Value) (reflect.Value, bool) {
+// It panics if the value can not be made mutable.
+func MakeMutable(v reflect.Value) reflect.Value {
 	if v.CanInterface() {
-		return v, true
+		return v
 	}
 
 	if flagsErr != nil {
 		// CODE COVERAGE: This branch is never executed unless the internals of
 		// the reflect package have changed in some incompatible way.
-		return v, false
+		panic(fmt.Sprintf("cannot make value %v mutable", v))
 	}
 
 	f := flags(&v)
 	*f &^= flagRO // clear the read-only flag
 
-	return v, true
+	return v
 }
 
 // flag is defined equivalently to the unexported reflect.flag type.

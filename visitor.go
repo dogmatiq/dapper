@@ -40,55 +40,53 @@ func (vis *visitor) mustVisit(w io.Writer, v Value) {
 	}
 	defer vis.leave(v)
 
-	var ok bool
-	if v.Value, ok = unsafereflect.MakeMutable(v.Value); ok {
+	v.Value = unsafereflect.MakeMutable(v.Value)
 
-		cw := count.NewWriter(w)
+	cw := count.NewWriter(w)
 
-		for _, f := range vis.filters {
-			if err := f(cw, v, vis.visit); err != nil {
-				panic(must.PanicSentinel{Cause: err})
-			}
-
-			if cw.Count() > 0 {
-				return
-			}
+	for _, f := range vis.filters {
+		if err := f(cw, v, vis.visit); err != nil {
+			panic(must.PanicSentinel{Cause: err})
 		}
 
-		switch v.DynamicType.Kind() {
-		case reflect.String:
-			vis.visitString(w, v)
-		case reflect.Bool:
-			vis.visitBool(w, v)
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			vis.visitInt(w, v)
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			vis.visitUint(w, v)
-		case reflect.Float32, reflect.Float64:
-			vis.visitFloat(w, v)
-		case reflect.Complex64, reflect.Complex128:
-			vis.visitComplex(w, v)
-		case reflect.Uintptr:
-			vis.visitUintptr(w, v)
-		case reflect.UnsafePointer:
-			vis.visitUnsafePointer(w, v)
-		case reflect.Chan:
-			vis.visitChan(w, v)
-		case reflect.Func:
-			vis.visitFunc(w, v)
-		case reflect.Interface:
-			vis.visitInterface(w, v)
-		case reflect.Map:
-			vis.visitMap(w, v)
-		case reflect.Ptr:
-			vis.visitPtr(w, v)
-		case reflect.Array:
-			vis.visitArray(w, v)
-		case reflect.Slice:
-			vis.visitSlice(w, v)
-		case reflect.Struct:
-			vis.visitStruct(w, v)
+		if cw.Count() > 0 {
+			return
 		}
+	}
+
+	switch v.DynamicType.Kind() {
+	case reflect.String:
+		vis.visitString(w, v)
+	case reflect.Bool:
+		vis.visitBool(w, v)
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		vis.visitInt(w, v)
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		vis.visitUint(w, v)
+	case reflect.Float32, reflect.Float64:
+		vis.visitFloat(w, v)
+	case reflect.Complex64, reflect.Complex128:
+		vis.visitComplex(w, v)
+	case reflect.Uintptr:
+		vis.visitUintptr(w, v)
+	case reflect.UnsafePointer:
+		vis.visitUnsafePointer(w, v)
+	case reflect.Chan:
+		vis.visitChan(w, v)
+	case reflect.Func:
+		vis.visitFunc(w, v)
+	case reflect.Interface:
+		vis.visitInterface(w, v)
+	case reflect.Map:
+		vis.visitMap(w, v)
+	case reflect.Ptr:
+		vis.visitPtr(w, v)
+	case reflect.Array:
+		vis.visitArray(w, v)
+	case reflect.Slice:
+		vis.visitSlice(w, v)
+	case reflect.Struct:
+		vis.visitStruct(w, v)
 	}
 	return
 }

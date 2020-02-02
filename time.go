@@ -27,7 +27,6 @@ func TimeFilter(
 	if v.DynamicType == timeType {
 		s := v.Value.Interface().(time.Time).Format(time.RFC3339Nano)
 		must.WriteString(w, s)
-
 	}
 
 	return nil
