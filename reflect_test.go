@@ -11,12 +11,6 @@ type reflectType struct {
 	unexported reflect.Type
 }
 
-var (
-	intType   = reflect.TypeOf(0)
-	mapType   = reflect.TypeOf(map[string]string{})
-	namedType = reflect.TypeOf(named{})
-)
-
 func formatReflectTypePointer(t reflect.Type) string {
 	return fmt.Sprintf("0x%x", reflect.ValueOf(t).Pointer())
 }
@@ -25,14 +19,14 @@ func TestPrinter_ReflectTypeFilter(t *testing.T) {
 	test(
 		t,
 		"built-in type",
-		intType,
+		reflect.TypeOf(0),
 		"reflect.Type(int)",
 	)
 
 	test(
 		t,
 		"built-in parameterized type",
-		mapType,
+		reflect.TypeOf(map[string]string{}),
 		"reflect.Type(map[string]string)",
 	)
 
