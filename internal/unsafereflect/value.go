@@ -21,7 +21,7 @@ func MakeMutable(v reflect.Value) reflect.Value {
 	if flagsErr != nil {
 		// CODE COVERAGE: This branch is never executed unless the internals of
 		// the reflect package have changed in some incompatible way.
-		panic(fmt.Sprintf("cannot make value %v mutable", v))
+		panic(fmt.Errorf("cannot make value %v mutable: %w", v, flagsErr))
 	}
 
 	f := flags(&v)
