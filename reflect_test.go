@@ -1,7 +1,6 @@
 package dapper_test
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 )
@@ -9,10 +8,6 @@ import (
 type reflectType struct {
 	Exported   reflect.Type
 	unexported reflect.Type
-}
-
-func formatReflectTypePointer(t reflect.Type) string {
-	return fmt.Sprintf("0x%x", reflect.ValueOf(t).Pointer())
 }
 
 func TestPrinter_ReflectTypeFilter(t *testing.T) {
