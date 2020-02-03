@@ -1,7 +1,6 @@
 package dapper_test
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 )
@@ -11,39 +10,26 @@ type reflectType struct {
 	unexported reflect.Type
 }
 
-var (
-	intType          = reflect.TypeOf(0)
-	intTypePointer   = formatReflectTypePointer(intType)
-	mapType          = reflect.TypeOf(map[string]string{})
-	mapTypePointer   = formatReflectTypePointer(mapType)
-	namedType        = reflect.TypeOf(named{})
-	namedTypePointer = formatReflectTypePointer(namedType)
-)
-
-func formatReflectTypePointer(t reflect.Type) string {
-	return fmt.Sprintf("0x%x", reflect.ValueOf(t).Pointer())
-}
-
 func TestPrinter_ReflectTypeFilter(t *testing.T) {
 	test(
 		t,
 		"built-in type",
-		intType,
-		"reflect.Type(int "+intTypePointer+")",
+		reflect.TypeOf(0),
+		"reflect.Type(int)",
 	)
 
 	test(
 		t,
 		"built-in parameterized type",
-		mapType,
-		"reflect.Type(map[string]string "+mapTypePointer+")",
+		reflect.TypeOf(map[string]string{}),
+		"reflect.Type(map[string]string)",
 	)
 
 	test(
 		t,
 		"named type",
 		reflect.TypeOf(named{}),
-		"reflect.Type(github.com/dogmatiq/dapper_test.named "+namedTypePointer+")",
+		"reflect.Type(github.com/dogmatiq/dapper_test.named)",
 	)
 
 	typ := reflect.TypeOf(struct{ Int int }{})
@@ -51,7 +37,7 @@ func TestPrinter_ReflectTypeFilter(t *testing.T) {
 		t,
 		"anonymous struct",
 		typ,
-		"reflect.Type(struct { Int int } "+formatReflectTypePointer(typ)+")",
+		"reflect.Type(struct { Int int })",
 	)
 
 	typ = reflect.TypeOf((*interface{ Int() int })(nil)).Elem()
@@ -59,7 +45,7 @@ func TestPrinter_ReflectTypeFilter(t *testing.T) {
 		t,
 		"anonymous interface",
 		typ,
-		"reflect.Type(interface { Int() int } "+formatReflectTypePointer(typ)+")",
+		"reflect.Type(interface { Int() int })",
 	)
 
 	test(
@@ -71,7 +57,7 @@ func TestPrinter_ReflectTypeFilter(t *testing.T) {
 			reflect.TypeOf(0),
 		},
 		"{",
-		"    Type: reflect.Type(int "+intTypePointer+")",
+		"    Type: reflect.Type(int)",
 		"}",
 	)
 
@@ -83,8 +69,8 @@ func TestPrinter_ReflectTypeFilter(t *testing.T) {
 			unexported: reflect.TypeOf(0),
 		},
 		"dapper_test.reflectType{",
-		"    Exported:   int "+intTypePointer,
-		"    unexported: int "+intTypePointer,
+		"    Exported:   int",
+		"    unexported: int",
 		"}",
 	)
 }

@@ -5,6 +5,7 @@ import (
 	"io"
 	"reflect"
 
+	"github.com/dogmatiq/dapper/internal/unsafereflect"
 	"github.com/dogmatiq/iago/count"
 	"github.com/dogmatiq/iago/must"
 )
@@ -38,6 +39,8 @@ func (vis *visitor) mustVisit(w io.Writer, v Value) {
 		return
 	}
 	defer vis.leave(v)
+
+	v.Value = unsafereflect.MakeMutable(v.Value)
 
 	cw := count.NewWriter(w)
 
@@ -85,7 +88,6 @@ func (vis *visitor) mustVisit(w io.Writer, v Value) {
 	case reflect.Struct:
 		vis.visitStruct(w, v)
 	}
-
 	return
 }
 
