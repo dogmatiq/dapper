@@ -11,9 +11,9 @@ import (
 
 // visitStruct formats values with a kind of reflect.Struct.
 func (vis *visitor) visitStruct(w io.Writer, v Value) {
-	// even if the type is ambiguous, we only render it if it's not anonymous this
-	// is to avoid rendering the full type with field definitions. instead we mark
-	// each field's value as ambiguous and render their types inline.
+	// even if the type is ambiguous, we only render it if it's not anonymous
+	// this is to avoid rendering the full type with field definitions. instead
+	// we mark each field's value as ambiguous and render their types inline.
 	if v.IsAmbiguousType() && !v.IsAnonymousType() {
 		must.WriteString(w, vis.FormatTypeName(v))
 	}
@@ -37,8 +37,8 @@ func (vis *visitor) visitStructFields(w io.Writer, v Value) {
 
 		isInterface := f.Type.Kind() == reflect.Interface
 
-		// unwrap interface values so that elem has it's actual type/kind, and not
-		// that of reflect.Interface.
+		// unwrap interface values so that elem has it's actual type/kind, and
+		// not that of reflect.Interface.
 		if isInterface && !fv.IsNil() {
 			fv = fv.Elem()
 		}
