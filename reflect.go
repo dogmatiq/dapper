@@ -14,6 +14,7 @@ var reflectTypeType = reflect.TypeOf((*reflect.Type)(nil)).Elem()
 func ReflectTypeFilter(
 	w io.Writer,
 	v Value,
+	_ Config,
 	f func(w io.Writer, v Value) error,
 ) (err error) {
 	defer must.Recover(&err)

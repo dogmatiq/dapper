@@ -19,29 +19,8 @@ const (
 	DefaultRecursionMarker = "<recursion>"
 )
 
-// Filter is a function that provides custom formatting logic for specific
-// values.
-//
-// It optionally writes a formatted representation of v to w. If the filter does
-// not produce any output the default formatting logic is used.
-//
-// The f function can be used to render another value. This is useful when
-// producing filters that render collections of other values.
-//
-// Particular attention should be paid to the v.IsUnexported field. If this flag
-// is true, many operations on v.Value are unavailable.
-type Filter func(
-	w io.Writer,
-	v Value,
-	f func(w io.Writer, v Value) error,
-) error
-
-// Printer generates human-readable representations of Go values.
-//
-// The output format is intended to be as minimal as possible, without being
-// ambiguous. To that end, type information is only included where it can not be
-// reliably inferred from the structure of the value.
-type Printer struct {
+// Config holds the configuration for a printer.
+type Config struct {
 	// Filters is the set of filters to apply when formatting values.
 	Filters []Filter
 
@@ -55,6 +34,16 @@ type Printer struct {
 	RecursionMarker string
 }
 
+// Printer generates human-readable representations of Go values.
+//
+// The output format is intended to be as minimal as possible, without being
+// ambiguous. To that end, type information is only included where it can not be
+// reliably inferred from the structure of the value.
+type Printer struct {
+	// Config is the configuration for the printer.
+	Config Config
+}
+
 // emptyInterfaceType is the reflect.Type for interface{}.
 var emptyInterfaceType = reflect.TypeOf((*interface{})(nil)).Elem()
 
@@ -65,17 +54,15 @@ func (p *Printer) Write(w io.Writer, v interface{}) (n int, err error) {
 	defer must.Recover(&err)
 
 	vis := visitor{
-		filters:         p.Filters,
-		indent:          []byte(p.Indent),
-		recursionMarker: p.RecursionMarker,
+		config: p.Config,
 	}
 
-	if len(vis.indent) == 0 {
-		vis.indent = []byte(DefaultIndent)
+	if vis.config.Indent == "" {
+		vis.config.Indent = DefaultIndent
 	}
 
-	if vis.recursionMarker == "" {
-		vis.recursionMarker = DefaultRecursionMarker
+	if vis.config.RecursionMarker == "" {
+		vis.config.RecursionMarker = DefaultRecursionMarker
 	}
 
 	rv := reflect.ValueOf(v)
@@ -116,13 +103,14 @@ func (p *Printer) Format(v interface{}) string {
 	return b.String()
 }
 
-// defaultPrinter is a Printer instance with default settings.
 var defaultPrinter = Printer{
-	Filters: []Filter{
-		ReflectTypeFilter,
-		TimeFilter,
-		DurationFilter,
-		SyncFilter,
+	Config: Config{
+		Filters: []Filter{
+			ReflectTypeFilter,
+			TimeFilter,
+			DurationFilter,
+			SyncFilter,
+		},
 	},
 }
 

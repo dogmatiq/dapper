@@ -20,6 +20,7 @@ var (
 func TimeFilter(
 	w io.Writer,
 	v Value,
+	_ Config,
 	f func(w io.Writer, v Value) error,
 ) (err error) {
 	defer must.Recover(&err)
@@ -36,6 +37,7 @@ func TimeFilter(
 func DurationFilter(
 	w io.Writer,
 	v Value,
+	_ Config,
 	f func(w io.Writer, v Value) error,
 ) (err error) {
 	defer must.Recover(&err)

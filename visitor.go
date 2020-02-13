@@ -12,14 +12,8 @@ import (
 
 // visitor walks a Go value in order to render it.
 type visitor struct {
-	// filters is the set of filters to apply.
-	filters []Filter
-
-	// indent is the string used to indent nested values.
-	indent []byte
-
-	// recursionMarker is the string used to represent recursion within a value.
-	recursionMarker string
+	// config is the printer's configuration.
+	config Config
 
 	// recursionSet is the set of potentially recursive values that are currently
 	// being visited.
@@ -44,8 +38,8 @@ func (vis *visitor) mustVisit(w io.Writer, v Value) {
 
 	cw := count.NewWriter(w)
 
-	for _, f := range vis.filters {
-		if err := f(cw, v, vis.visit); err != nil {
+	for _, f := range vis.config.Filters {
+		if err := f(cw, v, vis.config, vis.visit); err != nil {
 			panic(must.PanicSentinel{Cause: err})
 		}
 
@@ -112,10 +106,10 @@ func (vis *visitor) enter(w io.Writer, v Value) bool {
 			if v.IsAmbiguousType() {
 				must.WriteString(w, v.TypeName())
 				must.WriteByte(w, '(')
-				must.WriteString(w, vis.recursionMarker)
+				must.WriteString(w, vis.config.RecursionMarker)
 				must.WriteByte(w, ')')
 			} else {
-				must.WriteString(w, vis.recursionMarker)
+				must.WriteString(w, vis.config.RecursionMarker)
 			}
 
 			return true

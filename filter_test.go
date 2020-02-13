@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -12,7 +13,7 @@ import (
 )
 
 func TestPrinter_Filter(t *testing.T) {
-	t.Run("format function", func(t *testing.T) {
+	t.Run("it is passed a valid format function", func(t *testing.T) {
 		type testType struct {
 			i int
 		}
@@ -24,6 +25,7 @@ func TestPrinter_Filter(t *testing.T) {
 		f := func(
 			w io.Writer,
 			v Value,
+			_ Config,
 			f func(w io.Writer, v Value) error,
 		) error {
 			if v.TypeName() == "dapper_test.testType" {
@@ -51,7 +53,9 @@ func TestPrinter_Filter(t *testing.T) {
 		}
 
 		p := Printer{
-			Filters: []Filter{f},
+			Config: Config{
+				Filters: []Filter{f},
+			},
 		}
 
 		expected := fmt.Sprintf("dapper_test.testType<%d>", tt.i)
@@ -63,7 +67,36 @@ func TestPrinter_Filter(t *testing.T) {
 		}
 	})
 
-	t.Run("filter errors are propagated", func(t *testing.T) {
+	t.Run("is passed the printer's config", func(t *testing.T) {
+		cfg := Config{
+			Indent:          "--->",
+			RecursionMarker: "*LOOP*",
+		}
+
+		f := func(
+			_ io.Writer,
+			_ Value,
+			c Config,
+			_ func(w io.Writer, v Value) error,
+		) error {
+			if !reflect.DeepEqual(c, cfg) {
+				t.Logf("expected:\n\n%#+v\n", cfg)
+				t.Fatalf("actual:\n\n%#+v\n", c)
+			}
+
+			return nil
+		}
+
+		cfg.Filters = []Filter{f}
+
+		p := Printer{
+			Config: cfg,
+		}
+
+		p.Write(&strings.Builder{}, 100)
+	})
+
+	t.Run("it causes the printer to fail if it returns an error", func(t *testing.T) {
 		var (
 			err  error
 			terr = errors.New("test filter error")
@@ -72,13 +105,16 @@ func TestPrinter_Filter(t *testing.T) {
 		f := func(
 			w io.Writer,
 			v Value,
+			_ Config,
 			f func(w io.Writer, v Value) error,
 		) error {
 			return terr
 		}
 
 		p := Printer{
-			Filters: []Filter{f},
+			Config: Config{
+				Filters: []Filter{f},
+			},
 		}
 
 		t.Log("expected:\n\n" + fmt.Sprintf("%#+v", terr) + "\n")

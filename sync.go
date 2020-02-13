@@ -23,6 +23,7 @@ var (
 func SyncFilter(
 	w io.Writer,
 	v Value,
+	_ Config,
 	f func(w io.Writer, v Value) error,
 ) error {
 	switch v.DynamicType {
