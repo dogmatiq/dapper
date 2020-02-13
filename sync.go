@@ -24,15 +24,15 @@ func SyncFilter(
 	w io.Writer,
 	v Value,
 	_ Config,
-	f func(w io.Writer, v Value) error,
+	p FilterPrinter,
 ) error {
 	switch v.DynamicType {
 	case mutexType:
-		return mutexFilter(w, v, f)
+		return mutexFilter(w, v, p)
 	case rwMutexType:
-		return rwMutexFilter(w, v, f)
+		return rwMutexFilter(w, v, p)
 	case onceType:
-		return onceFilter(w, v, f)
+		return onceFilter(w, v, p)
 	default:
 		return nil
 	}
@@ -41,7 +41,7 @@ func SyncFilter(
 func mutexFilter(
 	w io.Writer,
 	v Value,
-	format func(w io.Writer, v Value) error,
+	p FilterPrinter,
 ) (err error) {
 	defer must.Recover(&err)
 
@@ -57,7 +57,7 @@ func mutexFilter(
 	}
 
 	if v.IsAmbiguousType() {
-		must.WriteString(w, v.TypeName())
+		must.WriteString(w, p.FormatTypeName(v))
 		must.Fprintf(w, "(%v)", s)
 	} else {
 		must.Fprintf(w, "%v", s)
@@ -69,7 +69,7 @@ func mutexFilter(
 func rwMutexFilter(
 	w io.Writer,
 	v Value,
-	f func(w io.Writer, v Value) error,
+	p FilterPrinter,
 ) (err error) {
 	defer must.Recover(&err)
 
@@ -94,7 +94,7 @@ func rwMutexFilter(
 	}
 
 	if v.IsAmbiguousType() {
-		must.WriteString(w, v.TypeName())
+		must.WriteString(w, p.FormatTypeName(v))
 		must.Fprintf(w, "(%v)", s)
 	} else {
 		must.Fprintf(w, "%v", s)
@@ -106,7 +106,7 @@ func rwMutexFilter(
 func onceFilter(
 	w io.Writer,
 	v Value,
-	f func(w io.Writer, v Value) error,
+	p FilterPrinter,
 ) (err error) {
 	defer must.Recover(&err)
 
@@ -122,7 +122,7 @@ func onceFilter(
 	}
 
 	if v.IsAmbiguousType() {
-		must.WriteString(w, v.TypeName())
+		must.WriteString(w, p.FormatTypeName(v))
 		must.Fprintf(w, "(%v)", s)
 	} else {
 		must.Fprintf(w, "%v", s)

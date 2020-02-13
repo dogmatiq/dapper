@@ -2,7 +2,6 @@ package dapper
 
 import (
 	"reflect"
-	"strings"
 )
 
 // Value contains information about a Go value that is to be formatted.
@@ -34,19 +33,6 @@ type Value struct {
 	IsUnexported bool
 }
 
-// TypeName returns the name of the value's type formatted for display.
-func (v *Value) TypeName() string {
-	n := qualifiedTypeName(v.DynamicType)
-	n = strings.Replace(n, "interface {", "interface{", -1)
-	n = strings.Replace(n, "struct {", "struct{", -1)
-
-	if strings.ContainsAny(n, "() \t\n") {
-		return "(" + n + ")"
-	}
-
-	return n
-}
-
 // IsAnonymousType returns true if the value has an anonymous type.
 func (v *Value) IsAnonymousType() bool {
 	return v.DynamicType.Name() == ""
@@ -68,19 +54,4 @@ func (v *Value) canPointer() bool {
 	default:
 		return false
 	}
-}
-
-// qualifiedTypeName returns the fully-qualified name of the given type.
-func qualifiedTypeName(rt reflect.Type) string {
-	n := rt.Name()
-	if n == "" {
-		return rt.String()
-	}
-
-	p := rt.PkgPath()
-	if p == "" {
-		return rt.String()
-	}
-
-	return p + "." + n
 }

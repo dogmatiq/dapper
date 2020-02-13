@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"reflect"
+	"strings"
 
 	"github.com/dogmatiq/dapper/internal/unsafereflect"
 	"github.com/dogmatiq/iago/count"
@@ -11,6 +12,9 @@ import (
 )
 
 // visitor walks a Go value in order to render it.
+//
+// It implements the FilterPrinter interface so that it can be passed directly
+// to Filter functions.
 type visitor struct {
 	// config is the printer's configuration.
 	config Config
@@ -39,7 +43,7 @@ func (vis *visitor) mustVisit(w io.Writer, v Value) {
 	cw := count.NewWriter(w)
 
 	for _, f := range vis.config.Filters {
-		if err := f(cw, v, vis.config, vis.visit); err != nil {
+		if err := f(cw, v, vis.config, vis); err != nil {
 			panic(must.PanicSentinel{Cause: err})
 		}
 
@@ -85,13 +89,27 @@ func (vis *visitor) mustVisit(w io.Writer, v Value) {
 	return
 }
 
-// visit renders v to w.
-func (vis *visitor) visit(w io.Writer, v Value) (err error) {
+// Write renders v to w.
+func (vis *visitor) Write(w io.Writer, v Value) (err error) {
 	defer must.Recover(&err)
 
 	vis.mustVisit(w, v)
 
 	return nil
+}
+
+// FormatTypeName returns the name of v's dynamic type, rendered as per the
+// printer's configuration.
+func (vis *visitor) FormatTypeName(v Value) string {
+	n := qualifiedTypeName(v.DynamicType, vis.config.OmitPackagePaths)
+	n = strings.Replace(n, "interface {", "interface{", -1)
+	n = strings.Replace(n, "struct {", "struct{", -1)
+
+	if strings.ContainsAny(n, "() \t\n") {
+		return "(" + n + ")"
+	}
+
+	return n
 }
 
 // enter indicates that a potentially recursive value is about to be formatted.
@@ -104,7 +122,7 @@ func (vis *visitor) enter(w io.Writer, v Value) bool {
 
 		if _, ok := vis.recursionSet[ptr]; ok {
 			if v.IsAmbiguousType() {
-				must.WriteString(w, v.TypeName())
+				must.WriteString(w, vis.FormatTypeName(v))
 				must.WriteByte(w, '(')
 				must.WriteString(w, vis.config.RecursionMarker)
 				must.WriteByte(w, ')')
@@ -137,8 +155,27 @@ func (vis *visitor) leave(v Value) {
 // renderNil renders a nil value of any type.
 func (vis *visitor) renderNil(w io.Writer, v Value) {
 	if v.IsAmbiguousType() {
-		must.WriteString(w, fmt.Sprintf("%s(nil)", v.TypeName()))
+		must.WriteString(w, fmt.Sprintf("%s(nil)", vis.FormatTypeName(v)))
 	} else {
 		must.WriteString(w, "nil")
 	}
+}
+
+// qualifiedTypeName returns the fully-qualified name of the given type.
+func qualifiedTypeName(rt reflect.Type, omitPath bool) string {
+	if omitPath {
+		return rt.String()
+	}
+
+	n := rt.Name()
+	if n == "" {
+		return rt.String()
+	}
+
+	p := rt.PkgPath()
+	if p == "" {
+		return rt.String()
+	}
+
+	return p + "." + n
 }

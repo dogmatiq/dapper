@@ -15,7 +15,7 @@ func ReflectTypeFilter(
 	w io.Writer,
 	v Value,
 	_ Config,
-	f func(w io.Writer, v Value) error,
+	p FilterPrinter,
 ) (err error) {
 	defer must.Recover(&err)
 

@@ -15,7 +15,7 @@ var byteType = reflect.TypeOf((*byte)(nil)).Elem()
 // visitArray formats values with a kind of reflect.Array or Slice.
 func (vis *visitor) visitArray(w io.Writer, v Value) {
 	if v.IsAmbiguousType() {
-		must.WriteString(w, v.TypeName())
+		must.WriteString(w, vis.FormatTypeName(v))
 	}
 
 	if v.Value.Len() == 0 {
