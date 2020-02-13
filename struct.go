@@ -24,7 +24,7 @@ func (vis *visitor) visitStruct(w io.Writer, v Value) {
 	}
 
 	must.WriteString(w, "{\n")
-	vis.visitStructFields(indent.NewIndenter(w, vis.indent), v)
+	vis.visitStructFields(indent.NewIndenter(w, vis.config.Indent), v)
 	must.WriteByte(w, '}')
 }
 

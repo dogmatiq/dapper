@@ -9,6 +9,21 @@ The format is based on [Keep a Changelog], and this project adheres to
 [Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 
+## [Unreleased]
+
+## Added
+
+- Add `Config` to enscapsulate the configuration of a `Printer`
+
+## Changed
+
+- **[BC]** Change `DefaultIndent` from `string` constant to `[]byte`
+
+## Removed
+
+- **[BC]** Remove `Printer.Filters`, `Indent` and `RecursionMarker`
+- **[BC]** Pass the printer config to `Filter` functions
+
 ## [0.3.5] - 2019-11-06
 
 ## Changed
