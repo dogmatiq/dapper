@@ -8,15 +8,13 @@
 
 Dapper is a pretty-printer for Go values.
 
-It is not specifically intended to be used directly as a debugging tool, but
-as a library for applications that need to describe Go values to humans, such
-as testing frameworks.
+It is not intended to be used directly as a debugging tool, but as a library for applications that need to describe Go values to humans, such as testing frameworks.
 
-Some features include:
+Some features and design goals include:
 
 - Concise formatting, without type ambiguity
 - Deterministic output, useful for generating diffs using standard tools
-- A filtering system for producing customized output on a per-value basis
+- A filter system for producing customized output on a per-value basis
 
 ## Example
 
