@@ -174,3 +174,27 @@ func TestPrinter_StructUnexportedFields(t *testing.T) {
 		"}",
 	)
 }
+
+// This test verifies that zero-value structs are rendered without all of their
+// nested fields only if they are not anonymous.
+func TestPrinter_ZeroValueStruct(t *testing.T) {
+	test(
+		t,
+		"no fields are rendered for named zero-value structs",
+		named{},
+		"github.com/dogmatiq/dapper_test.named{<zero>}",
+	)
+
+	test(
+		t,
+		"fields are always rendered for anonymous zero-value structs",
+		struct {
+			Int   int
+			Iface interface{}
+		}{},
+		"{",
+		"    Int:   int(0)",
+		"    Iface: interface{}(nil)",
+		"}",
+	)
+}

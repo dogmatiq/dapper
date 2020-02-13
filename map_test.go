@@ -10,6 +10,7 @@ type maps struct {
 	Ints        map[int]int
 	IfaceKeys   map[interface{}]int
 	IfaceValues map[int]interface{}
+	Force       bool // prevent rendering of the zero-value marker
 }
 
 // This test verifies that that map key/value types are not rendered when they can
@@ -33,16 +34,16 @@ func TestPrinter_Map(t *testing.T) {
 // This test verifies the formatting of map key/values when the type
 // information omitted because it can be inferred from the context in which the
 // values are rendered.
-
 func TestPrinter_MapInNamedStruct(t *testing.T) {
 	test(
 		t,
 		"nil maps",
-		maps{},
+		maps{Force: true},
 		"github.com/dogmatiq/dapper_test.maps{",
 		"    Ints:        nil",
 		"    IfaceKeys:   nil",
 		"    IfaceValues: nil",
+		"    Force:       true",
 		"}",
 	)
 
@@ -58,6 +59,7 @@ func TestPrinter_MapInNamedStruct(t *testing.T) {
 		"    Ints:        {}",
 		"    IfaceKeys:   {}",
 		"    IfaceValues: {}",
+		"    Force:       false",
 		"}",
 	)
 
@@ -82,6 +84,7 @@ func TestPrinter_MapInNamedStruct(t *testing.T) {
 		"        5: int(500)",
 		"        6: int(600)",
 		"    }",
+		"    Force:       false",
 		"}",
 	)
 }

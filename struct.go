@@ -23,6 +23,13 @@ func (vis *visitor) visitStruct(w io.Writer, v Value) {
 		return
 	}
 
+	if v.Value.IsZero() && !v.IsAnonymousType() {
+		must.WriteByte(w, '{')
+		must.WriteString(w, vis.config.ZeroValueMarker)
+		must.WriteByte(w, '}')
+		return
+	}
+
 	must.WriteString(w, "{\n")
 	vis.visitStructFields(indent.NewIndenter(w, vis.config.Indent), v)
 	must.WriteByte(w, '}')

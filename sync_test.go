@@ -114,18 +114,21 @@ func TestPrinter_SyncFilter(t *testing.T) {
 	)
 
 	type syncTypes struct {
-		w    sync.Mutex
-		rw   sync.RWMutex
-		once sync.Once
+		w     sync.Mutex
+		rw    sync.RWMutex
+		once  sync.Once
+		force bool // prevent rendering of the zero-value marker
 	}
+
 	test(
 		t,
 		"excludes type information if it is not ambiguous",
-		syncTypes{},
+		syncTypes{force: true},
 		"github.com/dogmatiq/dapper_test.syncTypes{",
-		"    w:    <unlocked>",
-		"    rw:   <unlocked>",
-		"    once: <pending>",
+		"    w:     <unlocked>",
+		"    rw:    <unlocked>",
+		"    once:  <pending>",
+		"    force: true",
 		"}",
 	)
 

@@ -4,6 +4,7 @@ import "testing"
 
 type interfaces struct {
 	Iface interface{}
+	Force bool // prevent rendering of the zero-value marker
 }
 
 type iface interface{}
@@ -17,18 +18,20 @@ func TestPrinter_Interface(t *testing.T) {
 	test(
 		t,
 		"nil interface in named struct",
-		interfaces{},
+		interfaces{Force: true},
 		"github.com/dogmatiq/dapper_test.interfaces{",
 		"    Iface: nil",
+		"    Force: true",
 		"}",
 	)
 
 	test(
 		t,
 		"non-nil interface in named struct",
-		interfaces{int(100)},
+		interfaces{Iface: int(100)},
 		"github.com/dogmatiq/dapper_test.interfaces{",
 		"    Iface: int(100)",
+		"    Force: false",
 		"}",
 	)
 
