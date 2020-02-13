@@ -96,7 +96,6 @@ func ExamplePrinter_Config() {
 	//         }
 	//     }
 	// }
-
 }
 
 func ExamplePrint() {
