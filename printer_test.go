@@ -35,7 +35,7 @@ func ExamplePrinter() {
 	s := p.Format(v)
 	fmt.Println(s)
 
-	// output: dapper_test.TreeNode{
+	// output: github.com/dogmatiq/dapper_test.TreeNode{
 	//     Name:     "root"
 	//     Value:    nil
 	//     Children: {
@@ -46,7 +46,7 @@ func ExamplePrinter() {
 	//         }
 	//         {
 	//             Name:     "branch #2"
-	//             Value:    dapper_test.NodeValue{}
+	//             Value:    github.com/dogmatiq/dapper_test.NodeValue{}
 	//             Children: nil
 	//         }
 	//     }

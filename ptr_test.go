@@ -17,7 +17,7 @@ func TestPrinter_Ptr(t *testing.T) {
 		ptr{
 			(*int)(nil),
 		},
-		"dapper_test.ptr{",
+		"github.com/dogmatiq/dapper_test.ptr{",
 		"    Value: *int(nil)",
 		"}",
 	)
@@ -28,7 +28,7 @@ func TestPrinter_Ptr(t *testing.T) {
 		ptr{
 			&value,
 		},
-		"dapper_test.ptr{",
+		"github.com/dogmatiq/dapper_test.ptr{",
 		"    Value: *int(100)",
 		"}",
 	)
@@ -54,7 +54,7 @@ func TestPrinter_PtrRecursion(t *testing.T) {
 		t,
 		"recursive structure",
 		r,
-		"dapper_test.recursive{",
+		"github.com/dogmatiq/dapper_test.recursive{",
 		`    Name:  "one"`,
 		"    Child: {",
 		`        Name:  "two"`,

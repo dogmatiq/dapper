@@ -28,8 +28,8 @@ func TestPrinter_Filter(t *testing.T) {
 			_ Config,
 			f func(w io.Writer, v Value) error,
 		) error {
-			if v.TypeName() == "dapper_test.testType" {
-				must.WriteString(w, "dapper_test.testType<")
+			if v.TypeName() == "github.com/dogmatiq/dapper_test.testType" {
+				must.WriteString(w, "github.com/dogmatiq/dapper_test.testType<")
 
 				fv := v.Value.FieldByName("i")
 
@@ -58,7 +58,7 @@ func TestPrinter_Filter(t *testing.T) {
 			},
 		}
 
-		expected := fmt.Sprintf("dapper_test.testType<%d>", tt.i)
+		expected := fmt.Sprintf("github.com/dogmatiq/dapper_test.testType<%d>", tt.i)
 		t.Log("expected:\n\n" + expected + "\n")
 
 		actual := p.Format(tt)

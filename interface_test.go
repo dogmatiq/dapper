@@ -18,7 +18,7 @@ func TestPrinter_Interface(t *testing.T) {
 		t,
 		"nil interface in named struct",
 		interfaces{},
-		"dapper_test.interfaces{",
+		"github.com/dogmatiq/dapper_test.interfaces{",
 		"    Iface: nil",
 		"}",
 	)
@@ -27,7 +27,7 @@ func TestPrinter_Interface(t *testing.T) {
 		t,
 		"non-nil interface in named struct",
 		interfaces{int(100)},
-		"dapper_test.interfaces{",
+		"github.com/dogmatiq/dapper_test.interfaces{",
 		"    Iface: int(100)",
 		"}",
 	)
