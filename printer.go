@@ -13,7 +13,7 @@ import (
 // DefaultIndent is the default indent string used to indent nested values.
 var DefaultIndent = []byte("    ")
 
-// DefaultRecursionMarker is the default string to displayed when recursion
+// DefaultRecursionMarker is the default string to display when recursion
 // is detected within a Go value.
 const DefaultRecursionMarker = "<recursion>"
 
