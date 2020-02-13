@@ -10,14 +10,12 @@ import (
 	"github.com/dogmatiq/iago/must"
 )
 
-const (
-	// DefaultIndent is the default indent string used to indent nested values.
-	DefaultIndent = "    "
+// DefaultIndent is the default indent string used to indent nested values.
+var DefaultIndent = []byte("    ")
 
-	// DefaultRecursionMarker is the default string to displayed when recursion
-	// is detected within a Go value.
-	DefaultRecursionMarker = "<recursion>"
-)
+// DefaultRecursionMarker is the default string to displayed when recursion
+// is detected within a Go value.
+const DefaultRecursionMarker = "<recursion>"
 
 // Config holds the configuration for a printer.
 type Config struct {
@@ -26,7 +24,7 @@ type Config struct {
 
 	// Indent is the string used to indent nested values.
 	// If it is empty, DefaultIndent is used.
-	Indent string
+	Indent []byte
 
 	// RecursionMarker is a string that is displayed instead of a value's
 	// representation when recursion has been detected.
@@ -57,7 +55,7 @@ func (p *Printer) Write(w io.Writer, v interface{}) (n int, err error) {
 		config: p.Config,
 	}
 
-	if vis.config.Indent == "" {
+	if len(vis.config.Indent) == 0 {
 		vis.config.Indent = DefaultIndent
 	}
 

@@ -15,6 +15,10 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 - Add `Config` to enscapsulate the configuration of a `Printer`
 
+## Changed
+
+- **[BC]** Change `DefaultIndent` from `string` constant to `[]byte`
+
 ## Removed
 
 - **[BC]** Remove `Printer.Filters`, `Indent` and `RecursionMarker`

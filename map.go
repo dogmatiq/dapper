@@ -29,7 +29,7 @@ func (vis *visitor) visitMap(w io.Writer, v Value) {
 	}
 
 	must.WriteString(w, "{\n")
-	vis.visitMapElements(indent.NewIndenter(w, []byte(vis.config.Indent)), v)
+	vis.visitMapElements(indent.NewIndenter(w, vis.config.Indent), v)
 	must.WriteByte(w, '}')
 }
 

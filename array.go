@@ -23,7 +23,7 @@ func (vis *visitor) visitArray(w io.Writer, v Value) {
 		return
 	}
 
-	i := indent.NewIndenter(w, []byte(vis.config.Indent))
+	i := indent.NewIndenter(w, vis.config.Indent)
 
 	must.WriteString(w, "{\n")
 	if v.DynamicType.Elem() == byteType {

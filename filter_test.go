@@ -69,7 +69,7 @@ func TestPrinter_Filter(t *testing.T) {
 
 	t.Run("is passed the printer's config", func(t *testing.T) {
 		cfg := Config{
-			Indent:          "--->",
+			Indent:          []byte("--->"),
 			RecursionMarker: "*LOOP*",
 		}
 
