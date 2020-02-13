@@ -2,7 +2,6 @@ package dapper
 
 import (
 	"reflect"
-	"strings"
 )
 
 // Value contains information about a Go value that is to be formatted.
@@ -32,19 +31,6 @@ type Value struct {
 	// IsUnexported is true if this value was obtained from an unexported struct
 	// field. If so, it is not possible to extract the underlying value.
 	IsUnexported bool
-}
-
-// TypeName returns the name of the value's type formatted for display.
-func (v *Value) TypeName() string {
-	n := v.DynamicType.String()
-	n = strings.Replace(n, "interface {", "interface{", -1)
-	n = strings.Replace(n, "struct {", "struct{", -1)
-
-	if strings.ContainsAny(n, "() \t\n") {
-		return "(" + n + ")"
-	}
-
-	return n
 }
 
 // IsAnonymousType returns true if the value has an anonymous type.

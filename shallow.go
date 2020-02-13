@@ -17,7 +17,7 @@ var (
 // visitString formats values with a kind of reflect.String.
 func (vis *visitor) visitString(w io.Writer, v Value) {
 	if v.IsAmbiguousType() && v.DynamicType != stringType {
-		must.WriteString(w, v.TypeName())
+		must.WriteString(w, vis.FormatTypeName(v))
 		must.Fprintf(w, "(%#v)", v.Value.String())
 	} else {
 		must.Fprintf(w, "%#v", v.Value.String())
@@ -27,7 +27,7 @@ func (vis *visitor) visitString(w io.Writer, v Value) {
 // visitBool formats values with a kind of reflect.Bool.
 func (vis *visitor) visitBool(w io.Writer, v Value) {
 	if v.IsAmbiguousType() && v.DynamicType != boolType {
-		must.WriteString(w, v.TypeName())
+		must.WriteString(w, vis.FormatTypeName(v))
 		must.Fprintf(w, "(%#v)", v.Value.Bool())
 	} else {
 		must.Fprintf(w, "%#v", v.Value.Bool())
@@ -38,7 +38,7 @@ func (vis *visitor) visitBool(w io.Writer, v Value) {
 // fixed-sized types.
 func (vis *visitor) visitInt(w io.Writer, v Value) {
 	if v.IsAmbiguousType() {
-		must.WriteString(w, v.TypeName())
+		must.WriteString(w, vis.FormatTypeName(v))
 		must.Fprintf(w, "(%v)", v.Value.Int())
 	} else {
 		must.Fprintf(w, "%v", v.Value.Int())
@@ -49,7 +49,7 @@ func (vis *visitor) visitInt(w io.Writer, v Value) {
 // fixed-sized types.
 func (vis *visitor) visitUint(w io.Writer, v Value) {
 	if v.IsAmbiguousType() {
-		must.WriteString(w, v.TypeName())
+		must.WriteString(w, vis.FormatTypeName(v))
 		must.Fprintf(w, "(%v)", v.Value.Uint())
 	} else {
 		must.Fprintf(w, "%v", v.Value.Uint())
@@ -59,7 +59,7 @@ func (vis *visitor) visitUint(w io.Writer, v Value) {
 // visitFloat formats values with a kind of reflect.Float32 and Float64.
 func (vis *visitor) visitFloat(w io.Writer, v Value) {
 	if v.IsAmbiguousType() {
-		must.WriteString(w, v.TypeName())
+		must.WriteString(w, vis.FormatTypeName(v))
 		must.Fprintf(w, "(%v)", v.Value.Float())
 	} else {
 		must.Fprintf(w, "%v", v.Value.Float())
@@ -72,7 +72,7 @@ func (vis *visitor) visitComplex(w io.Writer, v Value) {
 	s := fmt.Sprintf("%v", v.Value.Complex())
 
 	if v.IsAmbiguousType() {
-		must.WriteString(w, v.TypeName())
+		must.WriteString(w, vis.FormatTypeName(v))
 		must.WriteString(w, s)
 	} else {
 		must.WriteString(w, s[1:len(s)-1]) // trim the opening and closing parenthesis
@@ -84,7 +84,7 @@ func (vis *visitor) visitUintptr(w io.Writer, v Value) {
 	s := formatPointerHex(uintptr(v.Value.Uint()), false)
 
 	if v.IsAmbiguousType() {
-		must.WriteString(w, v.TypeName())
+		must.WriteString(w, vis.FormatTypeName(v))
 		must.Fprintf(w, "(%s)", s)
 	} else {
 		must.WriteString(w, s)
@@ -96,7 +96,7 @@ func (vis *visitor) visitUnsafePointer(w io.Writer, v Value) {
 	s := formatPointerHex(v.Value.Pointer(), true)
 
 	if v.IsAmbiguousType() {
-		must.WriteString(w, v.TypeName())
+		must.WriteString(w, vis.FormatTypeName(v))
 		must.Fprintf(w, "(%s)", s)
 	} else {
 		must.WriteString(w, s)
@@ -106,7 +106,7 @@ func (vis *visitor) visitUnsafePointer(w io.Writer, v Value) {
 // visitChan formats values with a kind of reflect.Chan.
 func (vis *visitor) visitChan(w io.Writer, v Value) {
 	if v.IsAmbiguousType() {
-		must.WriteString(w, v.TypeName())
+		must.WriteString(w, vis.FormatTypeName(v))
 		must.WriteByte(w, '(')
 	}
 
@@ -134,7 +134,7 @@ func (vis *visitor) visitFunc(w io.Writer, v Value) {
 	s := formatPointerHex(v.Value.Pointer(), true)
 
 	if v.IsAmbiguousType() {
-		must.WriteString(w, v.TypeName())
+		must.WriteString(w, vis.FormatTypeName(v))
 		must.Fprintf(w, "(%s)", s)
 	} else {
 		must.WriteString(w, s)

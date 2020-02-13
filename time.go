@@ -21,7 +21,7 @@ func TimeFilter(
 	w io.Writer,
 	v Value,
 	_ Config,
-	f func(w io.Writer, v Value) error,
+	p FilterPrinter,
 ) (err error) {
 	defer must.Recover(&err)
 
@@ -38,7 +38,7 @@ func DurationFilter(
 	w io.Writer,
 	v Value,
 	_ Config,
-	f func(w io.Writer, v Value) error,
+	p FilterPrinter,
 ) (err error) {
 	defer must.Recover(&err)
 

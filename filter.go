@@ -10,8 +10,8 @@ import "io"
 //
 // c is the configuration used by the Printer that is invoking the filter.
 //
-// The f function can be used to render another value. This is useful when
-// producing filters that render collections of other values.
+// p is used to render values and type names according to the printer
+// configuration.
 //
 // Particular attention should be paid to the v.IsUnexported field. If this flag
 // is true, many operations on v.Value are unavailable.
@@ -19,5 +19,16 @@ type Filter func(
 	w io.Writer,
 	v Value,
 	c Config,
-	f func(w io.Writer, v Value) error,
+	p FilterPrinter,
 ) error
+
+// FilterPrinter is an interface used by filters to render values and types.
+type FilterPrinter interface {
+	// Write writes a pretty-printed representation of v to w using the default
+	// printer settings.
+	Write(w io.Writer, v Value) error
+
+	// FormatTypeName returns the name of v's dynamic type, rendered as per the
+	// printer's configuration.
+	FormatTypeName(v Value) string
+}

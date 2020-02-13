@@ -68,7 +68,7 @@ func TestPrinter_ReflectTypeFilter(t *testing.T) {
 			Exported:   reflect.TypeOf(0),
 			unexported: reflect.TypeOf(0),
 		},
-		"dapper_test.reflectType{",
+		"github.com/dogmatiq/dapper_test.reflectType{",
 		"    Exported:   int",
 		"    unexported: int",
 		"}",

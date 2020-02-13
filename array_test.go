@@ -56,7 +56,7 @@ func TestPrinter_ArrayInNamedStruct(t *testing.T) {
 			Ints:   [3]int{100, 200, 300},
 			Ifaces: [3]interface{}{400, 500, 600},
 		},
-		"dapper_test.arrays{",
+		"github.com/dogmatiq/dapper_test.arrays{",
 		"    Ints:   {",
 		"        100",
 		"        200",

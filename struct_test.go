@@ -49,7 +49,7 @@ type unexported struct {
 
 // This test verifies that empty structs are rendered on a single line.
 func TestPrinter_EmptyStruct(t *testing.T) {
-	test(t, "empty struct", empty{}, "dapper_test.empty{}")
+	test(t, "empty struct", empty{}, "github.com/dogmatiq/dapper_test.empty{}")
 	test(t, "empty anonymous struct", struct{}{}, "{}")
 }
 
@@ -63,7 +63,7 @@ func TestPrinter_StructFieldTypes(t *testing.T) {
 			Int:   100,
 			Iface: 200,
 		},
-		"dapper_test.named{",
+		"github.com/dogmatiq/dapper_test.named{",
 		"    Int:   100",
 		"    Iface: int(200)",
 		"}",
@@ -93,7 +93,7 @@ func TestPrinter_StructFieldTypes(t *testing.T) {
 				Int: 100,
 			},
 		},
-		"dapper_test.anonymous{",
+		"github.com/dogmatiq/dapper_test.anonymous{",
 		"    Anon: {",
 		"        Int: 100",
 		"    }",
@@ -138,7 +138,7 @@ func TestPrinter_StructUnexportedFields(t *testing.T) {
 			vArray:         [1]int{200},
 			vMap:           map[int]int{300: 400},
 		},
-		"dapper_test.unexported{",
+		"github.com/dogmatiq/dapper_test.unexported{",
 		`    vString:        "foo\nbar"`,
 		"    vBool:          true",
 		"    vInt:           -100",

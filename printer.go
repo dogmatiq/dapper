@@ -30,6 +30,10 @@ type Config struct {
 	// representation when recursion has been detected.
 	// If it is empty, DefaultRecursionMarker is used.
 	RecursionMarker string
+
+	// OmitPackagePaths, when true, causes the printer to omit the
+	// fully-qualified package path from the rendered type names.
+	OmitPackagePaths bool
 }
 
 // Printer generates human-readable representations of Go values.

@@ -18,7 +18,7 @@ func (vis *visitor) visitInterface(w io.Writer, v Value) {
 	// is ambiguous, since the only information we have available is the
 	// interface type itself, not the actual implementation's type.
 	if v.IsAmbiguousStaticType {
-		must.WriteString(w, v.TypeName())
+		must.WriteString(w, vis.FormatTypeName(v))
 		must.WriteString(w, "(nil)")
 	} else {
 		must.WriteString(w, "nil")

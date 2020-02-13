@@ -20,7 +20,7 @@ func (vis *visitor) visitMap(w io.Writer, v Value) {
 	}
 
 	if v.IsAmbiguousType() {
-		must.WriteString(w, v.TypeName())
+		must.WriteString(w, vis.FormatTypeName(v))
 	}
 
 	if v.Value.Len() == 0 {

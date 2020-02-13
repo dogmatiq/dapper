@@ -18,11 +18,12 @@ The format is based on [Keep a Changelog], and this project adheres to
 ## Changed
 
 - **[BC]** Change `DefaultIndent` from `string` constant to `[]byte`
+- **[BC]** The `Filter` function signature now accepts a `Config` and `FilterPrinter`
 
 ## Removed
 
 - **[BC]** Remove `Printer.Filters`, `Indent` and `RecursionMarker`
-- **[BC]** Pass the printer config to `Filter` functions
+- **[BC]** Remove `Value.TypeName()`
 
 ## [0.3.5] - 2019-11-06
 

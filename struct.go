@@ -15,7 +15,7 @@ func (vis *visitor) visitStruct(w io.Writer, v Value) {
 	// is to avoid rendering the full type with field definitions. instead we mark
 	// each field's value as ambiguous and render their types inline.
 	if v.IsAmbiguousType() && !v.IsAnonymousType() {
-		must.WriteString(w, v.TypeName())
+		must.WriteString(w, vis.FormatTypeName(v))
 	}
 
 	if v.DynamicType.NumField() == 0 {

@@ -122,7 +122,7 @@ func TestPrinter_SyncFilter(t *testing.T) {
 		t,
 		"excludes type information if it is not ambiguous",
 		syncTypes{},
-		"dapper_test.syncTypes{",
+		"github.com/dogmatiq/dapper_test.syncTypes{",
 		"    w:    <unlocked>",
 		"    rw:   <unlocked>",
 		"    once: <pending>",

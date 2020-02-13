@@ -101,7 +101,7 @@ func TestPrinter_ShallowValuesInNamedStruct(t *testing.T) {
 		t,
 		"it does not include the scalar types",
 		shallowValues,
-		"dapper_test.shallow{",
+		"github.com/dogmatiq/dapper_test.shallow{",
 		`    String:        "foo\nbar"`,
 		"    Bool:          true",
 		"    Int:           -100",
@@ -222,6 +222,6 @@ func TestPrinter_StringAndBoolTypeNames(t *testing.T) {
 	type MyString string
 	type MyBool bool
 
-	test(t, "typed string", MyString("foo\nbar"), `dapper_test.MyString("foo\nbar")`)
-	test(t, "typed bool", MyBool(true), `dapper_test.MyBool(true)`)
+	test(t, "typed string", MyString("foo\nbar"), `github.com/dogmatiq/dapper_test.MyString("foo\nbar")`)
+	test(t, "typed bool", MyBool(true), `github.com/dogmatiq/dapper_test.MyBool(true)`)
 }
