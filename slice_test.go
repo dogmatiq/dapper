@@ -5,6 +5,7 @@ import "testing"
 type slices struct {
 	Ints   []int
 	Ifaces []interface{}
+	Force  bool // prevent rendering of the zero-value marker
 }
 
 // This test verifies that that slice value types are not rendered when they can
@@ -50,10 +51,11 @@ func TestPrinter_SliceInNamedStruct(t *testing.T) {
 	test(
 		t,
 		"nil slices",
-		slices{},
+		slices{Force: true},
 		"github.com/dogmatiq/dapper_test.slices{",
 		"    Ints:   nil",
 		"    Ifaces: nil",
+		"    Force:  true",
 		"}",
 	)
 
@@ -67,6 +69,7 @@ func TestPrinter_SliceInNamedStruct(t *testing.T) {
 		"github.com/dogmatiq/dapper_test.slices{",
 		"    Ints:   {}",
 		"    Ifaces: {}",
+		"    Force:  false",
 		"}",
 	)
 
@@ -88,6 +91,7 @@ func TestPrinter_SliceInNamedStruct(t *testing.T) {
 		"        int(500)",
 		"        int(600)",
 		"    }",
+		"    Force:  false",
 		"}",
 	)
 }

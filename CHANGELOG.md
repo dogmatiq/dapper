@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 - **[BC]** Change `DefaultIndent` from `string` constant to `[]byte`
 - **[BC]** The `Filter` function signature now accepts a `Config` and `FilterPrinter`
+- Zero-value structs are now collapsed to `StructName{<zero>}`
 
 ## Removed
 
