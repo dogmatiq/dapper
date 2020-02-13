@@ -161,6 +161,7 @@ func TestPrinter_SyncMapFormatFunctionErr(t *testing.T) {
 	err := SyncFilter(
 		&strings.Builder{},
 		v,
+		Config{},
 		func(_ io.Writer, v Value) error {
 			if s, ok := v.Value.Interface().(string); ok && s == "foo" {
 				return terr
@@ -179,6 +180,7 @@ func TestPrinter_SyncMapFormatFunctionErr(t *testing.T) {
 	err = SyncFilter(
 		&strings.Builder{},
 		v,
+		Config{},
 		func(_ io.Writer, v Value) error {
 			if i, ok := v.Value.Interface().(int); ok && i == 1 {
 				return terr

@@ -26,7 +26,7 @@ var (
 func SyncFilter(
 	w io.Writer,
 	v Value,
-	_ Config,
+	c Config,
 	p FilterPrinter,
 ) error {
 	switch v.DynamicType {
@@ -36,6 +36,8 @@ func SyncFilter(
 		return rwMutexFilter(w, v, p)
 	case onceType:
 		return onceFilter(w, v, p)
+	case mapType:
+		return mapFilter(w, v, c, p)
 	default:
 		return nil
 	}

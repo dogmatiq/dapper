@@ -13,6 +13,7 @@ import (
 func mapFilter(
 	w io.Writer,
 	v Value,
+	c Config,
 	f func(w io.Writer, v Value) error,
 ) (err error) {
 	defer must.Recover(&err)
