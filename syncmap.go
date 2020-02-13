@@ -43,18 +43,7 @@ func mapFilter(
 	must.WriteString(w, "{\n")
 
 	i.print(
-		// TO-DO(danilvpetrov): inject the indenter into the filter, rather than
-		// hardcoding the indentation. Probably a 'Formatter' interface should
-		// be created that would look something like this:
-		//
-		// type Formatter interface {
-		//		Format(w io.Writer, v Value) error
-		// 		Indenter() io.Writer
-		// }
-		//
-		// Then, we could pass it as a third argument to all filters instead of
-		// f func(w io.Writer, v Value) error.
-		indent.NewIndenter(w, []byte("    ")),
+		indent.NewIndenter(w, c.Indent),
 		f,
 	)
 
