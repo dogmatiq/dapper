@@ -20,7 +20,7 @@ type syncmaps struct {
 func TestPrinter_SyncMap(t *testing.T) {
 	var m sync.Map
 
-	test(t, "zero-value sync.Map", &m, "*sync.Map{}")
+	test(t, "empty sync.Map", &m, "*sync.Map{}")
 
 	m.Store(1, 100)
 	m.Store(2, 200)
@@ -34,11 +34,6 @@ func TestPrinter_SyncMap(t *testing.T) {
 		"    int(2): int(200)",
 		"}",
 	)
-
-	m.Delete(1)
-	m.Delete(2)
-
-	test(t, "empty sync.Map", &m, "*sync.Map{}")
 }
 
 // This test verifies the formatting of sync.Map key/values in the named structs.

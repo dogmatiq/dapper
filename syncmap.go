@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"sort"
 	"strings"
+	"sync"
 
 	"github.com/dogmatiq/iago/indent"
 	"github.com/dogmatiq/iago/must"
@@ -21,17 +22,14 @@ func mapFilter(
 	if v.IsAmbiguousType() {
 		must.WriteString(w, v.TypeName())
 	}
-	if v.Value.IsZero() {
-		must.WriteString(w, "{}")
-		return
-	}
 
 	i := syncMapItems{}
-	if v.Value.Addr().MethodByName("Range").Call(
-		[]reflect.Value{
-			reflect.ValueOf(i.populate(v, f)),
-		},
-	); i.Err != nil {
+
+	v.Value.Addr().Interface().(*sync.Map).Range(
+		i.populate(v, f),
+	)
+
+	if i.Err != nil {
 		return i.Err
 	}
 
