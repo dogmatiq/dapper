@@ -1,11 +1,7 @@
 package dapper_test
 
 import (
-	"errors"
-	"fmt"
 	"io"
-	"reflect"
-	"strings"
 	"sync"
 	"testing"
 
@@ -160,58 +156,4 @@ func (t *testFilterPrinter) FormatTypeName(v Value) string {
 	}
 
 	return t.FormatTypeNameFn(v)
-}
-
-// This test verifies that recursive sync.Map is detected, and do not produce
-// an infinite loop or stack overflow.
-func TestPrinter_SyncMapFormatFunctionErr(t *testing.T) {
-	m := &sync.Map{}
-	m.Store("foo", 1)
-
-	v := Value{
-		Value:                  reflect.ValueOf(m).Elem(),
-		DynamicType:            reflect.TypeOf(m).Elem(),
-		StaticType:             reflect.TypeOf(m).Elem(),
-		IsAmbiguousDynamicType: false,
-		IsAmbiguousStaticType:  false,
-		IsUnexported:           false,
-	}
-
-	terr := errors.New("test key format function error")
-	fp := &testFilterPrinter{
-		WriteFn: func(_ io.Writer, v Value) error {
-			if s, ok := v.Value.Interface().(string); ok && s == "foo" {
-				return terr
-			}
-			return nil
-		},
-	}
-	err := SyncFilter(
-		&strings.Builder{},
-		v,
-		Config{},
-		fp,
-	)
-
-	t.Log(fmt.Sprintf("expected:\n\n%v\n", terr))
-
-	if terr != err {
-		t.Fatal(fmt.Sprintf("actual:\n\n%v\n", err))
-	}
-
-	terr = errors.New("test value format function error")
-	fp = &testFilterPrinter{
-		WriteFn: func(_ io.Writer, v Value) error {
-			if i, ok := v.Value.Interface().(int); ok && i == 1 {
-				return terr
-			}
-			return nil
-		},
-	}
-	err = SyncFilter(
-		&strings.Builder{},
-		v,
-		Config{},
-		fp,
-	)
 }

@@ -34,7 +34,7 @@ func mapFilter(
 			var sb strings.Builder
 			kv := reflect.ValueOf(key)
 
-			if err = p.Write(
+			p.Write(
 				&sb,
 				Value{
 					Value:                  kv,
@@ -44,9 +44,7 @@ func mapFilter(
 					IsAmbiguousStaticType:  false,
 					IsUnexported:           v.IsUnexported,
 				},
-			); err != nil {
-				return false
-			}
+			)
 
 			ks := sb.String()
 
@@ -60,7 +58,7 @@ func mapFilter(
 
 			vv := reflect.ValueOf(val)
 
-			if err = p.Write(
+			p.Write(
 				&sb,
 				Value{
 					Value:                  vv,
@@ -70,9 +68,7 @@ func mapFilter(
 					IsAmbiguousStaticType:  false,
 					IsUnexported:           v.IsUnexported,
 				},
-			); err != nil {
-				return false
-			}
+			)
 
 			vs := sb.String()
 
@@ -87,9 +83,6 @@ func mapFilter(
 			return true
 		},
 	)
-	if err != nil {
-		return err
-	}
 
 	if len(items) == 0 {
 		must.WriteString(w, "{}")
