@@ -22,9 +22,7 @@ func TimeFilter(
 	v Value,
 	_ Config,
 	p FilterPrinter,
-) (err error) {
-	defer must.Recover(&err)
-
+) error {
 	if v.DynamicType == timeType {
 		s := v.Value.Interface().(time.Time).Format(time.RFC3339Nano)
 		must.WriteString(w, s)
@@ -39,9 +37,7 @@ func DurationFilter(
 	v Value,
 	_ Config,
 	p FilterPrinter,
-) (err error) {
-	defer must.Recover(&err)
-
+) error {
 	if v.DynamicType == durationType {
 		s := v.Value.Interface().(time.Duration).String()
 		must.WriteString(w, s)

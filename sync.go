@@ -42,9 +42,7 @@ func mutexFilter(
 	w io.Writer,
 	v Value,
 	p FilterPrinter,
-) (err error) {
-	defer must.Recover(&err)
-
+) error {
 	state := v.Value.FieldByName("state")
 
 	s := "<unknown state>"
@@ -63,16 +61,14 @@ func mutexFilter(
 		must.Fprintf(w, "%v", s)
 	}
 
-	return err
+	return nil
 }
 
 func rwMutexFilter(
 	w io.Writer,
 	v Value,
 	p FilterPrinter,
-) (err error) {
-	defer must.Recover(&err)
-
+) error {
 	wait := v.Value.FieldByName("readerWait")
 	count := v.Value.FieldByName("readerCount")
 	write := v.Value.FieldByName("w")
@@ -100,16 +96,14 @@ func rwMutexFilter(
 		must.Fprintf(w, "%v", s)
 	}
 
-	return err
+	return nil
 }
 
 func onceFilter(
 	w io.Writer,
 	v Value,
 	p FilterPrinter,
-) (err error) {
-	defer must.Recover(&err)
-
+) error {
 	done := v.Value.FieldByName("done")
 
 	s := "<unknown state>"
@@ -128,7 +122,7 @@ func onceFilter(
 		must.Fprintf(w, "%v", s)
 	}
 
-	return err
+	return nil
 }
 
 // isInt returns true if v is one of the signed integer types.

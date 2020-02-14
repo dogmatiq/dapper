@@ -24,10 +24,10 @@ type visitor struct {
 	recursionSet map[uintptr]struct{}
 }
 
-// mustVisit renders v to w.
+// Write renders v to w.
 //
 // It panics if an error occurs writing to w.
-func (vis *visitor) mustVisit(w io.Writer, v Value) {
+func (vis *visitor) Write(w io.Writer, v Value) {
 	if v.Value.Kind() == reflect.Invalid {
 		must.WriteString(w, "interface{}(nil)")
 		return
@@ -87,15 +87,6 @@ func (vis *visitor) mustVisit(w io.Writer, v Value) {
 		vis.visitStruct(w, v)
 	}
 	return
-}
-
-// Write renders v to w.
-func (vis *visitor) Write(w io.Writer, v Value) (err error) {
-	defer must.Recover(&err)
-
-	vis.mustVisit(w, v)
-
-	return nil
 }
 
 // FormatTypeName returns the name of v's dynamic type, rendered as per the

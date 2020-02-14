@@ -16,9 +16,7 @@ func ReflectTypeFilter(
 	v Value,
 	_ Config,
 	p FilterPrinter,
-) (err error) {
-	defer must.Recover(&err)
-
+) error {
 	if !v.DynamicType.Implements(reflectTypeType) {
 		return nil
 	}
