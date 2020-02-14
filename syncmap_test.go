@@ -13,7 +13,8 @@ import (
 )
 
 type syncmaps struct {
-	Map sync.Map
+	Map   sync.Map
+	Force bool
 }
 
 // This test verifies that that sync.Map key/value types are always rendered.
@@ -41,8 +42,11 @@ func TestPrinter_SyncMapInNamedStruct(t *testing.T) {
 	test(
 		t,
 		"empty sync.Map",
-		&syncmaps{},
-		"*github.com/dogmatiq/dapper_test.syncmaps{<zero>}",
+		&syncmaps{Force: true},
+		"*github.com/dogmatiq/dapper_test.syncmaps{",
+		"    Map:   {}",
+		"    Force: true",
+		"}",
 	)
 
 	sm := &syncmaps{}
@@ -55,10 +59,11 @@ func TestPrinter_SyncMapInNamedStruct(t *testing.T) {
 		"non-empty sync.Map",
 		sm,
 		"*github.com/dogmatiq/dapper_test.syncmaps{",
-		"    Map: {",
+		"    Map:   {",
 		"        int(1): int(100)",
 		"        int(2): int(200)",
 		"    }",
+		"    Force: false",
 		"}",
 	)
 }
