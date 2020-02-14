@@ -74,7 +74,7 @@ func (m *syncMapItems) populate(
 			Value{
 				Value:                  k,
 				DynamicType:            k.Type(),
-				StaticType:             k.Type(),
+				StaticType:             emptyInterfaceType,
 				IsAmbiguousDynamicType: true,
 				IsAmbiguousStaticType:  false,
 				IsUnexported:           parent.IsUnexported,
@@ -101,7 +101,7 @@ func (m *syncMapItems) populate(
 			Value{
 				Value:                  v,
 				DynamicType:            v.Type(),
-				StaticType:             v.Type(),
+				StaticType:             emptyInterfaceType,
 				IsAmbiguousDynamicType: true,
 				IsAmbiguousStaticType:  false,
 				IsUnexported:           parent.IsUnexported,
