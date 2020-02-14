@@ -119,7 +119,7 @@ func TestPrinter_MultilineSyncMapKeyAlignment(t *testing.T) {
 	)
 }
 
-// This test verifies that recursive sync.Map is detected, and do not produce
+// This test verifies that recursive sync.Map is detected, and does not produce
 // an infinite loop or stack overflow.
 func TestPrinter_SyncMapRecursion(t *testing.T) {
 	var m sync.Map
