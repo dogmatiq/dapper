@@ -15,18 +15,18 @@ func mapFilter(
 	w io.Writer,
 	v Value,
 	c Config,
-	f func(w io.Writer, v Value) error,
+	p FilterPrinter,
 ) (err error) {
 	defer must.Recover(&err)
 
 	if v.IsAmbiguousType() {
-		must.WriteString(w, v.TypeName())
+		must.WriteString(w, p.FormatTypeName(v))
 	}
 
 	i := syncMapItems{}
 
 	v.Value.Addr().Interface().(*sync.Map).Range(
-		i.populate(v, f),
+		i.populate(v, p),
 	)
 
 	if i.Err != nil {
@@ -40,10 +40,7 @@ func mapFilter(
 
 	must.WriteString(w, "{\n")
 
-	i.print(
-		indent.NewIndenter(w, c.Indent),
-		f,
-	)
+	i.print(indent.NewIndenter(w, c.Indent))
 
 	must.WriteString(w, "}")
 
@@ -66,13 +63,13 @@ type syncMapItems struct {
 
 func (m *syncMapItems) populate(
 	parent Value,
-	format func(w io.Writer, v Value) error,
+	p FilterPrinter,
 ) func(interface{}, interface{}) bool {
 	return func(key, val interface{}) bool {
 		var w strings.Builder
 		k := reflect.ValueOf(key)
 
-		if err := format(
+		if err := p.Write(
 			&w,
 			Value{
 				Value:                  k,
@@ -99,7 +96,7 @@ func (m *syncMapItems) populate(
 
 		v := reflect.ValueOf(val)
 
-		if err := format(
+		if err := p.Write(
 			&w,
 			Value{
 				Value:                  v,
@@ -128,10 +125,7 @@ func (m *syncMapItems) populate(
 	}
 }
 
-func (m *syncMapItems) print(
-	w io.Writer,
-	format func(w io.Writer, v Value) error,
-) {
+func (m *syncMapItems) print(w io.Writer) {
 	sort.Slice(
 		m.Items,
 		func(i, j int) bool {

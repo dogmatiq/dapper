@@ -42,9 +42,7 @@ func TestPrinter_SyncMapInNamedStruct(t *testing.T) {
 		t,
 		"empty sync.Map",
 		&syncmaps{},
-		"*dapper_test.syncmaps{",
-		"    Map: {}",
-		"}",
+		"*github.com/dogmatiq/dapper_test.syncmaps{<zero>}",
 	)
 
 	sm := &syncmaps{}
@@ -56,7 +54,7 @@ func TestPrinter_SyncMapInNamedStruct(t *testing.T) {
 		t,
 		"non-empty sync.Map",
 		sm,
-		"*dapper_test.syncmaps{",
+		"*github.com/dogmatiq/dapper_test.syncmaps{",
 		"    Map: {",
 		"        int(1): int(100)",
 		"        int(2): int(200)",
@@ -90,7 +88,7 @@ func TestPrinter_MultilineSyncMapKeyAlignment(t *testing.T) {
 	var m sync.Map
 
 	m.Store("short", "one")
-	m.Store("the longest key in the galaxy", "two")
+	m.Store("the longest key in the galaxy must be longer than it was before", "two")
 	m.Store(multiline{Key: "multiline key"}, "three")
 
 	test(
@@ -98,23 +96,23 @@ func TestPrinter_MultilineSyncMapKeyAlignment(t *testing.T) {
 		"keys are aligned correctly",
 		&m,
 		"*sync.Map{",
-		`    "short":                         "one"`,
-		`    "the longest key in the galaxy": "two"`,
-		"    dapper_test.multiline{",
+		`    "short":                                                           "one"`,
+		`    "the longest key in the galaxy must be longer than it was before": "two"`,
+		"    github.com/dogmatiq/dapper_test.multiline{",
 		`        Key: "multiline key"`,
 		`    }: "three"`,
 		"}",
 	)
 
-	m.Delete("the longest key in the galaxy")
+	m.Delete("the longest key in the galaxy must be longer than it was before")
 
 	test(
 		t,
 		"keys are aligned correctly when the longest line is part of a multiline key",
 		&m,
 		"*sync.Map{",
-		`    "short":                 "one"`,
-		"    dapper_test.multiline{",
+		`    "short":                                   "one"`,
+		"    github.com/dogmatiq/dapper_test.multiline{",
 		`        Key: "multiline key"`,
 		`    }: "three"`,
 		"}",
@@ -137,6 +135,28 @@ func TestPrinter_SyncMapRecursion(t *testing.T) {
 	)
 }
 
+// testFilterPrinter is the test implementation of FilterPrinter interface.
+type testFilterPrinter struct {
+	WriteFn          func(io.Writer, Value) error
+	FormatTypeNameFn func(Value) string
+}
+
+func (t *testFilterPrinter) Write(w io.Writer, v Value) error {
+	if t.WriteFn == nil {
+		return nil
+	}
+
+	return t.WriteFn(w, v)
+}
+
+func (t *testFilterPrinter) FormatTypeName(v Value) string {
+	if t.FormatTypeNameFn == nil {
+		return ""
+	}
+
+	return t.FormatTypeNameFn(v)
+}
+
 // This test verifies that recursive sync.Map is detected, and do not produce
 // an infinite loop or stack overflow.
 func TestPrinter_SyncMapFormatFunctionErr(t *testing.T) {
@@ -153,16 +173,19 @@ func TestPrinter_SyncMapFormatFunctionErr(t *testing.T) {
 	}
 
 	terr := errors.New("test key format function error")
-	err := SyncFilter(
-		&strings.Builder{},
-		v,
-		Config{},
-		func(_ io.Writer, v Value) error {
+	fp := &testFilterPrinter{
+		WriteFn: func(_ io.Writer, v Value) error {
 			if s, ok := v.Value.Interface().(string); ok && s == "foo" {
 				return terr
 			}
 			return nil
 		},
+	}
+	err := SyncFilter(
+		&strings.Builder{},
+		v,
+		Config{},
+		fp,
 	)
 
 	t.Log(fmt.Sprintf("expected:\n\n%v\n", terr))
@@ -172,15 +195,18 @@ func TestPrinter_SyncMapFormatFunctionErr(t *testing.T) {
 	}
 
 	terr = errors.New("test value format function error")
-	err = SyncFilter(
-		&strings.Builder{},
-		v,
-		Config{},
-		func(_ io.Writer, v Value) error {
+	fp = &testFilterPrinter{
+		WriteFn: func(_ io.Writer, v Value) error {
 			if i, ok := v.Value.Interface().(int); ok && i == 1 {
 				return terr
 			}
 			return nil
 		},
+	}
+	err = SyncFilter(
+		&strings.Builder{},
+		v,
+		Config{},
+		fp,
 	)
 }
