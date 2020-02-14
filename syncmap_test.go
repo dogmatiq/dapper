@@ -1,11 +1,8 @@
 package dapper_test
 
 import (
-	"io"
 	"sync"
 	"testing"
-
-	. "github.com/dogmatiq/dapper"
 )
 
 type syncmaps struct {
@@ -134,26 +131,4 @@ func TestPrinter_SyncMapRecursion(t *testing.T) {
 		`    "child": *sync.Map(<recursion>)`,
 		"}",
 	)
-}
-
-// testFilterPrinter is the test implementation of FilterPrinter interface.
-type testFilterPrinter struct {
-	WriteFn          func(io.Writer, Value) error
-	FormatTypeNameFn func(Value) string
-}
-
-func (t *testFilterPrinter) Write(w io.Writer, v Value) error {
-	if t.WriteFn == nil {
-		return nil
-	}
-
-	return t.WriteFn(w, v)
-}
-
-func (t *testFilterPrinter) FormatTypeName(v Value) string {
-	if t.FormatTypeNameFn == nil {
-		return ""
-	}
-
-	return t.FormatTypeNameFn(v)
 }
