@@ -23,24 +23,99 @@ func mapFilter(
 		must.WriteString(w, p.FormatTypeName(v))
 	}
 
-	i := syncMapItems{}
-
-	v.Value.Addr().Interface().(*sync.Map).Range(
-		i.populate(v, p),
+	var (
+		alignment       int
+		alignToLastLine bool
+		items           []syncMapItem
 	)
 
-	if i.Err != nil {
-		return i.Err
+	v.Value.Addr().Interface().(*sync.Map).Range(
+		func(key, val interface{}) bool {
+			var sb strings.Builder
+			kv := reflect.ValueOf(key)
+
+			if err = p.Write(
+				&sb,
+				Value{
+					Value:                  kv,
+					DynamicType:            kv.Type(),
+					StaticType:             emptyInterfaceType,
+					IsAmbiguousDynamicType: true,
+					IsAmbiguousStaticType:  false,
+					IsUnexported:           v.IsUnexported,
+				},
+			); err != nil {
+				return false
+			}
+
+			ks := sb.String()
+
+			max, last := widths(ks)
+			if max > alignment {
+				alignment = max
+				alignToLastLine = max == last
+			}
+
+			sb.Reset()
+
+			vv := reflect.ValueOf(val)
+
+			if err = p.Write(
+				&sb,
+				Value{
+					Value:                  vv,
+					DynamicType:            vv.Type(),
+					StaticType:             emptyInterfaceType,
+					IsAmbiguousDynamicType: true,
+					IsAmbiguousStaticType:  false,
+					IsUnexported:           v.IsUnexported,
+				},
+			); err != nil {
+				return false
+			}
+
+			vs := sb.String()
+
+			items = append(
+				items,
+				syncMapItem{
+					KeyString:   ks,
+					KeyWidth:    last,
+					ValueString: vs,
+				},
+			)
+			return true
+		},
+	)
+	if err != nil {
+		return err
 	}
 
-	if len(i.Items) == 0 {
+	if len(items) == 0 {
 		must.WriteString(w, "{}")
 		return
 	}
 
+	// sort the map items by the key string
+	sort.Slice(
+		items,
+		func(i, j int) bool {
+			return items[i].KeyString < items[j].KeyString
+		},
+	)
+
+	// compensate for the ":" added to the last line"
+	if !alignToLastLine {
+		alignment--
+	}
+
 	must.WriteString(w, "{\n")
 
-	i.print(indent.NewIndenter(w, c.Indent))
+	printSyncMapItems(
+		indent.NewIndenter(w, c.Indent),
+		items,
+		alignment,
+	)
 
 	must.WriteString(w, "}")
 
@@ -53,98 +128,14 @@ type syncMapItem struct {
 	ValueString string
 }
 
-type syncMapItems struct {
-	Alignment int
-	Items     []syncMapItem
-	Err       error
-
-	alignToLastLine bool
-}
-
-func (m *syncMapItems) populate(
-	parent Value,
-	p FilterPrinter,
-) func(interface{}, interface{}) bool {
-	return func(key, val interface{}) bool {
-		var w strings.Builder
-		k := reflect.ValueOf(key)
-
-		if err := p.Write(
-			&w,
-			Value{
-				Value:                  k,
-				DynamicType:            k.Type(),
-				StaticType:             emptyInterfaceType,
-				IsAmbiguousDynamicType: true,
-				IsAmbiguousStaticType:  false,
-				IsUnexported:           parent.IsUnexported,
-			},
-		); err != nil {
-			m.Err = err
-			return false
-		}
-
-		ks := w.String()
-
-		max, last := widths(ks)
-		if max > m.Alignment {
-			m.Alignment = max
-			m.alignToLastLine = max == last
-		}
-
-		w.Reset()
-
-		v := reflect.ValueOf(val)
-
-		if err := p.Write(
-			&w,
-			Value{
-				Value:                  v,
-				DynamicType:            v.Type(),
-				StaticType:             emptyInterfaceType,
-				IsAmbiguousDynamicType: true,
-				IsAmbiguousStaticType:  false,
-				IsUnexported:           parent.IsUnexported,
-			},
-		); err != nil {
-			m.Err = err
-			return false
-		}
-
-		vs := w.String()
-
-		m.Items = append(
-			m.Items,
-			syncMapItem{
-				KeyString:   ks,
-				KeyWidth:    last,
-				ValueString: vs,
-			},
-		)
-		return true
-	}
-}
-
-func (m *syncMapItems) print(w io.Writer) {
-	sort.Slice(
-		m.Items,
-		func(i, j int) bool {
-			return m.Items[i].KeyString < m.Items[j].KeyString
-		},
-	)
-
-	// compensate for the ":" added to the last line"
-	if !m.alignToLastLine {
-		m.Alignment--
-	}
-
-	for _, item := range m.Items {
+func printSyncMapItems(w io.Writer, items []syncMapItem, alignment int) {
+	for _, item := range items {
 		must.WriteString(w, item.KeyString)
 		must.WriteString(w, ": ")
 
 		// align values only if the key fits in a single line
 		if !strings.ContainsRune(item.KeyString, '\n') {
-			must.WriteString(w, strings.Repeat(" ", m.Alignment-item.KeyWidth))
+			must.WriteString(w, strings.Repeat(" ", alignment-item.KeyWidth))
 		}
 
 		must.WriteString(w, item.ValueString)
