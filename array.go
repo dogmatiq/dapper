@@ -47,7 +47,7 @@ func (vis *visitor) visitArrayValues(w io.Writer, v Value) {
 			elem = elem.Elem()
 		}
 
-		vis.mustVisit(
+		vis.Write(
 			w,
 			Value{
 				Value:                  elem,

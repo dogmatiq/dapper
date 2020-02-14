@@ -19,7 +19,7 @@ func (vis *visitor) visitPtr(w io.Writer, v Value) {
 
 	elem := v.Value.Elem()
 
-	vis.mustVisit(
+	vis.Write(
 		w,
 		Value{
 			Value:                  elem,

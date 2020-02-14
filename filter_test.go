@@ -33,7 +33,7 @@ func TestPrinter_Filter(t *testing.T) {
 
 				fv := v.Value.FieldByName("i")
 
-				if err := p.Write(
+				p.Write(
 					w,
 					Value{
 						Value:                  fv,
@@ -43,12 +43,11 @@ func TestPrinter_Filter(t *testing.T) {
 						IsAmbiguousStaticType:  false,
 						IsUnexported:           true,
 					},
-				); err != nil {
-					return err
-				}
+				)
 
 				must.WriteByte(w, '>')
 			}
+
 			return nil
 		}
 

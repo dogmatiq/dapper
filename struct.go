@@ -53,7 +53,7 @@ func (vis *visitor) visitStructFields(w io.Writer, v Value) {
 		must.WriteString(w, f.Name)
 		must.WriteString(w, ": ")
 		must.WriteString(w, strings.Repeat(" ", alignment-len(f.Name)))
-		vis.mustVisit(
+		vis.Write(
 			w,
 			Value{
 				Value:                  fv,

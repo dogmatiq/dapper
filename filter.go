@@ -26,7 +26,7 @@ type Filter func(
 type FilterPrinter interface {
 	// Write writes a pretty-printed representation of v to w using the default
 	// printer settings.
-	Write(w io.Writer, v Value) error
+	Write(w io.Writer, v Value)
 
 	// FormatTypeName returns the name of v's dynamic type, rendered as per the
 	// printer's configuration.
