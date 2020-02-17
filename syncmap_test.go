@@ -7,7 +7,7 @@ import (
 
 type syncmaps struct {
 	Map   sync.Map
-	Force bool
+	Force bool // prevent rendering of the zero-value marker
 }
 
 // This test verifies that that sync.Map key/value types are always rendered.
