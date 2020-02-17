@@ -28,97 +28,113 @@ func (vis *visitor) visitMap(w io.Writer, v Value) {
 		return
 	}
 
-	must.WriteString(w, "{\n")
-	vis.visitMapElements(indent.NewIndenter(w, vis.config.Indent), v)
-	must.WriteByte(w, '}')
-}
-
-func (vis *visitor) visitMapElements(w io.Writer, v Value) {
-	staticType := v.DynamicType.Elem()
-	isInterface := staticType.Kind() == reflect.Interface
-	keys, alignment := vis.formatMapKeys(v)
-
-	for _, mk := range keys {
-		mv := v.Value.MapIndex(mk.Value)
-
-		must.WriteString(w, mk.String)
-		must.WriteString(w, ": ")
-
-		// align values only if the key fits in a single line
-		if !strings.ContainsRune(mk.String, '\n') {
-			must.WriteString(w, strings.Repeat(" ", alignment-mk.Width))
-		}
-
-		vis.Write(
-			w,
-			Value{
-				Value:                  mv,
-				DynamicType:            mv.Type(),
-				StaticType:             staticType,
-				IsAmbiguousDynamicType: isInterface,
-				IsAmbiguousStaticType:  false,
-				IsUnexported:           v.IsUnexported,
-			},
-		)
-		must.WriteString(w, "\n")
+	r := mapRenderer{
+		p: vis,
 	}
-}
 
-type mapKey struct {
-	Value  reflect.Value
-	String string
-	Width  int
-}
-
-// formatMapKeys formats the keys in maps, and returns a slice of the keys
-// sorted by their string representation.
-//
-// padding is the number of padding characters to add to the shortest key.
-func (vis *visitor) formatMapKeys(v Value) (keys []mapKey, alignment int) {
-	var w strings.Builder
-	staticType := v.DynamicType.Key()
-	isInterface := staticType.Kind() == reflect.Interface
-	keys = make([]mapKey, v.Value.Len())
-	alignToLastLine := false
-
-	for i, mk := range v.Value.MapKeys() {
-		vis.Write(
-			&w,
-			Value{
-				Value:                  mk,
-				DynamicType:            mk.Type(),
-				StaticType:             staticType,
-				IsAmbiguousDynamicType: isInterface,
-				IsAmbiguousStaticType:  false,
-				IsUnexported:           v.IsUnexported,
-			},
+	for _, mk := range v.Value.MapKeys() {
+		mv := v.Value.MapIndex(mk)
+		r.add(
+			buildValue(mk, v.DynamicType.Key(), v.IsUnexported),
+			buildValue(mv, v.DynamicType.Elem(), v.IsUnexported),
 		)
-
-		s := w.String()
-		w.Reset()
-
-		max, last := widths(s)
-		if max > alignment {
-			alignment = max
-			alignToLastLine = max == last
-		}
-
-		keys[i] = mapKey{mk, s, last}
 	}
 
 	sort.Slice(
-		keys,
+		r.items,
 		func(i, j int) bool {
-			return keys[i].String < keys[j].String
+			return r.items[i].keyString < r.items[j].keyString
 		},
 	)
 
 	// compensate for the ":" added to the last line"
-	if !alignToLastLine {
-		alignment--
+	if !r.alignToLastLine {
+		r.alignment--
 	}
 
-	return
+	must.WriteString(w, "{\n")
+	r.print(indent.NewIndenter(w, vis.config.Indent))
+	must.WriteByte(w, '}')
+}
+
+func buildValue(
+	v reflect.Value,
+	staticType reflect.Type,
+	unexported bool,
+) Value {
+	isInterface := staticType.Kind() == reflect.Interface
+	// unwrap interface values so that elem has it's actual type/kind, and not
+	// that of reflect.Interface.
+	if isInterface && !v.IsNil() {
+		v = v.Elem()
+	}
+
+	return Value{
+		Value:                  v,
+		DynamicType:            v.Type(),
+		StaticType:             staticType,
+		IsAmbiguousDynamicType: isInterface,
+		IsAmbiguousStaticType:  false,
+		IsUnexported:           unexported,
+	}
+}
+
+type mapItem struct {
+	keyWidth    int
+	keyString   string
+	valueString string
+}
+
+type mapRenderer struct {
+	p               FilterPrinter
+	items           []mapItem
+	alignment       int
+	alignToLastLine bool
+}
+
+func (r *mapRenderer) add(key, val Value) bool {
+	var sb strings.Builder
+
+	r.p.Write(&sb, key)
+
+	ks := sb.String()
+
+	max, last := widths(ks)
+	if max > r.alignment {
+		r.alignment = max
+		r.alignToLastLine = max == last
+	}
+	sb.Reset()
+
+	r.p.Write(&sb, val)
+
+	vs := sb.String()
+
+	r.items = append(
+		r.items,
+		mapItem{
+			keyString:   ks,
+			keyWidth:    last,
+			valueString: vs,
+		},
+	)
+
+	return true
+}
+
+func (r *mapRenderer) print(w io.Writer) {
+	for _, item := range r.items {
+		must.WriteString(w, item.keyString)
+		must.WriteString(w, ": ")
+
+		// align values only if the key fits in a single line
+		if !strings.ContainsRune(item.keyString, '\n') {
+			must.WriteString(w, strings.Repeat(" ", r.alignment-item.keyWidth))
+		}
+
+		must.WriteString(w, item.valueString)
+		must.WriteString(w, "\n")
+	}
 }
 
 // widths returns the number of characters in the longest, and last line of s.

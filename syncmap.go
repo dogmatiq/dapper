@@ -4,7 +4,6 @@ import (
 	"io"
 	"reflect"
 	"sort"
-	"strings"
 	"sync"
 
 	"github.com/dogmatiq/iago/indent"
@@ -23,19 +22,16 @@ func mapFilter(
 		must.WriteString(w, p.FormatTypeName(v))
 	}
 
-	var (
-		alignment       int
-		alignToLastLine bool
-		items           []syncMapItem
-	)
+	r := mapRenderer{
+		p: p,
+	}
 
 	v.Value.Addr().Interface().(*sync.Map).Range(
 		func(key, val interface{}) bool {
-			var sb strings.Builder
 			kv := reflect.ValueOf(key)
+			vv := reflect.ValueOf(val)
 
-			p.Write(
-				&sb,
+			r.add(
 				Value{
 					Value:                  kv,
 					DynamicType:            kv.Type(),
@@ -44,22 +40,6 @@ func mapFilter(
 					IsAmbiguousStaticType:  false,
 					IsUnexported:           v.IsUnexported,
 				},
-			)
-
-			ks := sb.String()
-
-			max, last := widths(ks)
-			if max > alignment {
-				alignment = max
-				alignToLastLine = max == last
-			}
-
-			sb.Reset()
-
-			vv := reflect.ValueOf(val)
-
-			p.Write(
-				&sb,
 				Value{
 					Value:                  vv,
 					DynamicType:            vv.Type(),
@@ -69,69 +49,31 @@ func mapFilter(
 					IsUnexported:           v.IsUnexported,
 				},
 			)
-
-			vs := sb.String()
-
-			items = append(
-				items,
-				syncMapItem{
-					KeyString:   ks,
-					KeyWidth:    last,
-					ValueString: vs,
-				},
-			)
 			return true
 		},
 	)
 
-	if len(items) == 0 {
+	if len(r.items) == 0 {
 		must.WriteString(w, "{}")
 		return
 	}
 
 	// sort the map items by the key string
 	sort.Slice(
-		items,
+		r.items,
 		func(i, j int) bool {
-			return items[i].KeyString < items[j].KeyString
+			return r.items[i].keyString < r.items[j].keyString
 		},
 	)
 
 	// compensate for the ":" added to the last line"
-	if !alignToLastLine {
-		alignment--
+	if !r.alignToLastLine {
+		r.alignment--
 	}
 
 	must.WriteString(w, "{\n")
-
-	printSyncMapItems(
-		indent.NewIndenter(w, c.Indent),
-		items,
-		alignment,
-	)
-
+	r.print(indent.NewIndenter(w, c.Indent))
 	must.WriteString(w, "}")
 
 	return
-}
-
-type syncMapItem struct {
-	KeyWidth    int
-	KeyString   string
-	ValueString string
-}
-
-func printSyncMapItems(w io.Writer, items []syncMapItem, alignment int) {
-	for _, item := range items {
-		must.WriteString(w, item.KeyString)
-		must.WriteString(w, ": ")
-
-		// align values only if the key fits in a single line
-		if !strings.ContainsRune(item.KeyString, '\n') {
-			must.WriteString(w, strings.Repeat(" ", alignment-item.KeyWidth))
-		}
-
-		must.WriteString(w, item.ValueString)
-		must.WriteString(w, "\n")
-	}
 }
