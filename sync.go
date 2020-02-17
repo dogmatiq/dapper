@@ -17,13 +17,16 @@ var (
 
 	// onceType is the reflect.Type for the sync.Once type.
 	onceType = reflect.TypeOf((*sync.Once)(nil)).Elem()
+
+	// mapType is the reflect.Type for the sync.Map type.
+	mapType = reflect.TypeOf((*sync.Map)(nil)).Elem()
 )
 
 // SyncFilter is a filter that formats various types from the sync package.
 func SyncFilter(
 	w io.Writer,
 	v Value,
-	_ Config,
+	c Config,
 	p FilterPrinter,
 ) error {
 	switch v.DynamicType {
@@ -33,6 +36,8 @@ func SyncFilter(
 		return rwMutexFilter(w, v, p)
 	case onceType:
 		return onceFilter(w, v, p)
+	case mapType:
+		return mapFilter(w, v, c, p)
 	default:
 		return nil
 	}
