@@ -44,12 +44,6 @@ func (vis *visitor) visitStructFields(w io.Writer, v Value) {
 
 		isInterface := f.Type.Kind() == reflect.Interface
 
-		// unwrap interface values so that elem has it's actual type/kind, and
-		// not that of reflect.Interface.
-		if isInterface && !fv.IsNil() {
-			fv = fv.Elem()
-		}
-
 		must.WriteString(w, f.Name)
 		must.WriteString(w, ": ")
 		must.WriteString(w, strings.Repeat(" ", alignment-len(f.Name)))

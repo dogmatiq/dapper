@@ -41,12 +41,6 @@ func (vis *visitor) visitMapElements(w io.Writer, v Value) {
 	for _, mk := range keys {
 		mv := v.Value.MapIndex(mk.Value)
 
-		// unwrap interface values so that elem has it's actual type/kind, and not
-		// that of reflect.Interface.
-		if isInterface && !mv.IsNil() {
-			mv = mv.Elem()
-		}
-
 		must.WriteString(w, mk.String)
 		must.WriteString(w, ": ")
 
@@ -88,13 +82,6 @@ func (vis *visitor) formatMapKeys(v Value) (keys []mapKey, alignment int) {
 	alignToLastLine := false
 
 	for i, mk := range v.Value.MapKeys() {
-
-		// unwrap interface values so that elem has it's actual type/kind, and not
-		// that of reflect.Interface.
-		if isInterface && !mk.IsNil() {
-			mk = mk.Elem()
-		}
-
 		vis.Write(
 			&w,
 			Value{
