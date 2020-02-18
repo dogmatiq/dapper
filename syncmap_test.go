@@ -11,7 +11,7 @@ type syncmaps struct {
 }
 
 // This test verifies that that sync.Map key/value types are always rendered.
-func TestPrinter_SyncMap(t *testing.T) {
+func TestPrinter_SyncFilter_Map(t *testing.T) {
 	var m sync.Map
 
 	test(t, "empty sync.Map", &m, "*sync.Map{}")
@@ -31,7 +31,7 @@ func TestPrinter_SyncMap(t *testing.T) {
 }
 
 // This test verifies the formatting of sync.Map key/values in the named structs.
-func TestPrinter_SyncMapInNamedStruct(t *testing.T) {
+func TestPrinter_SyncFilter_MapInNamedStruct(t *testing.T) {
 	test(
 		t,
 		"empty sync.Map",
@@ -63,7 +63,7 @@ func TestPrinter_SyncMapInNamedStruct(t *testing.T) {
 
 // This test verifies that sync.Map keys are sorted by their formatted string
 // representation.
-func TestPrinter_SyncMapKeySorting(t *testing.T) {
+func TestPrinter_SyncFilter_MapKeySorting(t *testing.T) {
 	var m sync.Map
 
 	m.Store("foo", 1)
@@ -82,7 +82,7 @@ func TestPrinter_SyncMapKeySorting(t *testing.T) {
 
 // This test verifies that values associated with sync.Map keys that have a
 // multiline string representation are aligned correctly.
-func TestPrinter_MultilineSyncMapKeyAlignment(t *testing.T) {
+func TestPrinter_SyncFilter_MultilineMapKeyAlignment(t *testing.T) {
 	var m sync.Map
 
 	m.Store("short", "one")
@@ -119,7 +119,7 @@ func TestPrinter_MultilineSyncMapKeyAlignment(t *testing.T) {
 
 // This test verifies that recursive sync.Map is detected, and does not produce
 // an infinite loop or stack overflow.
-func TestPrinter_SyncMapRecursion(t *testing.T) {
+func TestPrinter_SyncFilter_MapRecursion(t *testing.T) {
 	var m sync.Map
 	m.Store("child", &m)
 
