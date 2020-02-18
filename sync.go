@@ -31,19 +31,19 @@ func SyncFilter(
 ) error {
 	switch v.DynamicType {
 	case mutexType:
-		return mutexFilter(w, v, p)
+		return syncMutexFilter(w, v, p)
 	case rwMutexType:
-		return rwMutexFilter(w, v, p)
+		return syncRWMutexFilter(w, v, p)
 	case onceType:
-		return onceFilter(w, v, p)
+		return syncOnceFilter(w, v, p)
 	case mapType:
-		return mapFilter(w, v, c, p)
+		return syncMapFilter(w, v, c, p)
 	default:
 		return nil
 	}
 }
 
-func mutexFilter(
+func syncMutexFilter(
 	w io.Writer,
 	v Value,
 	p FilterPrinter,
@@ -69,7 +69,7 @@ func mutexFilter(
 	return nil
 }
 
-func rwMutexFilter(
+func syncRWMutexFilter(
 	w io.Writer,
 	v Value,
 	p FilterPrinter,
@@ -104,7 +104,7 @@ func rwMutexFilter(
 	return nil
 }
 
-func onceFilter(
+func syncOnceFilter(
 	w io.Writer,
 	v Value,
 	p FilterPrinter,

@@ -8,7 +8,7 @@ import (
 	"github.com/dogmatiq/iago/must"
 )
 
-func mapFilter(
+func syncMapFilter(
 	w io.Writer,
 	v Value,
 	c Config,
