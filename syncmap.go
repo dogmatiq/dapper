@@ -3,10 +3,8 @@ package dapper
 import (
 	"io"
 	"reflect"
-	"sort"
 	"sync"
 
-	"github.com/dogmatiq/iago/indent"
 	"github.com/dogmatiq/iago/must"
 )
 
@@ -18,62 +16,26 @@ func mapFilter(
 ) (err error) {
 	defer must.Recover(&err)
 
-	if v.IsAmbiguousType() {
-		must.WriteString(w, p.FormatTypeName(v))
-	}
-
 	r := mapRenderer{
-		p: p,
+		Map:       v,
+		KeyType:   emptyInterfaceType,
+		ValueType: emptyInterfaceType,
+		Printer:   p,
+		Indent:    c.Indent,
 	}
 
 	v.Value.Addr().Interface().(*sync.Map).Range(
 		func(key, val interface{}) bool {
-			kv := reflect.ValueOf(key)
-			vv := reflect.ValueOf(val)
+			mk := reflect.ValueOf(key)
+			mv := reflect.ValueOf(val)
 
-			r.add(
-				Value{
-					Value:                  kv,
-					DynamicType:            kv.Type(),
-					StaticType:             emptyInterfaceType,
-					IsAmbiguousDynamicType: true,
-					IsAmbiguousStaticType:  false,
-					IsUnexported:           v.IsUnexported,
-				},
-				Value{
-					Value:                  vv,
-					DynamicType:            vv.Type(),
-					StaticType:             emptyInterfaceType,
-					IsAmbiguousDynamicType: true,
-					IsAmbiguousStaticType:  false,
-					IsUnexported:           v.IsUnexported,
-				},
-			)
+			r.Add(mk, mv)
+
 			return true
 		},
 	)
 
-	if len(r.items) == 0 {
-		must.WriteString(w, "{}")
-		return
-	}
-
-	// sort the map items by the key string
-	sort.Slice(
-		r.items,
-		func(i, j int) bool {
-			return r.items[i].keyString < r.items[j].keyString
-		},
-	)
-
-	// compensate for the ":" added to the last line"
-	if !r.alignToLastLine {
-		r.alignment--
-	}
-
-	must.WriteString(w, "{\n")
-	r.print(indent.NewIndenter(w, c.Indent))
-	must.WriteString(w, "}")
+	r.Print(w)
 
 	return
 }
