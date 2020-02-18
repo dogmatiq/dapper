@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func TestPrinter_SyncFilter(t *testing.T) {
+func TestPrinter_SyncFilter_Mutex(t *testing.T) {
 	var w sync.Mutex
 
 	test(
@@ -35,7 +35,9 @@ func TestPrinter_SyncFilter(t *testing.T) {
 		"    w: sync.Mutex(<unlocked>)",
 		"}",
 	)
+}
 
+func TestPrinter_SyncFilter_RWMutex(t *testing.T) {
 	var rw sync.RWMutex
 
 	test(
