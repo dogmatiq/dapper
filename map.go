@@ -95,6 +95,7 @@ func (r *mapRenderer) Add(k, v reflect.Value) {
 // pairs by the key strings before writing the output to the printer.
 //
 // TODO(jmalloc): sort numerically-keyed maps numerically
+// See https://github.com/dogmatiq/dapper/issues/40.
 func (r *mapRenderer) Print(w io.Writer) {
 	r.finalize()
 
