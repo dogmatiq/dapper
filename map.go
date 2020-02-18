@@ -11,114 +11,150 @@ import (
 )
 
 // visitMap formats values with a kind of reflect.Map.
-//
-// TODO(jmalloc): sort numerically-keyed maps numerically
 func (vis *visitor) visitMap(w io.Writer, v Value) {
 	if v.Value.IsNil() {
 		vis.renderNil(w, v)
 		return
 	}
 
-	if v.IsAmbiguousType() {
-		must.WriteString(w, vis.FormatTypeName(v))
+	r := mapRenderer{
+		Map:       v,
+		KeyType:   v.DynamicType.Key(),
+		ValueType: v.DynamicType.Elem(),
+		Printer:   vis,
+		Indent:    vis.config.Indent,
 	}
 
-	if v.Value.Len() == 0 {
+	for _, mk := range v.Value.MapKeys() {
+		mv := v.Value.MapIndex(mk)
+		r.Add(mk, mv)
+	}
+
+	r.Print(w)
+}
+
+// mapPrinter is used to render the keys and values of a map.
+type mapPrinter = FilterPrinter
+
+// mapPair is a pre-rendered key/value pair from a map.
+type mapPair struct {
+	KeyWidth int
+	Key      string
+	Value    string
+}
+
+// Write renders the key/value pair to w.
+func (p *mapPair) Write(w io.Writer, alignment int) {
+	must.WriteString(w, p.Key)
+	must.WriteString(w, ": ")
+
+	// align values only if the key fits in a single line
+	if !strings.ContainsRune(p.Key, '\n') {
+		must.WriteString(w, strings.Repeat(" ", alignment-p.KeyWidth))
+	}
+
+	must.WriteString(w, p.Value)
+	must.WriteString(w, "\n")
+}
+
+// mapRenderer encapsulates the logic used to render map-like containers.
+type mapRenderer struct {
+	Map       Value
+	KeyType   reflect.Type
+	ValueType reflect.Type
+	Printer   mapPrinter
+	Indent    []byte
+
+	pairs           []mapPair
+	alignment       int
+	alignToLastLine bool
+}
+
+// Add adds a key/value pair to the renderer.
+func (r *mapRenderer) Add(k, v reflect.Value) {
+	ks := r.format(k, r.KeyType)
+	vs := r.format(v, r.ValueType)
+
+	max, last := widths(ks)
+	if max > r.alignment {
+		r.alignment = max
+		r.alignToLastLine = max == last
+	}
+
+	r.pairs = append(
+		r.pairs,
+		mapPair{
+			KeyWidth: last,
+			Key:      ks,
+			Value:    vs,
+		},
+	)
+}
+
+// Print prints all map key-value pairs collected by Add() method. It sorts the
+// pairs by the key strings before writing the output to the printer.
+//
+// TODO(jmalloc): sort numerically-keyed maps numerically
+func (r *mapRenderer) Print(w io.Writer) {
+	r.finalize()
+
+	if r.Map.IsAmbiguousType() {
+		must.WriteString(w, r.Printer.FormatTypeName(r.Map))
+	}
+
+	if len(r.pairs) == 0 {
 		must.WriteString(w, "{}")
 		return
 	}
 
 	must.WriteString(w, "{\n")
-	vis.visitMapElements(indent.NewIndenter(w, vis.config.Indent), v)
-	must.WriteByte(w, '}')
-}
 
-func (vis *visitor) visitMapElements(w io.Writer, v Value) {
-	staticType := v.DynamicType.Elem()
-	isInterface := staticType.Kind() == reflect.Interface
-	keys, alignment := vis.formatMapKeys(v)
-
-	for _, mk := range keys {
-		mv := v.Value.MapIndex(mk.Value)
-
-		must.WriteString(w, mk.String)
-		must.WriteString(w, ": ")
-
-		// align values only if the key fits in a single line
-		if !strings.ContainsRune(mk.String, '\n') {
-			must.WriteString(w, strings.Repeat(" ", alignment-mk.Width))
-		}
-
-		vis.Write(
-			w,
-			Value{
-				Value:                  mv,
-				DynamicType:            mv.Type(),
-				StaticType:             staticType,
-				IsAmbiguousDynamicType: isInterface,
-				IsAmbiguousStaticType:  false,
-				IsUnexported:           v.IsUnexported,
-			},
-		)
-		must.WriteString(w, "\n")
+	indenter := indent.NewIndenter(w, r.Indent)
+	for _, p := range r.pairs {
+		p.Write(indenter, r.alignment)
 	}
+
+	must.WriteString(w, "}")
 }
 
-type mapKey struct {
-	Value  reflect.Value
-	String string
-	Width  int
-}
-
-// formatMapKeys formats the keys in maps, and returns a slice of the keys
-// sorted by their string representation.
+// finalize prepares the pairs to be rendered.
 //
-// padding is the number of padding characters to add to the shortest key.
-func (vis *visitor) formatMapKeys(v Value) (keys []mapKey, alignment int) {
-	var w strings.Builder
-	staticType := v.DynamicType.Key()
-	isInterface := staticType.Kind() == reflect.Interface
-	keys = make([]mapKey, v.Value.Len())
-	alignToLastLine := false
-
-	for i, mk := range v.Value.MapKeys() {
-		vis.Write(
-			&w,
-			Value{
-				Value:                  mk,
-				DynamicType:            mk.Type(),
-				StaticType:             staticType,
-				IsAmbiguousDynamicType: isInterface,
-				IsAmbiguousStaticType:  false,
-				IsUnexported:           v.IsUnexported,
-			},
-		)
-
-		s := w.String()
-		w.Reset()
-
-		max, last := widths(s)
-		if max > alignment {
-			alignment = max
-			alignToLastLine = max == last
-		}
-
-		keys[i] = mapKey{mk, s, last}
+// Add() must not be called after finalize().
+func (r *mapRenderer) finalize() {
+	// compensate for the ":" added to the last line
+	if !r.alignToLastLine {
+		r.alignment--
 	}
 
+	// sort the map items by the key string
 	sort.Slice(
-		keys,
+		r.pairs,
 		func(i, j int) bool {
-			return keys[i].String < keys[j].String
+			return r.pairs[i].Key < r.pairs[j].Key
+		},
+	)
+}
+
+// format returns the string representation of the given value, which is either
+// a key or value from the map being rendered.
+//
+// st is the v's static type (either the key type, or the value type).
+func (r *mapRenderer) format(v reflect.Value, st reflect.Type) string {
+	var w strings.Builder
+
+	r.Printer.Write(
+		&w,
+		Value{
+			Value:                  v,
+			DynamicType:            v.Type(),
+			StaticType:             st,
+			IsAmbiguousDynamicType: st.Kind() == reflect.Interface,
+			IsAmbiguousStaticType:  false,
+			IsUnexported:           r.Map.IsUnexported,
 		},
 	)
 
-	// compensate for the ":" added to the last line"
-	if !alignToLastLine {
-		alignment--
-	}
-
-	return
+	return w.String()
 }
 
 // widths returns the number of characters in the longest, and last line of s.
