@@ -75,7 +75,7 @@ func (r *mapRenderer) Add(k, v reflect.Value) {
 	ks := r.format(k, r.KeyType)
 	vs := r.format(v, r.ValueType)
 
-	max, last := widths(ks)
+	max, last := lineWidths(ks)
 	if max > r.alignment {
 		r.alignment = max
 		r.alignToLastLine = max == last
@@ -156,25 +156,4 @@ func (r *mapRenderer) format(v reflect.Value, st reflect.Type) string {
 	)
 
 	return w.String()
-}
-
-// widths returns the number of characters in the longest, and last line of s.
-func widths(s string) (max int, last int) {
-	for {
-		i := strings.IndexByte(s, '\n')
-
-		if i == -1 {
-			last = len(s)
-			if len(s) > max {
-				max = len(s)
-			}
-			return
-		}
-
-		if i > max {
-			max = i
-		}
-
-		s = s[i+1:]
-	}
 }

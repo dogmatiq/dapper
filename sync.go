@@ -40,31 +40,3 @@ func SyncFilter(
 		return nil
 	}
 }
-
-// isInt returns true if v is one of the signed integer types.
-func isInt(v reflect.Value) bool {
-	ok := false
-	switch v.Kind() {
-	case reflect.Int,
-		reflect.Int8,
-		reflect.Int16,
-		reflect.Int32,
-		reflect.Int64:
-		ok = true
-	}
-	return ok
-}
-
-// isUint returns true if v is one of the unsigned integer types.
-func isUint(v reflect.Value) bool {
-	ok := false
-	switch v.Kind() {
-	case reflect.Uint,
-		reflect.Uint8,
-		reflect.Uint16,
-		reflect.Uint32,
-		reflect.Uint64:
-		ok = true
-	}
-	return ok
-}
