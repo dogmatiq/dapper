@@ -132,3 +132,97 @@ func TestPrinter_SyncFilter_MapRecursion(t *testing.T) {
 		"}",
 	)
 }
+
+// This test verifies the natural sorting of the sync.Map entries by keys.
+func TestPrinter_SyncFilter_Map_key_natural_sorting(t *testing.T) {
+	var m1 sync.Map
+
+	m1.Store(1, "1")
+	m1.Store(10, "10")
+	m1.Store(2, "2")
+	m1.Store(20, "20")
+	m1.Store(3, "3")
+	m1.Store(30, "30")
+	m1.Store(4, "4")
+	m1.Store(40, "40")
+	m1.Store(5, "5")
+	m1.Store(50, "50")
+
+	test(
+		t,
+		"numeric keys",
+		&m1,
+		"*sync.Map{",
+		`    int(1):  "1"`,
+		`    int(2):  "2"`,
+		`    int(3):  "3"`,
+		`    int(4):  "4"`,
+		`    int(5):  "5"`,
+		`    int(10): "10"`,
+		`    int(20): "20"`,
+		`    int(30): "30"`,
+		`    int(40): "40"`,
+		`    int(50): "50"`,
+		"}",
+	)
+
+	var m2 sync.Map
+	m2.Store("b", 2)
+	m2.Store("c", 3)
+	m2.Store("a", 1)
+	m2.Store("j", 10)
+	m2.Store("e", 5)
+	m2.Store("g", 7)
+	m2.Store("i", 9)
+	m2.Store("f", 6)
+	m2.Store("h", 8)
+	m2.Store("d", 4)
+
+	test(
+		t,
+		"alpha keys",
+		&m2,
+		"*sync.Map{",
+		`    "a": int(1)`,
+		`    "b": int(2)`,
+		`    "c": int(3)`,
+		`    "d": int(4)`,
+		`    "e": int(5)`,
+		`    "f": int(6)`,
+		`    "g": int(7)`,
+		`    "h": int(8)`,
+		`    "i": int(9)`,
+		`    "j": int(10)`,
+		"}",
+	)
+
+	var m3 sync.Map
+	m3.Store("alpha 1", 1)
+	m3.Store("alpha 10", 10)
+	m3.Store("alpha 2", 2)
+	m3.Store("alpha 20", 20)
+	m3.Store("alpha 3", 3)
+	m3.Store("alpha 30", 30)
+	m3.Store("alpha 4", 4)
+	m3.Store("alpha 40", 40)
+	m3.Store("alpha 5", 5)
+	m3.Store("alpha 50", 50)
+
+	test(
+		t,
+		"alphanumeric keys",
+		&m3,
+		"*sync.Map{",
+		`    "alpha 1":  int(1)`,
+		`    "alpha 2":  int(2)`,
+		`    "alpha 3":  int(3)`,
+		`    "alpha 4":  int(4)`,
+		`    "alpha 5":  int(5)`,
+		`    "alpha 10": int(10)`,
+		`    "alpha 20": int(20)`,
+		`    "alpha 30": int(30)`,
+		`    "alpha 40": int(40)`,
+		`    "alpha 50": int(50)`,
+		"}",
+	)
+}

@@ -157,3 +157,93 @@ func TestPrinter_MapRecursion(t *testing.T) {
 		"}",
 	)
 }
+
+// This test verifies the natural sorting of the map entries by keys.
+func TestPrinter_Map_key_natural_sorting(t *testing.T) {
+	test(
+		t,
+		"numeric keys",
+		map[int]string{
+			1:  "1",
+			10: "10",
+			2:  "2",
+			20: "20",
+			3:  "3",
+			30: "30",
+			4:  "4",
+			40: "40",
+			5:  "5",
+			50: "50",
+		},
+		"map[int]string{",
+		`    1:  "1"`,
+		`    2:  "2"`,
+		`    3:  "3"`,
+		`    4:  "4"`,
+		`    5:  "5"`,
+		`    10: "10"`,
+		`    20: "20"`,
+		`    30: "30"`,
+		`    40: "40"`,
+		`    50: "50"`,
+		"}",
+	)
+
+	test(
+		t,
+		"alpha keys",
+		map[string]int{
+			"b": 2,
+			"c": 3,
+			"a": 1,
+			"j": 10,
+			"e": 5,
+			"g": 7,
+			"i": 9,
+			"f": 6,
+			"h": 8,
+			"d": 4,
+		},
+		"map[string]int{",
+		`    "a": 1`,
+		`    "b": 2`,
+		`    "c": 3`,
+		`    "d": 4`,
+		`    "e": 5`,
+		`    "f": 6`,
+		`    "g": 7`,
+		`    "h": 8`,
+		`    "i": 9`,
+		`    "j": 10`,
+		"}",
+	)
+
+	test(
+		t,
+		"alphanumeric keys",
+		map[string]int{
+			"alpha 1":  1,
+			"alpha 10": 10,
+			"alpha 2":  2,
+			"alpha 20": 20,
+			"alpha 3":  3,
+			"alpha 30": 30,
+			"alpha 4":  4,
+			"alpha 40": 40,
+			"alpha 5":  5,
+			"alpha 50": 50,
+		},
+		"map[string]int{",
+		`    "alpha 1":  1`,
+		`    "alpha 2":  2`,
+		`    "alpha 3":  3`,
+		`    "alpha 4":  4`,
+		`    "alpha 5":  5`,
+		`    "alpha 10": 10`,
+		`    "alpha 20": 20`,
+		`    "alpha 30": 30`,
+		`    "alpha 40": 40`,
+		`    "alpha 50": 50`,
+		"}",
+	)
+}
