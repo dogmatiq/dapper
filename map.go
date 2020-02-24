@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/dogmatiq/dapper/internal/natsort"
 	"github.com/dogmatiq/iago/indent"
 	"github.com/dogmatiq/iago/must"
 )
@@ -131,7 +132,7 @@ func (r *mapRenderer) finalize() {
 	sort.Slice(
 		r.pairs,
 		func(i, j int) bool {
-			return r.pairs[i].Key < r.pairs[j].Key
+			return natsort.Less(r.pairs[i].Key, r.pairs[j].Key)
 		},
 	)
 }
