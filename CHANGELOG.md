@@ -35,6 +35,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 ## Fixed
 
 - Fix panic when rendering unexported `time.Time` values ([#24])
+- Add mutex lock around writes to `stdout` to prevent fragmented output ([#45], thanks @ilmanzo)
 
 ## [0.3.4] - 2019-11-05
 
@@ -118,6 +119,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 [#15]: https://github.com/dogmatiq/dapper/issues/15
 [#23]: https://github.com/dogmatiq/dapper/issues/23
 [#24]: https://github.com/dogmatiq/dapper/issues/24
+[#45]: https://github.com/dogmatiq/dapper/issues/45
 
 [Iago]: https://github.com/dogmatiq/iago
 
