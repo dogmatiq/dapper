@@ -5,6 +5,7 @@ import (
 	"os"
 	"reflect"
 	"strings"
+	"sync"
 
 	"github.com/dogmatiq/iago/count"
 	"github.com/dogmatiq/iago/must"
@@ -145,9 +146,12 @@ func Format(v interface{}) string {
 }
 
 var newLine = []byte{'\n'}
+var mux sync.Mutex
 
 // Print writes a pretty-printed representation of v to os.Stdout.
 func Print(values ...interface{}) {
+	mux.Lock()
+	defer mux.Unlock()
 	for _, v := range values {
 		defaultPrinter.Write(os.Stdout, v)
 		os.Stdout.Write(newLine)
