@@ -3,7 +3,7 @@
 [![Build Status](https://github.com/dogmatiq/dapper/workflows/CI/badge.svg)](https://github.com/dogmatiq/dapper/actions?workflow=CI)
 [![Code Coverage](https://img.shields.io/codecov/c/github/dogmatiq/dapper/master.svg)](https://codecov.io/github/dogmatiq/dapper)
 [![Latest Version](https://img.shields.io/github/tag/dogmatiq/dapper.svg?label=semver)](https://semver.org)
-[![GoDoc](https://godoc.org/github.com/dogmatiq/dapper?status.svg)](https://godoc.org/github.com/dogmatiq/dapper)
+[![Documentation](https://img.shields.io/badge/go.dev-reference-007d9c)](https://pkg.go.dev/github.com/dogmatiq/dapper)
 [![Go Report Card](https://goreportcard.com/badge/github.com/dogmatiq/dapper)](https://goreportcard.com/report/github.com/dogmatiq/dapper)
 
 Dapper is a pretty-printer for Go values.
