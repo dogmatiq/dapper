@@ -146,7 +146,7 @@ func Format(v interface{}) string {
 }
 
 var newLine = []byte{'\n'}
-var mux = sync.Mutex{}
+var mux sync.Mutex
 
 // Print writes a pretty-printed representation of v to os.Stdout.
 func Print(values ...interface{}) {
