@@ -121,7 +121,8 @@ func (p *Printer) Format(v interface{}) string {
 	return b.String()
 }
 
-var defaultPrinter = Printer{
+// DefaultPrinter is the printer used by Write(), Format() and Print().
+var DefaultPrinter = Printer{
 	Config: Config{
 		Filters: []Filter{
 			ReflectTypeFilter,
@@ -137,12 +138,12 @@ var defaultPrinter = Printer{
 //
 // It returns the number of bytes written.
 func Write(w io.Writer, v interface{}) (int, error) {
-	return defaultPrinter.Write(w, v)
+	return DefaultPrinter.Write(w, v)
 }
 
 // Format returns a pretty-printed representation of v.
 func Format(v interface{}) string {
-	return defaultPrinter.Format(v)
+	return DefaultPrinter.Format(v)
 }
 
 var newLine = []byte{'\n'}
@@ -153,7 +154,7 @@ func Print(values ...interface{}) {
 	mux.Lock()
 	defer mux.Unlock()
 	for _, v := range values {
-		defaultPrinter.Write(os.Stdout, v)
+		DefaultPrinter.Write(os.Stdout, v)
 		os.Stdout.Write(newLine)
 	}
 }
