@@ -36,10 +36,13 @@ func (vis *visitor) visitStruct(w io.Writer, v Value) {
 }
 
 func (vis *visitor) visitStructFields(w io.Writer, v Value) {
-	alignment := longestFieldName(v.DynamicType)
+	alignment := longestFieldName(v.DynamicType, vis.config.OmitUnexported)
 
 	for i := 0; i < v.DynamicType.NumField(); i++ {
 		f := v.DynamicType.Field(i)
+		if vis.config.OmitUnexported && isUnexportedField(f) {
+			continue
+		}
 		fv := v.Value.Field(i)
 
 		isInterface := f.Type.Kind() == reflect.Interface
@@ -68,15 +71,17 @@ func isUnexportedField(f reflect.StructField) bool {
 }
 
 // longestFieldName returns the length of the longest field name in a struct.
-func longestFieldName(rt reflect.Type) int {
+func longestFieldName(rt reflect.Type, exportedOnly bool) int {
 	width := 0
 
 	for i := 0; i < rt.NumField(); i++ {
 		f := rt.Field(i)
-		n := len(f.Name)
+		if !exportedOnly || !isUnexportedField(f) {
+			n := len(f.Name)
 
-		if n > width {
-			width = n
+			if n > width {
+				width = n
+			}
 		}
 	}
 
