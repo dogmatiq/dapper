@@ -36,11 +36,11 @@ func (vis *visitor) visitStruct(w io.Writer, v Value) {
 }
 
 func (vis *visitor) visitStructFields(w io.Writer, v Value) {
-	alignment := longestFieldName(v.DynamicType, vis.config.OmitUnexported)
+	alignment := longestFieldName(v.DynamicType, vis.config.OmitUnexportedFields)
 
 	for i := 0; i < v.DynamicType.NumField(); i++ {
 		f := v.DynamicType.Field(i)
-		if vis.config.OmitUnexported && isUnexportedField(f) {
+		if vis.config.OmitUnexportedFields && isUnexportedField(f) {
 			continue
 		}
 		fv := v.Value.Field(i)

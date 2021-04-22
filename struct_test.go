@@ -106,7 +106,7 @@ func TestPrinter_StructFieldTypes(t *testing.T) {
 // Verifies not exported fields in a struct are omitted when configured to do so
 func TestPrinter_StructUnexportedFieldsWithOmitUnexpoted(t *testing.T) {
 	config := dapper.DefaultPrinter.Config
-	config.OmitUnexported = true
+	config.OmitUnexportedFields = true
 	printer := &dapper.Printer{Config: config}
 	writer := &strings.Builder{}
 

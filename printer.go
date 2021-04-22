@@ -47,8 +47,8 @@ type Config struct {
 	// fully-qualified package path from the rendered type names.
 	OmitPackagePaths bool
 
-	// OmitUnexported omits unexported fields when set to true
-	OmitUnexported bool
+	// OmitUnexportedFields omits unexported struct fields when set to true
+	OmitUnexportedFields bool
 }
 
 // Printer generates human-readable representations of Go values.
