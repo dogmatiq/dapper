@@ -46,6 +46,9 @@ type Config struct {
 	// OmitPackagePaths, when true, causes the printer to omit the
 	// fully-qualified package path from the rendered type names.
 	OmitPackagePaths bool
+
+	// OmitUnexportedFields omits unexported struct fields when set to true
+	OmitUnexportedFields bool
 }
 
 // Printer generates human-readable representations of Go values.

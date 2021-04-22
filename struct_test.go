@@ -1,6 +1,8 @@
 package dapper_test
 
 import (
+	"github.com/dogmatiq/dapper"
+	"strings"
 	"testing"
 	"unsafe"
 )
@@ -99,6 +101,29 @@ func TestPrinter_StructFieldTypes(t *testing.T) {
 		"    }",
 		"}",
 	)
+}
+
+// Verifies not exported fields in a struct are omitted when configured to do so
+func TestPrinter_StructUnexportedFieldsWithOmitUnexpoted(t *testing.T) {
+	config := dapper.DefaultPrinter.Config
+	config.OmitUnexportedFields = true
+	printer := &dapper.Printer{Config: config}
+	writer := &strings.Builder{}
+
+	_, err := printer.Write(writer, struct {
+		notExported bool
+		Exported    bool
+	}{})
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected := "{\n    Exported: false\n}"
+	result := writer.String()
+	if expected != result {
+		t.Errorf("Expected \n'%s' but got \n'%s'", expected, result)
+	}
 }
 
 // This test verifies that all types can be formatted when obtained from
