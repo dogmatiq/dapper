@@ -9,9 +9,15 @@ The format is based on [Keep a Changelog], and this project adheres to
 [Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 
+## [0.4.2] - 2021-04-22
+
+### Added
+
+- Add `OmitUnexportedFields` option (thanks [@mrubiosan])
+
 ## [0.4.1] - 2020-11-21
 
-## Added
+### Added
 
 - Add `DefaultPrinter`, the printer used by `Write()`, `Format()` and `Print()`
 
@@ -121,6 +127,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 [0.3.5]: https://github.com/dogmatiq/dapper/releases/tag/v0.3.5
 [0.4.0]: https://github.com/dogmatiq/dapper/releases/tag/v0.4.0
 [0.4.1]: https://github.com/dogmatiq/dapper/releases/tag/v0.4.1
+[0.4.2]: https://github.com/dogmatiq/dapper/releases/tag/v0.4.2
 
 [#6]: https://github.com/dogmatiq/dapper/issues/6
 [#7]: https://github.com/dogmatiq/dapper/issues/7
@@ -133,6 +140,9 @@ The format is based on [Keep a Changelog], and this project adheres to
 [#45]: https://github.com/dogmatiq/dapper/issues/45
 
 [Iago]: https://github.com/dogmatiq/iago
+
+<!-- contributors -->
+[@mrubiosan]: https://github.com/mrubiosan
 
 <!-- version template
 ## [0.0.1] - YYYY-MM-DD
