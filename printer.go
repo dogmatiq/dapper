@@ -129,6 +129,7 @@ var DefaultPrinter = Printer{
 			TimeFilter,
 			DurationFilter,
 			SyncFilter,
+			ProtobufferFilter,
 		},
 	},
 }

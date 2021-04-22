@@ -1,0 +1,16 @@
+syntax="proto3";
+
+package dogmatiq.dapper.fixtures;
+
+option go_package = "github.com/dogmatiq/dapper/internal/fixtures";
+
+message Protostub {
+  string first_field = 1;
+  Protoenum enum_field = 2;
+}
+
+enum Protoenum {
+  UNKNOWN = 0;
+  FOO = 1;
+  BAR = 2;
+}
