@@ -1,25 +1,97 @@
 package dapper_test
 
 import (
+	"github.com/dogmatiq/dapper"
 	"github.com/dogmatiq/dapper/internal/fixtures"
 	"google.golang.org/protobuf/reflect/protoreflect"
+	"regexp"
+	"strings"
 	"testing"
+	"time"
 )
 
-func TestPrinter_ProtobufFilter(t *testing.T) {
-	protoStub := &fixtures.Protostub{FirstField: "hello", EnumField: fixtures.Protoenum_FOO}
+// matchProtoFormat works around non-deterministic behaviour introduced by the protobuf package.
+// They want to enforce nobody relies on the output being stable. It's not totally unreasonable but this library
+// is all about the output, so we really want to know when it changes.
+// See https://github.com/golang/protobuf/issues/1121
+func matchProtoFormat(actual, expected string) bool {
+	pattern := strings.ReplaceAll(regexp.QuoteMeta(expected), ": ", ":  ?")
+	ok, err := regexp.MatchString(pattern, actual)
+
+	if err != nil {
+		panic(err)
+	}
+	return ok
+}
+
+func TestFilterProtobufferFormats(t *testing.T) {
+	protoStub := &fixtures.Protostub{
+		FirstField:   "hello",
+		EnumField:    fixtures.Protoenum_FOO,
+		InnerMessage: &fixtures.ProtostubInner{InnerFirstField: "foo"},
+	}
+
 	protoStub.ProtoReflect().SetUnknown(protoreflect.RawFields("\x12\x07testing"))
-	_ = protoStub.String()
-	test(
-		t,
-		"protobuffer type",
-		protoStub,
-		"*fixtures.Protostub<proto.Message>{",
+	_ = protoStub.String() // Trigger population of internal state to make sure it does not render
+
+	actual := dapper.Format(protoStub)
+	expected := strings.Join([]string{
+		"*fixtures.Protostub{",
 		`    first_field: "hello"`,
-		"    enum_field: 1",
-		"    unknownFields: {",
-		"        00000000  12 07 74 65 73 74 69 6e  67                       |..testing|",
+		"    enum_field: FOO",
+		"    inner_message: {",
+		`        inner_first_field: "foo"`,
 		"    }",
+		`    2: "testing"`,
 		"}",
-	)
+	}, "\n")
+
+	if !matchProtoFormat(actual, expected) {
+		t.Errorf("Expected\n%s\nbut got\n%s", expected, actual)
+	}
+}
+
+func TestFilterProtobufferPerformsWithInternalStateSet(t *testing.T) {
+	protoStub := &fixtures.Protostub{
+		FirstField: "hello",
+		EnumField:  fixtures.Protoenum_FOO,
+	}
+
+	_ = protoStub.String() // Trigger population of internal state
+
+	result := make(chan string)
+	go func() {
+		result <- dapper.Format(protoStub)
+	}()
+
+	select {
+	case <-result:
+	case <-time.After(time.Millisecond * 10):
+		t.Errorf("Formatting took too long")
+	}
+}
+
+func TestFilterProtobufferFormatsWhenNested(t *testing.T) {
+	protoStub := &fixtures.Protostub{
+		FirstField: "hello",
+	}
+
+	outerStruct := struct {
+		foo string
+		bar *fixtures.Protostub
+	}{"hi", protoStub}
+
+	actual := dapper.Format(outerStruct)
+	expected := strings.Join([]string{
+		`{`,
+		`    foo: "hi"`,
+		`    bar: *fixtures.Protostub{`,
+		`        first_field: "hello"`,
+		`    }`,
+		`}`,
+	}, "\n")
+
+	if !matchProtoFormat(actual, expected) {
+		t.Errorf("Expected\n%s\nbut got\n%s", expected, actual)
+	}
 }

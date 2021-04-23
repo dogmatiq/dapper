@@ -7,6 +7,12 @@ option go_package = "github.com/dogmatiq/dapper/internal/fixtures";
 message Protostub {
   string first_field = 1;
   Protoenum enum_field = 2;
+  ProtostubInner inner_message = 3;
+}
+
+message ProtostubInner {
+  string inner_first_field = 1;
+  bool inner_second_field = 2;
 }
 
 enum Protoenum {
