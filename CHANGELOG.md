@@ -9,6 +9,12 @@ The format is based on [Keep a Changelog], and this project adheres to
 [Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 
+## [0.4.3] - 2021-04-28
+
+### Added
+
+- Improved rendering of protocol buffers messages (thanks [@mrubiosan])
+
 ## [0.4.2] - 2021-04-22
 
 ### Added
@@ -128,6 +134,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 [0.4.0]: https://github.com/dogmatiq/dapper/releases/tag/v0.4.0
 [0.4.1]: https://github.com/dogmatiq/dapper/releases/tag/v0.4.1
 [0.4.2]: https://github.com/dogmatiq/dapper/releases/tag/v0.4.2
+[0.4.3]: https://github.com/dogmatiq/dapper/releases/tag/v0.4.3
 
 [#6]: https://github.com/dogmatiq/dapper/issues/6
 [#7]: https://github.com/dogmatiq/dapper/issues/7
@@ -141,7 +148,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 [Iago]: https://github.com/dogmatiq/iago
 
-<!-- contributors -->
+<!-- outside contributors -->
 [@mrubiosan]: https://github.com/mrubiosan
 
 <!-- version template
