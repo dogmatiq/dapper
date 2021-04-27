@@ -53,6 +53,16 @@ func TestFilterProtobufferFormats(t *testing.T) {
 	}
 }
 
+func TestFilterProtobufferZeroMarker(t *testing.T) {
+	protoStub := &fixtures.Protostub{}
+	expected := `*fixtures.Protostub{<zero>}`
+	actual := dapper.Format(protoStub)
+
+	if actual != expected {
+		t.Errorf("Expected\n%s\nbut got\n%s", expected, actual)
+	}
+}
+
 func TestFilterProtobufferPerformsWithInternalStateSet(t *testing.T) {
 	protoStub := &fixtures.Protostub{
 		FirstField: "hello",

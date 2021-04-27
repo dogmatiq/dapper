@@ -47,6 +47,8 @@ func ProtobufferFilter(
 
 	if len(formattedMessage) > 0 {
 		must.WriteByte(w, '\n')
+	} else {
+		must.WriteString(w, c.ZeroValueMarker)
 	}
 
 	must.WriteString(indent.NewIndenter(w, c.Indent), formattedMessage)
