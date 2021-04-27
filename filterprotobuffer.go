@@ -10,7 +10,7 @@ import (
 	"reflect"
 )
 
-// protobufMessageType is the reflect.Type for proto.Message
+// protobufMessageType is the reflect.Type for proto.Message.
 var protobufMessageType = reflect.TypeOf((*proto.Message)(nil)).Elem()
 
 // ProtobufferFilter is a filter for proto.Message types. It shows the field names as defined in the .proto file
@@ -20,9 +20,9 @@ func ProtobufferFilter(
 	v Value,
 	c Config,
 	p FilterPrinter,
-) (err error) {
+) error {
 	if !v.DynamicType.Implements(protobufMessageType) {
-		return
+		return nil
 	}
 
 	must.WriteString(w, p.FormatTypeName(v))
@@ -51,5 +51,5 @@ func ProtobufferFilter(
 
 	must.WriteString(indent.NewIndenter(w, c.Indent), formattedMessage)
 
-	return
+	return nil
 }

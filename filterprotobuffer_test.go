@@ -11,8 +11,10 @@ import (
 )
 
 // matchProtoFormat works around non-deterministic behaviour introduced by the protobuf package.
-// They want to enforce nobody relies on the output being stable. It's not totally unreasonable but this library
+//
+// The protobuf maintainers want to enforce nobody relies on the output being stable. It's not unreasonable but Dapper
 // is all about the output, so we really want to know when it changes.
+//
 // See https://github.com/golang/protobuf/issues/1121
 func matchProtoFormat(actual, expected string) bool {
 	pattern := strings.ReplaceAll(regexp.QuoteMeta(expected), ": ", ":  ?")
@@ -36,14 +38,14 @@ func TestFilterProtobufferFormats(t *testing.T) {
 
 	actual := dapper.Format(protoStub)
 	expected := strings.Join([]string{
-		"*fixtures.Protostub{",
+		`*fixtures.Protostub{`,
 		`    first_field: "hello"`,
-		"    enum_field: FOO",
-		"    inner_message: {",
+		`    enum_field: FOO`,
+		`    inner_message: {`,
 		`        inner_first_field: "foo"`,
-		"    }",
+		`    }`,
 		`    2: "testing"`,
-		"}",
+		`}`,
 	}, "\n")
 
 	if !matchProtoFormat(actual, expected) {
