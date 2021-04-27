@@ -1,21 +1,24 @@
 package dapper_test
 
 import (
-	"github.com/dogmatiq/dapper"
-	"github.com/dogmatiq/dapper/internal/fixtures"
-	"google.golang.org/protobuf/reflect/protoreflect"
 	"regexp"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/dogmatiq/dapper"
+	"github.com/dogmatiq/dapper/internal/fixtures"
+	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
-// matchProtoFormat works around non-deterministic behaviour introduced by the protobuf package.
+// matchProtoFormat works around non-deterministic behaviour introduced by the
+// protobuf package.
 //
-// The protobuf maintainers want to enforce nobody relies on the output being stable. It's not unreasonable but Dapper
-// is all about the output, so we really want to know when it changes.
+// The protobuf maintainers want to enforce nobody relies on the output being
+// stable. It's not unreasonable but Dapper is all about the output, so we
+// really want to know when it changes.
 //
-// See https://github.com/golang/protobuf/issues/1121
+// See https://github.com/golang/protobuf/issues/1121.
 func matchProtoFormat(actual, expected string) bool {
 	pattern := strings.ReplaceAll(regexp.QuoteMeta(expected), ": ", ":  ?")
 	ok, err := regexp.MatchString(pattern, actual)
@@ -34,7 +37,9 @@ func TestFilterProtobufferFormats(t *testing.T) {
 	}
 
 	protoStub.ProtoReflect().SetUnknown(protoreflect.RawFields("\x12\x07testing"))
-	_ = protoStub.String() // Trigger population of internal state to make sure it does not render
+
+	// Trigger population of internal state to make sure it does not render.
+	_ = protoStub.String()
 
 	actual := dapper.Format(protoStub)
 	expected := strings.Join([]string{
@@ -69,7 +74,8 @@ func TestFilterProtobufferPerformsWithInternalStateSet(t *testing.T) {
 		EnumField:  fixtures.Protoenum_FOO,
 	}
 
-	_ = protoStub.String() // Trigger population of internal state
+	// Trigger population of internal state.
+	_ = protoStub.String()
 
 	result := make(chan string)
 	go func() {
