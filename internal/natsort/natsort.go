@@ -53,11 +53,8 @@ func Less(a, b string) bool {
 	// corresponding chunks in string 'b'. However, if the number of chunks of
 	// string "b" is greater, it is safe to assume that the string 'a' should
 	// sort before string 'b'.
-	if len(ac) < len(bc) {
-		return true
-	}
-
-	// At this point it is established that the strings are equal and string 'a'
+	//
+	// Otherwise, it is established that the strings are equal and string 'a'
 	// should not sort before string 'b'.
-	return false
+	return len(ac) < len(bc)
 }

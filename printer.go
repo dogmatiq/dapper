@@ -158,7 +158,7 @@ func Print(values ...interface{}) {
 	mux.Lock()
 	defer mux.Unlock()
 	for _, v := range values {
-		DefaultPrinter.Write(os.Stdout, v)
-		os.Stdout.Write(newLine)
+		_, _ = DefaultPrinter.Write(os.Stdout, v)
+		_, _ = os.Stdout.Write(newLine)
 	}
 }

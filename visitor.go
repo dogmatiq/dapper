@@ -86,7 +86,6 @@ func (vis *visitor) Write(w io.Writer, v Value) {
 	case reflect.Struct:
 		vis.visitStruct(w, v)
 	}
-	return
 }
 
 // FormatTypeName returns the name of v's dynamic type, rendered as per the
