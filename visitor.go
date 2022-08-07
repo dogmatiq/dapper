@@ -44,20 +44,20 @@ func (vis *visitor) Write(w io.Writer, v Value) {
 
 	v.Value = unsafereflect.MakeMutable(v.Value)
 
-	cw := count.NewWriter(w)
-
 	if !vis.ignoreFilters {
+		w := count.NewWriter(w)
+
 		for _, f := range vis.config.Filters {
 			p := filterPrinter{
 				visitor: vis,
 				value:   v,
 			}
 
-			if err := f(cw, v, vis.config, p); err != nil {
+			if err := f(w, v, vis.config, p); err != nil {
 				panic(must.PanicSentinel{Cause: err})
 			}
 
-			if cw.Count() > 0 {
+			if w.Count() > 0 {
 				return
 			}
 		}
