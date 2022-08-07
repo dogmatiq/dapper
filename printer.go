@@ -128,11 +128,12 @@ func (p *Printer) Format(v interface{}) string {
 var DefaultPrinter = Printer{
 	Config: Config{
 		Filters: []Filter{
-			ReflectTypeFilter,
-			TimeFilter,
 			DurationFilter,
-			SyncFilter,
 			ProtobufFilter,
+			ReflectTypeFilter,
+			StringerFilter,
+			SyncFilter,
+			TimeFilter,
 		},
 	},
 }

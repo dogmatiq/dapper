@@ -9,7 +9,7 @@ func TestPrinter_SyncFilter_Once(t *testing.T) {
 	var o sync.Once
 	test(
 		t,
-		"sync.Mutex (pending)",
+		"sync.Once (pending)",
 		&o, // use pointer to avoid copy
 		"*sync.Once(<pending>)",
 	)

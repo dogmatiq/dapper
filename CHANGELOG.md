@@ -12,6 +12,10 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Add `dapper.Stringer` interface for types that produce their own dapper representation
+
 ### Changed
 
 - Rendering of Protocol Buffers messages is now consistent with other types
