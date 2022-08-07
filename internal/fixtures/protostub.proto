@@ -1,21 +1,20 @@
 syntax="proto3";
-
 package dogmatiq.dapper.fixtures;
 
 option go_package = "github.com/dogmatiq/dapper/internal/fixtures";
 
-message Protostub {
+message Message {
   string first_field = 1;
-  Protoenum enum_field = 2;
-  ProtostubInner inner_message = 3;
+  Enum enum_field = 2;
+  Nested nested = 3;
 }
 
-message ProtostubInner {
-  string inner_first_field = 1;
-  bool inner_second_field = 2;
+message Nested {
+  string nested_first_field = 1;
+  bool nested_second_field = 2;
 }
 
-enum Protoenum {
+enum Enum {
   UNKNOWN = 0;
   FOO = 1;
   BAR = 2;

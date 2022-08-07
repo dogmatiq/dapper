@@ -14,24 +14,29 @@ import (
 func TestPrinter_ProtobufFilter(t *testing.T) {
 	t.Run(
 		"it formats as expected", func(t *testing.T) {
-			protoStub := &fixtures.Protostub{
-				FirstField:   "hello",
-				EnumField:    fixtures.Protoenum_FOO,
-				InnerMessage: &fixtures.ProtostubInner{InnerFirstField: "foo"},
+			m := &fixtures.Message{
+				FirstField: "hello",
+				EnumField:  fixtures.Enum_FOO,
+				Nested: &fixtures.Nested{
+					NestedFirstField: "foo",
+				},
 			}
 
-			protoStub.ProtoReflect().SetUnknown(protoreflect.RawFields("\x12\x07testing"))
+			m.ProtoReflect().SetUnknown(
+				protoreflect.RawFields("\x12\x07testing"),
+			)
 
-			// Trigger population of internal state to make sure it does not render.
-			_ = protoStub.String()
+			// Trigger population of internal state to make sure it does not
+			// render.
+			_ = m.String()
 
-			actual := dapper.Format(protoStub)
+			actual := dapper.Format(m)
 			expected := strings.Join([]string{
-				`*fixtures.Protostub{`,
+				`*fixtures.Message{`,
 				`    first_field: "hello"`,
 				`    enum_field: FOO`,
-				`    inner_message: {`,
-				`        inner_first_field: "foo"`,
+				`    nested: {`,
+				`        nested_first_field: "foo"`,
 				`    }`,
 				`    2: "testing"`,
 				`}`,
@@ -45,9 +50,9 @@ func TestPrinter_ProtobufFilter(t *testing.T) {
 
 	t.Run(
 		"it renders the zero-marker when the message is empty", func(t *testing.T) {
-			protoStub := &fixtures.Protostub{}
-			expected := `*fixtures.Protostub{<zero>}`
-			actual := dapper.Format(protoStub)
+			m := &fixtures.Message{}
+			expected := `*fixtures.Message{<zero>}`
+			actual := dapper.Format(m)
 
 			if actual != expected {
 				t.Errorf("Expected\n%s\nbut got\n%s", expected, actual)
@@ -57,20 +62,20 @@ func TestPrinter_ProtobufFilter(t *testing.T) {
 
 	t.Run(
 		"it renders a protocol buffers message properly when nested within a regular struct", func(t *testing.T) {
-			protoStub := &fixtures.Protostub{
+			m := &fixtures.Message{
 				FirstField: "hello",
 			}
 
 			outerStruct := struct {
 				foo string
-				bar *fixtures.Protostub
-			}{"hi", protoStub}
+				bar *fixtures.Message
+			}{"hi", m}
 
 			actual := dapper.Format(outerStruct)
 			expected := strings.Join([]string{
 				`{`,
 				`    foo: "hi"`,
-				`    bar: *fixtures.Protostub{`,
+				`    bar: *fixtures.Message{`,
 				`        first_field: "hello"`,
 				`    }`,
 				`}`,
@@ -84,17 +89,17 @@ func TestPrinter_ProtobufFilter(t *testing.T) {
 
 	t.Run(
 		"it performs adequately with internal state set", func(t *testing.T) {
-			protoStub := &fixtures.Protostub{
+			m := &fixtures.Message{
 				FirstField: "hello",
-				EnumField:  fixtures.Protoenum_FOO,
+				EnumField:  fixtures.Enum_FOO,
 			}
 
 			// Trigger population of internal state.
-			_ = protoStub.String()
+			_ = m.String()
 
 			result := make(chan string)
 			go func() {
-				result <- dapper.Format(protoStub)
+				result <- dapper.Format(m)
 			}()
 
 			select {
