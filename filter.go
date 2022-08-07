@@ -37,16 +37,17 @@ type FilterPrinter interface {
 
 type filterPrinter struct {
 	*visitor
-	value Value
+	currentFilter uintptr
+	value         Value
 }
 
 func (p filterPrinter) Fallback(w io.Writer, c Config) {
 	p.leave(p.value)
 
 	vis := &visitor{
-		config:        c,
-		ignoreFilters: true,
-		recursionSet:  p.recursionSet,
+		config:       c,
+		skipFilter:   p.currentFilter,
+		recursionSet: p.recursionSet,
 	}
 
 	vis.Write(w, p.value)

@@ -20,6 +20,9 @@ func TestPrinter_ProtobufFilter(t *testing.T) {
 					NestedA: "foo",
 					NestedB: []byte("<bytes>"),
 				},
+				Stringer: &fixtures.Stringer{
+					Value: "<stringer>",
+				},
 			}
 
 			// Trigger population of internal state to make sure it does not
@@ -29,14 +32,15 @@ func TestPrinter_ProtobufFilter(t *testing.T) {
 			actual := dapper.Format(m)
 			expected := strings.Join([]string{
 				`*github.com/dogmatiq/dapper/internal/fixtures.Message{`,
-				`    Str:   "hello"`,
-				`    Enum:   1`,
-				`    Nested: {`,
+				`    Str:     "hello"`,
+				`    Enum:     1`,
+				`    Nested:   {`,
 				`        NestedA: "foo"`,
 				`        NestedB: {`,
 				`            00000000  3c 62 79 74 65 73 3e                              |<bytes>|`,
 				`        }`,
 				`    }`,
+				`    Stringer: [<stringer>]`,
 				`}`,
 			}, "\n")
 
@@ -62,6 +66,9 @@ func TestPrinter_ProtobufFilter(t *testing.T) {
 		"it renders a protocol buffers message properly when nested within a regular struct", func(t *testing.T) {
 			m := &fixtures.Message{
 				Str: "hello",
+				Stringer: &fixtures.Stringer{
+					Value: "<stringer>",
+				},
 			}
 
 			outerStruct := struct {
@@ -74,9 +81,10 @@ func TestPrinter_ProtobufFilter(t *testing.T) {
 				`{`,
 				`    foo: "hi"`,
 				`    bar: *github.com/dogmatiq/dapper/internal/fixtures.Message{`,
-				`        Str:    "hello"`,
-				`        Enum:   0`,
-				`        Nested: nil`,
+				`        Str:      "hello"`,
+				`        Enum:     0`,
+				`        Nested:   nil`,
+				`        Stringer: [<stringer>]`,
 				`    }`,
 				`}`,
 			}, "\n")

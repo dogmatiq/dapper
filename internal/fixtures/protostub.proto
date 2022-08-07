@@ -7,11 +7,16 @@ message Message {
   string str = 1;
   Enum enum = 2;
   Nested nested = 3;
+  Stringer stringer = 4;
 }
 
 message Nested {
   string nested_a = 1;
   bytes nested_b = 2;
+}
+
+message Stringer{
+  string value = 1;
 }
 
 enum Enum {

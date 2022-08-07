@@ -19,9 +19,15 @@ type visitor struct {
 	// config is the printer's configuration.
 	config Config
 
-	// ignoreFilters indicates whether the visitor should skip filters when
-	// rendering values.
-	ignoreFilters bool
+	// skipFilter causes the filter at the given address to be skipped when
+	// rendering the next value.
+	//
+	// HACK: We're using function pointers to compare functions. This behavior
+	// is technically undefined and may stop working in the future.
+	//
+	// The Filter system needs to be refactored to allow filters to have
+	// identity, perhaps by converting Filter to an interface.
+	skipFilter uintptr
 
 	// recursionSet is the set of potentially recursive values that are
 	// currently being visited.
@@ -44,24 +50,31 @@ func (vis *visitor) Write(w io.Writer, v Value) {
 
 	v.Value = unsafereflect.MakeMutable(v.Value)
 
-	if !vis.ignoreFilters {
-		w := count.NewWriter(w)
+	cw := count.NewWriter(w)
 
-		for _, f := range vis.config.Filters {
-			p := filterPrinter{
-				visitor: vis,
-				value:   v,
-			}
+	for _, f := range vis.config.Filters {
+		ptr := reflect.ValueOf(f).Pointer()
 
-			if err := f(w, v, vis.config, p); err != nil {
-				panic(must.PanicSentinel{Cause: err})
-			}
+		if ptr == vis.skipFilter {
+			continue
+		}
 
-			if w.Count() > 0 {
-				return
-			}
+		p := filterPrinter{
+			visitor:       vis,
+			currentFilter: ptr,
+			value:         v,
+		}
+
+		if err := f(cw, v, vis.config, p); err != nil {
+			panic(must.PanicSentinel{Cause: err})
+		}
+
+		if cw.Count() > 0 {
+			return
 		}
 	}
+
+	vis.skipFilter = 0
 
 	switch v.DynamicType.Kind() {
 	case reflect.String:

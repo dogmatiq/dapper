@@ -27,16 +27,17 @@ func StringerFilter(
 		return nil
 	}
 
+	s := v.Value.Interface().(Stringer).DapperString()
+	if s == "" {
+		return nil
+	}
+
 	if v.IsAmbiguousType() {
 		must.WriteString(w, p.FormatTypeName(v))
 		must.WriteByte(w, ' ')
 	}
 
-	must.Fprintf(
-		w,
-		"[%s]",
-		v.Value.Interface().(Stringer).DapperString(),
-	)
+	must.Fprintf(w, "[%s]", s)
 
 	return nil
 }

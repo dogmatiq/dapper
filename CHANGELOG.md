@@ -10,6 +10,13 @@ The format is based on [Keep a Changelog], and this project adheres to
 [keep a changelog]: https://keepachangelog.com/en/1.0.0/
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
+## [0.4.5] - 2022-08-07
+
+### Fixed
+
+- `StringerFilter` now takes precedence over all other filters
+- `FilterPrinter.Fallback()` now only skips the filter it was called from
+
 ## [0.4.4] - 2022-08-07
 
 ### Added
