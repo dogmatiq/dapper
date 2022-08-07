@@ -6,14 +6,21 @@ The format is based on [Keep a Changelog], and this project adheres to
 [Semantic Versioning].
 
 <!-- references -->
-[Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
-[Semantic Versioning]: https://semver.org/spec/v2.0.0.html
+
+[keep a changelog]: https://keepachangelog.com/en/1.0.0/
+[semantic versioning]: https://semver.org/spec/v2.0.0.html
+
+## [Unreleased]
+
+### Changed
+
+- Rendering of Protocol Buffers messages is now consistent with other types
 
 ## [0.4.3] - 2021-04-28
 
 ### Added
 
-- Improved rendering of protocol buffers messages (thanks [@mrubiosan])
+- Improved rendering of Protocol Buffers messages (thanks [@mrubiosan])
 
 ## [0.4.2] - 2021-04-22
 
@@ -121,7 +128,8 @@ The format is based on [Keep a Changelog], and this project adheres to
 - Initial release
 
 <!-- references -->
-[Unreleased]: https://github.com/dogmatiq/dapper
+
+[unreleased]: https://github.com/dogmatiq/dapper
 [0.1.0]: https://github.com/dogmatiq/dapper/releases/tag/v0.1.0
 [0.1.1]: https://github.com/dogmatiq/dapper/releases/tag/v0.1.1
 [0.2.0]: https://github.com/dogmatiq/dapper/releases/tag/v0.2.0
@@ -135,7 +143,6 @@ The format is based on [Keep a Changelog], and this project adheres to
 [0.4.1]: https://github.com/dogmatiq/dapper/releases/tag/v0.4.1
 [0.4.2]: https://github.com/dogmatiq/dapper/releases/tag/v0.4.2
 [0.4.3]: https://github.com/dogmatiq/dapper/releases/tag/v0.4.3
-
 [#6]: https://github.com/dogmatiq/dapper/issues/6
 [#7]: https://github.com/dogmatiq/dapper/issues/7
 [#8]: https://github.com/dogmatiq/dapper/issues/8
@@ -145,10 +152,10 @@ The format is based on [Keep a Changelog], and this project adheres to
 [#23]: https://github.com/dogmatiq/dapper/issues/23
 [#24]: https://github.com/dogmatiq/dapper/issues/24
 [#45]: https://github.com/dogmatiq/dapper/issues/45
-
-[Iago]: https://github.com/dogmatiq/iago
+[iago]: https://github.com/dogmatiq/iago
 
 <!-- outside contributors -->
+
 [@mrubiosan]: https://github.com/mrubiosan
 
 <!-- version template

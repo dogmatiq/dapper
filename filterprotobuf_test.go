@@ -8,23 +8,19 @@ import (
 
 	"github.com/dogmatiq/dapper"
 	"github.com/dogmatiq/dapper/internal/fixtures"
-	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
 func TestPrinter_ProtobufFilter(t *testing.T) {
 	t.Run(
 		"it formats as expected", func(t *testing.T) {
 			m := &fixtures.Message{
-				FirstField: "hello",
-				EnumField:  fixtures.Enum_FOO,
+				Str:  "hello",
+				Enum: fixtures.Enum_FOO,
 				Nested: &fixtures.Nested{
-					NestedFirstField: "foo",
+					NestedA: "foo",
+					NestedB: []byte("<bytes>"),
 				},
 			}
-
-			m.ProtoReflect().SetUnknown(
-				protoreflect.RawFields("\x12\x07testing"),
-			)
 
 			// Trigger population of internal state to make sure it does not
 			// render.
@@ -32,13 +28,15 @@ func TestPrinter_ProtobufFilter(t *testing.T) {
 
 			actual := dapper.Format(m)
 			expected := strings.Join([]string{
-				`*fixtures.Message{`,
-				`    first_field: "hello"`,
-				`    enum_field: FOO`,
-				`    nested: {`,
-				`        nested_first_field: "foo"`,
+				`*github.com/dogmatiq/dapper/internal/fixtures.Message{`,
+				`    Str:   "hello"`,
+				`    Enum:   1`,
+				`    Nested: {`,
+				`        NestedA: "foo"`,
+				`        NestedB: {`,
+				`            00000000  3c 62 79 74 65 73 3e                              |<bytes>|`,
+				`        }`,
 				`    }`,
-				`    2: "testing"`,
 				`}`,
 			}, "\n")
 
@@ -51,7 +49,7 @@ func TestPrinter_ProtobufFilter(t *testing.T) {
 	t.Run(
 		"it renders the zero-marker when the message is empty", func(t *testing.T) {
 			m := &fixtures.Message{}
-			expected := `*fixtures.Message{<zero>}`
+			expected := `*github.com/dogmatiq/dapper/internal/fixtures.Message{<zero>}`
 			actual := dapper.Format(m)
 
 			if actual != expected {
@@ -63,7 +61,7 @@ func TestPrinter_ProtobufFilter(t *testing.T) {
 	t.Run(
 		"it renders a protocol buffers message properly when nested within a regular struct", func(t *testing.T) {
 			m := &fixtures.Message{
-				FirstField: "hello",
+				Str: "hello",
 			}
 
 			outerStruct := struct {
@@ -75,8 +73,10 @@ func TestPrinter_ProtobufFilter(t *testing.T) {
 			expected := strings.Join([]string{
 				`{`,
 				`    foo: "hi"`,
-				`    bar: *fixtures.Message{`,
-				`        first_field: "hello"`,
+				`    bar: *github.com/dogmatiq/dapper/internal/fixtures.Message{`,
+				`        Str:    "hello"`,
+				`        Enum:   0`,
+				`        Nested: nil`,
 				`    }`,
 				`}`,
 			}, "\n")
@@ -90,8 +90,8 @@ func TestPrinter_ProtobufFilter(t *testing.T) {
 	t.Run(
 		"it performs adequately with internal state set", func(t *testing.T) {
 			m := &fixtures.Message{
-				FirstField: "hello",
-				EnumField:  fixtures.Enum_FOO,
+				Str:  "hello",
+				Enum: fixtures.Enum_FOO,
 			}
 
 			// Trigger population of internal state.

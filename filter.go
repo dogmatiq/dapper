@@ -24,11 +24,30 @@ type Filter func(
 
 // FilterPrinter is an interface used by filters to render values and types.
 type FilterPrinter interface {
-	// Write writes a pretty-printed representation of v to w using the default
-	// printer settings.
+	// Write writes a pretty-printed representation of v to w.
 	Write(w io.Writer, v Value)
 
 	// FormatTypeName returns the name of v's dynamic type, rendered as per the
 	// printer's configuration.
 	FormatTypeName(v Value) string
+
+	// Fallback writes the filtered value using the standard pretty-printer.
+	Fallback(w io.Writer, c Config)
+}
+
+type filterPrinter struct {
+	*visitor
+	value Value
+}
+
+func (p filterPrinter) Fallback(w io.Writer, c Config) {
+	p.leave(p.value)
+
+	vis := &visitor{
+		config:        c,
+		ignoreFilters: true,
+		recursionSet:  p.recursionSet,
+	}
+
+	vis.Write(w, p.value)
 }

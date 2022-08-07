@@ -4,14 +4,14 @@ package dogmatiq.dapper.fixtures;
 option go_package = "github.com/dogmatiq/dapper/internal/fixtures";
 
 message Message {
-  string first_field = 1;
-  Enum enum_field = 2;
+  string str = 1;
+  Enum enum = 2;
   Nested nested = 3;
 }
 
 message Nested {
-  string nested_first_field = 1;
-  bool nested_second_field = 2;
+  string nested_a = 1;
+  bytes nested_b = 2;
 }
 
 enum Enum {

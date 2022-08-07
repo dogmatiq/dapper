@@ -19,8 +19,12 @@ type visitor struct {
 	// config is the printer's configuration.
 	config Config
 
-	// recursionSet is the set of potentially recursive values that are currently
-	// being visited.
+	// ignoreFilters indicates whether the visitor should skip filters when
+	// rendering values.
+	ignoreFilters bool
+
+	// recursionSet is the set of potentially recursive values that are
+	// currently being visited.
 	recursionSet map[uintptr]struct{}
 }
 
@@ -42,13 +46,20 @@ func (vis *visitor) Write(w io.Writer, v Value) {
 
 	cw := count.NewWriter(w)
 
-	for _, f := range vis.config.Filters {
-		if err := f(cw, v, vis.config, vis); err != nil {
-			panic(must.PanicSentinel{Cause: err})
-		}
+	if !vis.ignoreFilters {
+		for _, f := range vis.config.Filters {
+			p := filterPrinter{
+				visitor: vis,
+				value:   v,
+			}
 
-		if cw.Count() > 0 {
-			return
+			if err := f(cw, v, vis.config, p); err != nil {
+				panic(must.PanicSentinel{Cause: err})
+			}
+
+			if cw.Count() > 0 {
+				return
+			}
 		}
 	}
 
