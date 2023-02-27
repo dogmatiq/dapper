@@ -14,8 +14,8 @@ func syncOnceFilter(
 	done := v.Value.FieldByName("done")
 
 	s := "<unknown state>"
-	if isUint(done) {
-		if done.Uint() != 0 {
+	if done, ok := asUint(done); ok {
+		if done != 0 {
 			s = "<complete>"
 		} else {
 			s = "<pending>"

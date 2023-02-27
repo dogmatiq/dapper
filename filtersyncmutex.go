@@ -15,8 +15,8 @@ func syncMutexFilter(
 	state := v.Value.FieldByName("state")
 
 	s := "<unknown state>"
-	if isInt(state) {
-		if state.Int() != 0 {
+	if state, ok := asInt(state); ok {
+		if state != 0 {
 			s = "<locked>"
 		} else {
 			s = "<unlocked>"
@@ -48,13 +48,17 @@ func syncRWMutexFilter(
 	}
 
 	s := "<unknown state>"
-	if isInt(wait) && isInt(count) && isInt(state) {
-		if wait.Int() > 0 || count.Int() > 0 {
-			s = "<read locked>"
-		} else if state.Int() != 0 {
-			s = "<write locked>"
-		} else {
-			s = "<unlocked>"
+	if state, ok := asInt(state); ok {
+		if wait, ok := asInt(wait); ok {
+			if count, ok := asInt(count); ok {
+				if wait > 0 || count > 0 {
+					s = "<read locked>"
+				} else if state != 0 {
+					s = "<write locked>"
+				} else {
+					s = "<unlocked>"
+				}
+			}
 		}
 	}
 

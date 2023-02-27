@@ -3,36 +3,57 @@ package dapper
 import (
 	"reflect"
 	"strings"
+	"sync/atomic"
+
+	"github.com/dogmatiq/dapper/internal/unsafereflect"
 )
 
-// isInt returns true if v is one of the signed integer types.
-func isInt(v reflect.Value) bool {
-	ok := false
+// asInt returns the value of v as an int64, if it is one of the signed integer
+// types, including atomic types.
+func asInt(v reflect.Value) (n int64, ok bool) {
 	switch v.Kind() {
 	case reflect.Int,
 		reflect.Int8,
 		reflect.Int16,
 		reflect.Int32,
 		reflect.Int64:
-		ok = true
+		return v.Int(), true
 	}
 
-	return ok
+	v = unsafereflect.MakeMutable(v)
+
+	switch v := v.Interface().(type) {
+	case atomic.Int32:
+		return int64(v.Load()), true
+	case atomic.Int64:
+		return v.Load(), true
+	default:
+		return 0, false
+	}
 }
 
-// isUint returns true if v is one of the unsigned integer types.
-func isUint(v reflect.Value) bool {
-	ok := false
+// asUint returns the value of v as a uint64, if it is one of the unsigned
+// integer types, including atomic types.
+func asUint(v reflect.Value) (n uint64, ok bool) {
 	switch v.Kind() {
 	case reflect.Uint,
 		reflect.Uint8,
 		reflect.Uint16,
 		reflect.Uint32,
 		reflect.Uint64:
-		ok = true
+		return v.Uint(), true
 	}
 
-	return ok
+	v = unsafereflect.MakeMutable(v)
+
+	switch v := v.Interface().(type) {
+	case atomic.Uint32:
+		return uint64(v.Load()), true
+	case atomic.Uint64:
+		return v.Load(), true
+	default:
+		return 0, false
+	}
 }
 
 // lineWidths returns the number of characters in the longest, and last line of s.
