@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 [keep a changelog]: https://keepachangelog.com/en/1.0.0/
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
-## [Unreleased]
+## [0.4.6] - 2023-02-27
 
 ### Fixed
 
@@ -161,6 +161,8 @@ The format is based on [Keep a Changelog], and this project adheres to
 [0.4.2]: https://github.com/dogmatiq/dapper/releases/tag/v0.4.2
 [0.4.3]: https://github.com/dogmatiq/dapper/releases/tag/v0.4.3
 [0.4.4]: https://github.com/dogmatiq/dapper/releases/tag/v0.4.4
+[0.4.5]: https://github.com/dogmatiq/dapper/releases/tag/v0.4.5
+[0.4.6]: https://github.com/dogmatiq/dapper/releases/tag/v0.4.6
 [#6]: https://github.com/dogmatiq/dapper/issues/6
 [#7]: https://github.com/dogmatiq/dapper/issues/7
 [#8]: https://github.com/dogmatiq/dapper/issues/8
