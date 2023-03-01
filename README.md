@@ -1,14 +1,19 @@
-# Dapper
+<div align="center">
 
-[![Build Status](https://github.com/dogmatiq/dapper/workflows/CI/badge.svg)](https://github.com/dogmatiq/dapper/actions?workflow=CI)
-[![Code Coverage](https://img.shields.io/codecov/c/github/dogmatiq/dapper/master.svg)](https://codecov.io/github/dogmatiq/dapper)
-[![Latest Version](https://img.shields.io/github/tag/dogmatiq/dapper.svg?label=semver)](https://semver.org)
-[![Documentation](https://img.shields.io/badge/go.dev-reference-007d9c)](https://pkg.go.dev/github.com/dogmatiq/dapper)
-[![Go Report Card](https://goreportcard.com/badge/github.com/dogmatiq/dapper)](https://goreportcard.com/report/github.com/dogmatiq/dapper)
+# Dapper
 
 Dapper is a pretty-printer for Go values.
 
-It is not intended to be used directly as a debugging tool, but as a library for applications that need to describe Go values to humans, such as testing frameworks.
+[![Documentation](https://img.shields.io/badge/go.dev-documentation-007d9c?&style=for-the-badge)](https://pkg.go.dev/github.com/dogmatiq/dapper)
+[![Latest Version](https://img.shields.io/github/tag/dogmatiq/dapper.svg?&style=for-the-badge&label=semver)](https://github.com/dogmatiq/dapper/releases)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/dogmatiq/dapper/ci.yml?style=for-the-badge&branch=main)](https://github.com/dogmatiq/dapper/actions/workflows/ci.yml)
+[![Code Coverage](https://img.shields.io/codecov/c/github/dogmatiq/dapper/main.svg?style=for-the-badge)](https://codecov.io/github/dogmatiq/dapper)
+
+</div>
+
+Dapper is not intended to be used directly as a debugging tool, but as a library
+for applications that need to describe Go values to humans, such as testing
+frameworks.
 
 Some features and design goals include:
 
