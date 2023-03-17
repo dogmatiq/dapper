@@ -1,6 +1,6 @@
 module github.com/dogmatiq/dapper
 
-go 1.13
+go 1.19
 
 require (
 	github.com/dogmatiq/iago v0.4.0
