@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/dogmatiq/iago v0.4.0
-	google.golang.org/protobuf v1.30.0
+	google.golang.org/protobuf v1.31.0
 )
 
 require (
