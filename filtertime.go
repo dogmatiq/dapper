@@ -2,18 +2,9 @@ package dapper
 
 import (
 	"io"
-	"reflect"
 	"time"
 
 	"github.com/dogmatiq/iago/must"
-)
-
-var (
-	// timeType is the reflect.Type for the time.Time type.
-	timeType = reflect.TypeOf((*time.Time)(nil)).Elem()
-
-	// durationType is the reflect.Type for the time.Duration type.
-	durationType = reflect.TypeOf((*time.Duration)(nil)).Elem()
 )
 
 // TimeFilter is a filter that formats time.Time values.
@@ -23,12 +14,15 @@ func TimeFilter(
 	_ Config,
 	p FilterPrinter,
 ) error {
-	if v.DynamicType != timeType {
+	t, ok := as[time.Time](v)
+	if !ok {
 		return ErrFilterNotApplicable
 	}
 
-	s := v.Value.Interface().(time.Time).Format(time.RFC3339Nano)
-	must.WriteString(w, s)
+	must.WriteString(
+		w,
+		t.Format(time.RFC3339Nano),
+	)
 
 	return nil
 }
@@ -40,12 +34,15 @@ func DurationFilter(
 	_ Config,
 	p FilterPrinter,
 ) error {
-	if v.DynamicType != durationType {
+	d, ok := as[time.Duration](v)
+	if !ok {
 		return ErrFilterNotApplicable
 	}
 
-	s := v.Value.Interface().(time.Duration).String()
-	must.WriteString(w, s)
+	must.WriteString(
+		w,
+		d.String(),
+	)
 
 	return nil
 }

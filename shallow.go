@@ -3,20 +3,14 @@ package dapper
 import (
 	"fmt"
 	"io"
-	"reflect"
 	"strconv"
 
 	"github.com/dogmatiq/iago/must"
 )
 
-var (
-	stringType = reflect.TypeOf("")
-	boolType   = reflect.TypeOf(true)
-)
-
 // visitString formats values with a kind of reflect.String.
 func (vis *visitor) visitString(w io.Writer, v Value) {
-	if v.IsAmbiguousType() && v.DynamicType != stringType {
+	if v.IsAmbiguousType() && !dynamicTypeIs[string](v) {
 		must.WriteString(w, vis.FormatTypeName(v))
 		must.Fprintf(w, "(%#v)", v.Value.String())
 	} else {
@@ -26,7 +20,7 @@ func (vis *visitor) visitString(w io.Writer, v Value) {
 
 // visitBool formats values with a kind of reflect.Bool.
 func (vis *visitor) visitBool(w io.Writer, v Value) {
-	if v.IsAmbiguousType() && v.DynamicType != boolType {
+	if v.IsAmbiguousType() && !dynamicTypeIs[bool](v) {
 		must.WriteString(w, vis.FormatTypeName(v))
 		must.Fprintf(w, "(%#v)", v.Value.Bool())
 	} else {

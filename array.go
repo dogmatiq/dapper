@@ -9,9 +9,6 @@ import (
 	"github.com/dogmatiq/iago/must"
 )
 
-// byteType is the reflect.Type of the built-in byte type.
-var byteType = reflect.TypeOf((*byte)(nil)).Elem()
-
 // visitArray formats values with a kind of reflect.Array or Slice.
 func (vis *visitor) visitArray(w io.Writer, v Value) {
 	if v.IsAmbiguousType() {
@@ -26,7 +23,7 @@ func (vis *visitor) visitArray(w io.Writer, v Value) {
 	i := indent.NewIndenter(w, vis.config.Indent)
 
 	must.WriteString(w, "{\n")
-	if v.DynamicType.Elem() == byteType {
+	if v.DynamicType.Elem() == typeOf[byte]() {
 		vis.visitByteArrayValues(i, v)
 	} else {
 		vis.visitArrayValues(i, v)

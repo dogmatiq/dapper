@@ -7,9 +7,6 @@ import (
 	"github.com/dogmatiq/iago/must"
 )
 
-// reflectTypeType is the reflect.Type for reflect.Type itself.
-var reflectTypeType = reflect.TypeOf((*reflect.Type)(nil)).Elem()
-
 // ReflectTypeFilter is a filter that formats reflect.Type values.
 func ReflectTypeFilter(
 	w io.Writer,
@@ -17,26 +14,18 @@ func ReflectTypeFilter(
 	_ Config,
 	p FilterPrinter,
 ) error {
-	if !v.DynamicType.Implements(reflectTypeType) {
+	t, ok := as[reflect.Type](v)
+	if !ok {
 		return ErrFilterNotApplicable
 	}
 
-	ambiguous := false
-
-	if v.IsAmbiguousStaticType {
-		// always render the type if the static type is ambiguous
-		ambiguous = true
-	} else if v.IsAmbiguousDynamicType {
-		// only consider the dynamic type to be ambiguous if the static type isn't reflect.Type
-		// we're not really concerned with rendering the underlying implementation's type.
-		ambiguous = v.StaticType != reflectTypeType
-	}
+	// Render the type if the static type is ambiguous or something other than
+	// [reflect.Type].
+	ambiguous := v.IsAmbiguousStaticType || !staticTypeIs[reflect.Type](v)
 
 	if ambiguous {
 		must.WriteString(w, "reflect.Type(")
 	}
-
-	t := v.Value.Interface().(reflect.Type)
 
 	if s := t.PkgPath(); s != "" {
 		must.WriteString(w, s)

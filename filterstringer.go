@@ -2,7 +2,6 @@ package dapper
 
 import (
 	"io"
-	"reflect"
 
 	"github.com/dogmatiq/iago/must"
 )
@@ -13,9 +12,6 @@ type Stringer interface {
 	DapperString() string
 }
 
-// stringerType is the reflect.Type for the dapper.Stringer interface.
-var stringerType = reflect.TypeOf((*Stringer)(nil)).Elem()
-
 // StringerFilter is a filter that formats implementations of dapper.Stringer.
 func StringerFilter(
 	w io.Writer,
@@ -23,11 +19,12 @@ func StringerFilter(
 	c Config,
 	p FilterPrinter,
 ) error {
-	if !v.DynamicType.Implements(stringerType) {
+	stringer, ok := as[Stringer](v)
+	if !ok {
 		return ErrFilterNotApplicable
 	}
 
-	s := v.Value.Interface().(Stringer).DapperString()
+	s := stringer.DapperString()
 	if s == "" {
 		return ErrFilterNotApplicable
 	}

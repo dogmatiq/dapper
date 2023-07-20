@@ -55,3 +55,34 @@ func (v *Value) canPointer() bool {
 		return false
 	}
 }
+
+// as returns v as a value of type T.
+func as[T any](v Value) (T, bool) {
+	x, ok := v.Value.Interface().(T)
+	return x, ok
+}
+
+// ptr returns a pointer to v as a value of type *T.
+func ptr[T any](v Value) *T {
+	return v.Value.Addr().Interface().(*T)
+}
+
+// implements returns true if v is convertible to T.
+func implements[T any](v Value) bool {
+	return v.DynamicType.Implements(typeOf[T]())
+}
+
+// dynamicTypeIs returns true if v's dynamic type is T.
+func dynamicTypeIs[T any](v Value) bool {
+	return v.DynamicType == typeOf[T]()
+}
+
+// staticTypeIs returns true if v's static type is T.
+func staticTypeIs[T any](v Value) bool {
+	return v.StaticType == typeOf[T]()
+}
+
+// typeOf returns the [reflect.Type] for T.
+func typeOf[T any]() reflect.Type {
+	return reflect.TypeOf((*T)(nil)).Elem()
+}

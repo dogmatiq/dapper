@@ -18,19 +18,18 @@ func syncMapFilter(
 
 	r := mapRenderer{
 		Map:       v,
-		KeyType:   emptyInterfaceType,
-		ValueType: emptyInterfaceType,
+		KeyType:   typeOf[any](),
+		ValueType: typeOf[any](),
 		Printer:   p,
 		Indent:    c.Indent,
 	}
 
-	v.Value.Addr().Interface().(*sync.Map).Range(
-		func(key, val interface{}) bool {
-			mk := reflect.ValueOf(key)
-			mv := reflect.ValueOf(val)
-
-			r.Add(mk, mv)
-
+	ptr[sync.Map](v).Range(
+		func(key, val any) bool {
+			r.Add(
+				reflect.ValueOf(key),
+				reflect.ValueOf(val),
+			)
 			return true
 		},
 	)

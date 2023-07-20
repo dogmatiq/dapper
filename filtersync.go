@@ -2,22 +2,7 @@ package dapper
 
 import (
 	"io"
-	"reflect"
 	"sync"
-)
-
-var (
-	// mutexType is the reflect.Type for the sync.Mutex type.
-	mutexType = reflect.TypeOf((*sync.Mutex)(nil)).Elem()
-
-	// rwMutexType is the reflect.Type for the sync.RWMutex type.
-	rwMutexType = reflect.TypeOf((*sync.RWMutex)(nil)).Elem()
-
-	// onceType is the reflect.Type for the sync.Once type.
-	onceType = reflect.TypeOf((*sync.Once)(nil)).Elem()
-
-	// mapType is the reflect.Type for the sync.Map type.
-	mapType = reflect.TypeOf((*sync.Map)(nil)).Elem()
 )
 
 // SyncFilter is a filter that formats various types from the sync package.
@@ -27,16 +12,15 @@ func SyncFilter(
 	c Config,
 	p FilterPrinter,
 ) error {
-	switch v.DynamicType {
-	case mutexType:
+	if dynamicTypeIs[sync.Mutex](v) {
 		return syncMutexFilter(w, v, p)
-	case rwMutexType:
+	} else if dynamicTypeIs[sync.RWMutex](v) {
 		return syncRWMutexFilter(w, v, p)
-	case onceType:
+	} else if dynamicTypeIs[sync.Once](v) {
 		return syncOnceFilter(w, v, p)
-	case mapType:
+	} else if dynamicTypeIs[sync.Map](v) {
 		return syncMapFilter(w, v, c, p)
-	default:
+	} else {
 		return ErrFilterNotApplicable
 	}
 }

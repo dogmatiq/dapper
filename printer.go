@@ -61,9 +61,6 @@ type Printer struct {
 	Config Config
 }
 
-// emptyInterfaceType is the reflect.Type for interface{}.
-var emptyInterfaceType = reflect.TypeOf((*interface{})(nil)).Elem()
-
 // Write writes a pretty-printed representation of v to w.
 //
 // It returns the number of bytes written.
@@ -100,7 +97,7 @@ func (p *Printer) Write(w io.Writer, v interface{}) (n int, err error) {
 		Value{
 			Value:                  rv,
 			DynamicType:            rt,
-			StaticType:             emptyInterfaceType,
+			StaticType:             typeOf[any](),
 			IsAmbiguousDynamicType: true,
 			IsAmbiguousStaticType:  true,
 			IsUnexported:           false,

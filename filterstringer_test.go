@@ -14,7 +14,7 @@ func TestPrinter_StringerFilter(t *testing.T) {
 	test(
 		t,
 		"stringer",
-		stringer("<stringer>"), // use pointer to avoid copy
+		stringer("<stringer>"),
 		"github.com/dogmatiq/dapper_test.stringer [<stringer>]",
 	)
 

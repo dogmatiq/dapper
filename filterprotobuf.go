@@ -2,13 +2,9 @@ package dapper
 
 import (
 	"io"
-	"reflect"
 
 	"google.golang.org/protobuf/proto"
 )
-
-// protoMessageType is the reflect.Type for proto.Message.
-var protoMessageType = reflect.TypeOf((*proto.Message)(nil)).Elem()
 
 // ProtobufFilter is a filter for proto.Message types.
 //
@@ -20,7 +16,7 @@ func ProtobufFilter(
 	c Config,
 	p FilterPrinter,
 ) error {
-	if !v.DynamicType.Implements(protoMessageType) {
+	if !implements[proto.Message](v) {
 		return ErrFilterNotApplicable
 	}
 
