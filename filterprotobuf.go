@@ -6,11 +6,14 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-// ProtobufFilter is a filter for proto.Message types.
+// ProtobufFilter is a filter for [proto.Messag]e types.
 //
 // It shows the field names as defined in the .proto file and hides
 // implementation-specific internal state.
-func ProtobufFilter(
+type ProtobufFilter struct{}
+
+// Render writes a formatted representation of v to w.
+func (ProtobufFilter) Render(
 	w io.Writer,
 	v Value,
 	c Config,

@@ -22,7 +22,7 @@ func (vis *visitor) visitMap(w io.Writer, v Value) {
 		Map:       v,
 		KeyType:   v.DynamicType.Key(),
 		ValueType: v.DynamicType.Elem(),
-		Printer:   &filterPrinter{vis, 0, v},
+		Printer:   &filterPrinter{vis, nil, v},
 		Indent:    vis.config.Indent,
 	}
 

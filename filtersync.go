@@ -6,7 +6,10 @@ import (
 )
 
 // SyncFilter is a filter that formats various types from the sync package.
-func SyncFilter(
+type SyncFilter struct{}
+
+// Render writes a formatted representation of v to w.
+func (SyncFilter) Render(
 	w io.Writer,
 	v Value,
 	c Config,

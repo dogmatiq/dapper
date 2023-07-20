@@ -7,8 +7,11 @@ import (
 	"github.com/dogmatiq/iago/must"
 )
 
-// TimeFilter is a filter that formats time.Time values.
-func TimeFilter(
+// TimeFilter is a filter that formats [time.Time] values.
+type TimeFilter struct{}
+
+// Render writes a formatted representation of v to w.
+func (TimeFilter) Render(
 	w io.Writer,
 	v Value,
 	_ Config,
@@ -27,8 +30,11 @@ func TimeFilter(
 	return nil
 }
 
-// DurationFilter is a filter that formats time.Duration values.
-func DurationFilter(
+// DurationFilter is a filter that formats [time.Duration] values.
+type DurationFilter struct{}
+
+// Render writes a formatted representation of v to w.
+func (DurationFilter) Render(
 	w io.Writer,
 	v Value,
 	_ Config,

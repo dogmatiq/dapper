@@ -12,50 +12,68 @@ import (
 	"github.com/dogmatiq/iago/must"
 )
 
+type testType struct {
+	i int
+}
+
+type filterStub struct {
+	RenderFunc func(io.Writer, Value, Config, FilterPrinter) error
+}
+
+func (f *filterStub) Render(
+	w io.Writer,
+	v Value,
+	c Config,
+	p FilterPrinter,
+) error {
+	if f.RenderFunc != nil {
+		return f.RenderFunc(w, v, c, p)
+	}
+	return ErrFilterNotApplicable
+}
+
 func TestPrinter_Filter(t *testing.T) {
 	t.Run("it is passed a valid format function", func(t *testing.T) {
-		type testType struct {
-			i int
-		}
-
 		tt := testType{
 			i: 100,
 		}
 
-		f := func(
-			w io.Writer,
-			v Value,
-			_ Config,
-			p FilterPrinter,
-		) error {
-			if v.DynamicType != reflect.TypeOf(testType{}) {
-				return ErrFilterNotApplicable
-			}
-
-			must.WriteString(w, "github.com/dogmatiq/dapper_test.testType<")
-
-			fv := v.Value.FieldByName("i")
-
-			p.Write(
-				w,
-				Value{
-					Value:                  fv,
-					DynamicType:            fv.Type(),
-					StaticType:             fv.Type(),
-					IsAmbiguousDynamicType: false,
-					IsAmbiguousStaticType:  false,
-					IsUnexported:           true,
-				},
-			)
-
-			must.WriteByte(w, '>')
-
-			return nil
-		}
-
 		p := Printer{
 			Config: Config{
-				Filters: []Filter{f},
+				Filters: []Filter{
+					&filterStub{
+						RenderFunc: func(
+							w io.Writer,
+							v Value,
+							_ Config,
+							p FilterPrinter,
+						) error {
+							if v.DynamicType != reflect.TypeOf(testType{}) {
+								return ErrFilterNotApplicable
+							}
+
+							must.WriteString(w, "github.com/dogmatiq/dapper_test.testType<")
+
+							fv := v.Value.FieldByName("i")
+
+							p.Write(
+								w,
+								Value{
+									Value:                  fv,
+									DynamicType:            fv.Type(),
+									StaticType:             fv.Type(),
+									IsAmbiguousDynamicType: false,
+									IsAmbiguousStaticType:  false,
+									IsUnexported:           true,
+								},
+							)
+
+							must.WriteByte(w, '>')
+
+							return nil
+						},
+					},
+				},
 			},
 		}
 
@@ -69,30 +87,30 @@ func TestPrinter_Filter(t *testing.T) {
 	})
 
 	t.Run("is passed the printer's config", func(t *testing.T) {
-		cfg := Config{
-			Indent:          []byte("--->"),
-			ZeroValueMarker: "*ZERO*",
-			RecursionMarker: "*LOOP*",
-		}
-
-		f := func(
-			_ io.Writer,
-			_ Value,
-			c Config,
-			_ FilterPrinter,
-		) error {
-			if !reflect.DeepEqual(c, cfg) {
-				t.Logf("expected:\n\n%#+v\n", cfg)
-				t.Fatalf("actual:\n\n%#+v\n", c)
-			}
-
-			return nil
-		}
-
-		cfg.Filters = []Filter{f}
-
 		p := Printer{
-			Config: cfg,
+			Config: Config{
+				Indent:          []byte("--->"),
+				ZeroValueMarker: "*ZERO*",
+				RecursionMarker: "*LOOP*",
+			},
+		}
+
+		p.Config.Filters = []Filter{
+			&filterStub{
+				RenderFunc: func(
+					_ io.Writer,
+					_ Value,
+					c Config,
+					_ FilterPrinter,
+				) error {
+					if !reflect.DeepEqual(c, p.Config) {
+						t.Logf("expected:\n\n%#+v\n", p.Config)
+						t.Fatalf("actual:\n\n%#+v\n", c)
+					}
+
+					return nil
+				},
+			},
 		}
 
 		p.Write(&strings.Builder{}, 100)
@@ -104,18 +122,20 @@ func TestPrinter_Filter(t *testing.T) {
 			terr = errors.New("test filter error")
 		)
 
-		f := func(
-			io.Writer,
-			Value,
-			Config,
-			FilterPrinter,
-		) error {
-			return terr
-		}
-
 		p := Printer{
 			Config: Config{
-				Filters: []Filter{f},
+				Filters: []Filter{
+					&filterStub{
+						RenderFunc: func(
+							io.Writer,
+							Value,
+							Config,
+							FilterPrinter,
+						) error {
+							return terr
+						},
+					},
+				},
 			},
 		}
 

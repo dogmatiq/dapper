@@ -18,15 +18,8 @@ type visitor struct {
 	// config is the printer's configuration.
 	config Config
 
-	// skipFilter causes the filter at the given address to be skipped when
-	// rendering the next value.
-	//
-	// HACK: We're using function pointers to compare functions. This behavior
-	// is technically undefined and may stop working in the future.
-	//
-	// The Filter system needs to be refactored to allow filters to have
-	// identity, perhaps by converting Filter to an interface.
-	skipFilter uintptr
+	// skipFilter causes the filter to be skipped when rendering the next value.
+	skipFilter Filter
 
 	// recursionSet is the set of potentially recursive values that are
 	// currently being visited.
@@ -50,19 +43,17 @@ func (vis *visitor) Write(w io.Writer, v Value) {
 	v.Value = unsafereflect.MakeMutable(v.Value)
 
 	for _, f := range vis.config.Filters {
-		ptr := reflect.ValueOf(f).Pointer()
-
-		if ptr == vis.skipFilter {
+		if f == vis.skipFilter {
 			continue
 		}
 
 		p := filterPrinter{
 			visitor:       vis,
-			currentFilter: ptr,
+			currentFilter: f,
 			value:         v,
 		}
 
-		err := f(w, v, vis.config, p)
+		err := f.Render(w, v, vis.config, p)
 
 		if err == ErrFilterNotApplicable {
 			continue
@@ -73,7 +64,7 @@ func (vis *visitor) Write(w io.Writer, v Value) {
 		}
 	}
 
-	vis.skipFilter = 0
+	vis.skipFilter = nil
 
 	switch v.DynamicType.Kind() {
 	case reflect.String:

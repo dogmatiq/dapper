@@ -5,25 +5,18 @@ import (
 	"io"
 )
 
-// Filter is a function that provides custom formatting logic for specific
-// values.
-//
-// It optionally writes a formatted representation of v to w. If the filter
-// returns [ErrNotApplicable] the default formatting logic is used.
-//
-// c is the configuration used by the [Printer] that is invoking the filter.
-//
-// p is used to render values and type names according to the printer
-// configuration.
-//
-// Particular attention should be paid to the v.IsUnexported field. If this flag
-// is true, many operations on v.Value are unavailable.
-type Filter func(
-	w io.Writer,
-	v Value,
-	c Config,
-	p FilterPrinter,
-) error
+// A Filter is provides custom formatting logic for specific values.
+type Filter interface {
+	// Render writes a formatted representation of v to w.
+	//
+	// If the filter returns [ErrFilterNotApplicable] the filter is bypassed.
+	//
+	// c is the configuration used by the [Printer] that is invoking the filter.
+	//
+	// p is used to render values and type names according to the printer
+	// configuration.
+	Render(w io.Writer, v Value, c Config, p FilterPrinter) error
+}
 
 // ErrFilterNotApplicable is returned by a [Filter] when it does not apply to
 // the given value.
@@ -44,7 +37,7 @@ type FilterPrinter interface {
 
 type filterPrinter struct {
 	*visitor
-	currentFilter uintptr
+	currentFilter Filter
 	value         Value
 }
 

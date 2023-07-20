@@ -12,8 +12,12 @@ type Stringer interface {
 	DapperString() string
 }
 
-// StringerFilter is a filter that formats implementations of dapper.Stringer.
-func StringerFilter(
+// StringerFilter is a [Filter] that formats implementations of
+// [dapper.Stringer].
+type StringerFilter struct{}
+
+// Render writes a formatted representation of v to w.
+func (StringerFilter) Render(
 	w io.Writer,
 	v Value,
 	c Config,

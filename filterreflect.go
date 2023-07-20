@@ -7,8 +7,11 @@ import (
 	"github.com/dogmatiq/iago/must"
 )
 
-// ReflectTypeFilter is a filter that formats reflect.Type values.
-func ReflectTypeFilter(
+// ReflectTypeFilter is a filter that formats [reflect.Type] values.
+type ReflectTypeFilter struct{}
+
+// Render writes a formatted representation of v to w.
+func (ReflectTypeFilter) Render(
 	w io.Writer,
 	v Value,
 	_ Config,

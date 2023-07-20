@@ -18,8 +18,9 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ### Changed
 
-- **[BC]** `Filter` functions must now return `ErrFilterNotApplicable` to
-  indicate that the filter does not apply to the value.
+- **[BC]** `Filter` is now an interface, rather than a single function.
+- **[BC]** Filters must now return `ErrFilterNotApplicable` to indicate that the
+  filter does not apply to the value, rather than simply rendering no output.
 
 ## [0.4.6] - 2023-02-27
 
