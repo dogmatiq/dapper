@@ -7,7 +7,7 @@ import (
 	"github.com/dogmatiq/iago/must"
 )
 
-// TimeFilter is a filter that formats [time.Time] values.
+// TimeFilter is a filter that formats various values from the [time] package.
 type TimeFilter struct{}
 
 // Render writes a formatted representation of v to w.
@@ -15,40 +15,29 @@ func (TimeFilter) Render(
 	w io.Writer,
 	v Value,
 	_ Config,
-	p FilterPrinter,
+	_ FilterPrinter,
 ) error {
-	t, ok := as[time.Time](v)
-	if !ok {
+	if dynamicTypeIs[time.Time](v) {
+		return renderTime(w, v)
+	} else if dynamicTypeIs[time.Duration](v) {
+		return renderDuration(w, v)
+	} else {
 		return ErrFilterNotApplicable
 	}
+}
 
+func renderTime(w io.Writer, v Value) error {
 	must.WriteString(
 		w,
-		t.Format(time.RFC3339Nano),
+		as[time.Time](v).Format(time.RFC3339Nano),
 	)
-
 	return nil
 }
 
-// DurationFilter is a filter that formats [time.Duration] values.
-type DurationFilter struct{}
-
-// Render writes a formatted representation of v to w.
-func (DurationFilter) Render(
-	w io.Writer,
-	v Value,
-	_ Config,
-	p FilterPrinter,
-) error {
-	d, ok := as[time.Duration](v)
-	if !ok {
-		return ErrFilterNotApplicable
-	}
-
+func renderDuration(w io.Writer, v Value) error {
 	must.WriteString(
 		w,
-		d.String(),
+		as[time.Duration](v).String(),
 	)
-
 	return nil
 }

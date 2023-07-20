@@ -6,7 +6,7 @@ import (
 	"github.com/dogmatiq/iago/must"
 )
 
-func syncOnceFilter(
+func renderSyncOnce(
 	w io.Writer,
 	v Value,
 	p FilterPrinter,

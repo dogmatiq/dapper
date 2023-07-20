@@ -34,9 +34,7 @@ func TestPrinter_TimeFilter(t *testing.T) {
 		"    t: 2019-11-03T10:13:08.839511Z",
 		"}",
 	)
-}
 
-func TestPrinter_DurationFilter(t *testing.T) {
 	dur := 20 * time.Second
 
 	test(

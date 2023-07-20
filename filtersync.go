@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-// SyncFilter is a filter that formats various types from the sync package.
+// SyncFilter is a filter that formats various types from the [sync] package.
 type SyncFilter struct{}
 
 // Render writes a formatted representation of v to w.
@@ -16,13 +16,13 @@ func (SyncFilter) Render(
 	p FilterPrinter,
 ) error {
 	if dynamicTypeIs[sync.Mutex](v) {
-		return syncMutexFilter(w, v, p)
+		return renderMutex(w, v, p)
 	} else if dynamicTypeIs[sync.RWMutex](v) {
-		return syncRWMutexFilter(w, v, p)
+		return renderRWMutex(w, v, p)
 	} else if dynamicTypeIs[sync.Once](v) {
-		return syncOnceFilter(w, v, p)
+		return renderSyncOnce(w, v, p)
 	} else if dynamicTypeIs[sync.Map](v) {
-		return syncMapFilter(w, v, c, p)
+		return renderSyncMap(w, v, c, p)
 	} else {
 		return ErrFilterNotApplicable
 	}

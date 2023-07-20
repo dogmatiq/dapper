@@ -21,6 +21,11 @@ The format is based on [Keep a Changelog], and this project adheres to
 - **[BC]** `Filter` is now an interface, rather than a single function.
 - **[BC]** Filters must now return `ErrFilterNotApplicable` to indicate that the
   filter does not apply to the value, rather than simply rendering no output.
+- **[BC]** Renamed `ReflectTypeFilter` to `ReflectFilter`, it now applies to the entire `reflect` package.
+
+### Removed
+
+- **[BC]** Removed `DurationFilter`. `TimeFilter` now applies to the entire `time` package.
 
 ## [0.4.6] - 2023-02-27
 

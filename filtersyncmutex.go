@@ -7,7 +7,7 @@ import (
 	"github.com/dogmatiq/iago/must"
 )
 
-func syncMutexFilter(
+func renderMutex(
 	w io.Writer,
 	v Value,
 	p FilterPrinter,
@@ -33,7 +33,7 @@ func syncMutexFilter(
 	return nil
 }
 
-func syncRWMutexFilter(
+func renderRWMutex(
 	w io.Writer,
 	v Value,
 	p FilterPrinter,

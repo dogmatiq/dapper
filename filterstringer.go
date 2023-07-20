@@ -23,7 +23,7 @@ func (StringerFilter) Render(
 	c Config,
 	p FilterPrinter,
 ) error {
-	stringer, ok := as[Stringer](v)
+	stringer, ok := try[Stringer](v)
 	if !ok {
 		return ErrFilterNotApplicable
 	}

@@ -10,7 +10,7 @@ type reflectType struct {
 	unexported reflect.Type
 }
 
-func TestPrinter_ReflectTypeFilter(t *testing.T) {
+func TestPrinter_ReflectFilter(t *testing.T) {
 	test(
 		t,
 		"built-in type",

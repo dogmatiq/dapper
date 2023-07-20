@@ -56,10 +56,15 @@ func (v *Value) canPointer() bool {
 	}
 }
 
-// as returns v as a value of type T.
-func as[T any](v Value) (T, bool) {
+// try returns v try a value of type T.
+func try[T any](v Value) (T, bool) {
 	x, ok := v.Value.Interface().(T)
 	return x, ok
+}
+
+// as returns v as a value of type T.
+func as[T any](v Value) T {
+	return v.Value.Interface().(T)
 }
 
 // ptr returns a pointer to v as a value of type *T.

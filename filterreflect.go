@@ -7,23 +7,28 @@ import (
 	"github.com/dogmatiq/iago/must"
 )
 
-// ReflectTypeFilter is a filter that formats [reflect.Type] values.
-type ReflectTypeFilter struct{}
+// ReflectFilter is a filter that formats various types from the [reflect]
+// package.
+type ReflectFilter struct{}
 
 // Render writes a formatted representation of v to w.
-func (ReflectTypeFilter) Render(
+func (ReflectFilter) Render(
 	w io.Writer,
 	v Value,
 	_ Config,
 	p FilterPrinter,
 ) error {
-	t, ok := as[reflect.Type](v)
-	if !ok {
-		return ErrFilterNotApplicable
+	if implements[reflect.Type](v) {
+		return renderReflectType(w, v)
 	}
+	return ErrFilterNotApplicable
+}
+
+func renderReflectType(w io.Writer, v Value) error {
+	t := as[reflect.Type](v)
 
 	// Render the type if the static type is ambiguous or something other than
-	// [reflect.Type].
+	// [reflect.Type] (i.e, some user defined interface).
 	ambiguous := v.IsAmbiguousStaticType || !staticTypeIs[reflect.Type](v)
 
 	if ambiguous {

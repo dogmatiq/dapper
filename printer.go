@@ -126,9 +126,8 @@ var DefaultPrinter = Printer{
 	Config: Config{
 		Filters: []Filter{
 			StringerFilter{},
-			DurationFilter{},
 			ProtobufFilter{},
-			ReflectTypeFilter{},
+			ReflectFilter{},
 			SyncFilter{},
 			TimeFilter{},
 		},
