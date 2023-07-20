@@ -37,6 +37,6 @@ func SyncFilter(
 	case mapType:
 		return syncMapFilter(w, v, c, p)
 	default:
-		return nil
+		return ErrFilterNotApplicable
 	}
 }

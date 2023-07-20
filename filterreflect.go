@@ -18,7 +18,7 @@ func ReflectTypeFilter(
 	p FilterPrinter,
 ) error {
 	if !v.DynamicType.Implements(reflectTypeType) {
-		return nil
+		return ErrFilterNotApplicable
 	}
 
 	ambiguous := false

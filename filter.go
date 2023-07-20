@@ -1,14 +1,17 @@
 package dapper
 
-import "io"
+import (
+	"errors"
+	"io"
+)
 
 // Filter is a function that provides custom formatting logic for specific
 // values.
 //
-// It optionally writes a formatted representation of v to w. If the filter does
-// not produce any output the default formatting logic is used.
+// It optionally writes a formatted representation of v to w. If the filter
+// returns [ErrNotApplicable] the default formatting logic is used.
 //
-// c is the configuration used by the Printer that is invoking the filter.
+// c is the configuration used by the [Printer] that is invoking the filter.
 //
 // p is used to render values and type names according to the printer
 // configuration.
@@ -21,6 +24,10 @@ type Filter func(
 	c Config,
 	p FilterPrinter,
 ) error
+
+// ErrFilterNotApplicable is returned by a [Filter] when it does not apply to
+// the given value.
+var ErrFilterNotApplicable = errors.New("filter not applicable")
 
 // FilterPrinter is an interface used by filters to render values and types.
 type FilterPrinter interface {

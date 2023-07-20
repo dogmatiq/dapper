@@ -20,10 +20,12 @@ func ProtobufFilter(
 	c Config,
 	p FilterPrinter,
 ) error {
-	if v.DynamicType.Implements(protoMessageType) {
-		c.OmitUnexportedFields = true
-		p.Fallback(w, c)
+	if !v.DynamicType.Implements(protoMessageType) {
+		return ErrFilterNotApplicable
 	}
+
+	c.OmitUnexportedFields = true
+	p.Fallback(w, c)
 
 	return nil
 }

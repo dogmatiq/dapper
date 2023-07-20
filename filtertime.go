@@ -23,10 +23,12 @@ func TimeFilter(
 	_ Config,
 	p FilterPrinter,
 ) error {
-	if v.DynamicType == timeType {
-		s := v.Value.Interface().(time.Time).Format(time.RFC3339Nano)
-		must.WriteString(w, s)
+	if v.DynamicType != timeType {
+		return ErrFilterNotApplicable
 	}
+
+	s := v.Value.Interface().(time.Time).Format(time.RFC3339Nano)
+	must.WriteString(w, s)
 
 	return nil
 }
@@ -38,10 +40,12 @@ func DurationFilter(
 	_ Config,
 	p FilterPrinter,
 ) error {
-	if v.DynamicType == durationType {
-		s := v.Value.Interface().(time.Duration).String()
-		must.WriteString(w, s)
+	if v.DynamicType != durationType {
+		return ErrFilterNotApplicable
 	}
+
+	s := v.Value.Interface().(time.Duration).String()
+	must.WriteString(w, s)
 
 	return nil
 }

@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/dogmatiq/dapper/internal/unsafereflect"
-	"github.com/dogmatiq/iago/count"
 	"github.com/dogmatiq/iago/must"
 )
 
@@ -50,8 +49,6 @@ func (vis *visitor) Write(w io.Writer, v Value) {
 
 	v.Value = unsafereflect.MakeMutable(v.Value)
 
-	cw := count.NewWriter(w)
-
 	for _, f := range vis.config.Filters {
 		ptr := reflect.ValueOf(f).Pointer()
 
@@ -65,11 +62,13 @@ func (vis *visitor) Write(w io.Writer, v Value) {
 			value:         v,
 		}
 
-		if err := f(cw, v, vis.config, p); err != nil {
-			panic(must.PanicSentinel{Cause: err})
-		}
+		err := f(w, v, vis.config, p)
 
-		if cw.Count() > 0 {
+		if err == ErrFilterNotApplicable {
+			continue
+		} else if err != nil {
+			panic(must.PanicSentinel{Cause: err})
+		} else {
 			return
 		}
 	}

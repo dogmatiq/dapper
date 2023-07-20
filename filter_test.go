@@ -28,25 +28,27 @@ func TestPrinter_Filter(t *testing.T) {
 			_ Config,
 			p FilterPrinter,
 		) error {
-			if v.DynamicType == reflect.TypeOf(testType{}) {
-				must.WriteString(w, "github.com/dogmatiq/dapper_test.testType<")
-
-				fv := v.Value.FieldByName("i")
-
-				p.Write(
-					w,
-					Value{
-						Value:                  fv,
-						DynamicType:            fv.Type(),
-						StaticType:             fv.Type(),
-						IsAmbiguousDynamicType: false,
-						IsAmbiguousStaticType:  false,
-						IsUnexported:           true,
-					},
-				)
-
-				must.WriteByte(w, '>')
+			if v.DynamicType != reflect.TypeOf(testType{}) {
+				return ErrFilterNotApplicable
 			}
+
+			must.WriteString(w, "github.com/dogmatiq/dapper_test.testType<")
+
+			fv := v.Value.FieldByName("i")
+
+			p.Write(
+				w,
+				Value{
+					Value:                  fv,
+					DynamicType:            fv.Type(),
+					StaticType:             fv.Type(),
+					IsAmbiguousDynamicType: false,
+					IsAmbiguousStaticType:  false,
+					IsUnexported:           true,
+				},
+			)
+
+			must.WriteByte(w, '>')
 
 			return nil
 		}

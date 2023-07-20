@@ -24,12 +24,12 @@ func StringerFilter(
 	p FilterPrinter,
 ) error {
 	if !v.DynamicType.Implements(stringerType) {
-		return nil
+		return ErrFilterNotApplicable
 	}
 
 	s := v.Value.Interface().(Stringer).DapperString()
 	if s == "" {
-		return nil
+		return ErrFilterNotApplicable
 	}
 
 	if v.IsAmbiguousType() {
