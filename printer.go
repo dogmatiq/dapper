@@ -7,7 +7,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/dogmatiq/iago/count"
+	"github.com/dogmatiq/dapper/internal/stream"
 	"github.com/dogmatiq/iago/must"
 )
 
@@ -90,10 +90,12 @@ func (p *Printer) Write(w io.Writer, v interface{}) (n int, err error) {
 		rt = rv.Type()
 	}
 
-	cw := count.NewWriter(w)
+	counter := &stream.Counter{
+		Target: w,
+	}
 
 	vis.Write(
-		cw,
+		counter,
 		Value{
 			Value:                  rv,
 			DynamicType:            rt,
@@ -104,7 +106,7 @@ func (p *Printer) Write(w io.Writer, v interface{}) (n int, err error) {
 		},
 	)
 
-	n = cw.Count()
+	n = counter.Count()
 	return
 }
 

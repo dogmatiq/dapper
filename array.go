@@ -5,7 +5,7 @@ import (
 	"io"
 	"reflect"
 
-	"github.com/dogmatiq/dapper/internal/indent"
+	"github.com/dogmatiq/dapper/internal/stream"
 	"github.com/dogmatiq/iago/must"
 )
 
@@ -20,7 +20,7 @@ func (vis *visitor) visitArray(w io.Writer, v Value) {
 		return
 	}
 
-	indenter := &indent.Indenter{
+	indenter := &stream.Indenter{
 		Target: w,
 		Indent: vis.config.Indent,
 	}

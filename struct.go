@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/dogmatiq/dapper/internal/indent"
+	"github.com/dogmatiq/dapper/internal/stream"
 	"github.com/dogmatiq/iago/must"
 )
 
@@ -32,7 +32,7 @@ func (vis *visitor) visitStruct(w io.Writer, v Value) {
 
 	must.WriteString(w, "{\n")
 	vis.visitStructFields(
-		&indent.Indenter{
+		&stream.Indenter{
 			Target: w,
 			Indent: vis.config.Indent,
 		},

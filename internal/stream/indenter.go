@@ -1,4 +1,4 @@
-package indent
+package stream
 
 import (
 	"bytes"
