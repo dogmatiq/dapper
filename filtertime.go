@@ -17,27 +17,12 @@ func (TimeFilter) Render(
 	_ Config,
 	_ FilterPrinter,
 ) error {
-	if dynamicTypeIs[time.Time](v) {
-		return renderTime(w, v)
-	} else if dynamicTypeIs[time.Duration](v) {
-		return renderDuration(w, v)
+	if t, ok := is[time.Time](v); ok {
+		must.WriteString(w, t.Format(time.RFC3339Nano))
+	} else if d, ok := is[time.Duration](v); ok {
+		must.WriteString(w, d.String())
 	} else {
 		return ErrFilterNotApplicable
 	}
-}
-
-func renderTime(w io.Writer, v Value) error {
-	must.WriteString(
-		w,
-		as[time.Time](v).Format(time.RFC3339Nano),
-	)
-	return nil
-}
-
-func renderDuration(w io.Writer, v Value) error {
-	must.WriteString(
-		w,
-		as[time.Duration](v).String(),
-	)
 	return nil
 }

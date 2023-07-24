@@ -15,15 +15,16 @@ func (SyncFilter) Render(
 	c Config,
 	p FilterPrinter,
 ) error {
-	if dynamicTypeIs[sync.Mutex](v) {
+	switch v.DynamicType {
+	case typeOf[sync.Mutex]():
 		return renderMutex(w, v, p)
-	} else if dynamicTypeIs[sync.RWMutex](v) {
+	case typeOf[sync.RWMutex]():
 		return renderRWMutex(w, v, p)
-	} else if dynamicTypeIs[sync.Once](v) {
+	case typeOf[sync.Once]():
 		return renderSyncOnce(w, v, p)
-	} else if dynamicTypeIs[sync.Map](v) {
+	case typeOf[sync.Map]():
 		return renderSyncMap(w, v, c, p)
-	} else {
+	default:
 		return ErrFilterNotApplicable
 	}
 }

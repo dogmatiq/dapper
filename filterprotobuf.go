@@ -19,7 +19,7 @@ func (ProtobufFilter) Render(
 	c Config,
 	p FilterPrinter,
 ) error {
-	if !implements[proto.Message](v) {
+	if _, ok := implements[proto.Message](v); !ok {
 		return ErrFilterNotApplicable
 	}
 

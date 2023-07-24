@@ -1,6 +1,7 @@
 package dapper
 
 import (
+	"fmt"
 	"reflect"
 )
 
@@ -56,38 +57,49 @@ func (v *Value) canPointer() bool {
 	}
 }
 
-// try returns v try a value of type T.
-func try[T any](v Value) (T, bool) {
-	x, ok := v.Value.Interface().(T)
-	return x, ok
+// is returns a v as type T if its dynamic type is T.
+func is[T any](v Value) (T, bool) {
+	if v.DynamicType == typeOf[T]() {
+		return v.Value.Interface().(T), true
+	}
+	return zero[T](), false
 }
 
-// as returns v as a value of type T.
-func as[T any](v Value) T {
-	return v.Value.Interface().(T)
-}
+// implements returns v as a value of type T if it directly implements T.
+func implements[T any](v Value) (T, bool) {
+	t := typeOf[T]()
+	if t.Kind() != reflect.Interface {
+		panic(fmt.Sprintf("%s is not an interface", t))
+	}
 
-// ptr returns a pointer to v as a value of type *T.
-func ptr[T any](v Value) *T {
-	return v.Value.Addr().Interface().(*T)
-}
+	// If v is itself an interface it cannot implement anything.
+	if v.DynamicType.Kind() == reflect.Interface {
+		return zero[T](), false
+	}
 
-// implements returns true if v is convertible to T.
-func implements[T any](v Value) bool {
-	return v.DynamicType.Implements(typeOf[T]())
-}
+	// If the type is a pointer and the underlying type does not require pointer
+	// receivers to implement the type we report that the pointer does NOT
+	// implement the interface, forcing the renderer to descend into the
+	// underlying type instead.
+	if v.DynamicType.Kind() == reflect.Ptr {
+		if v.DynamicType.Elem().Implements(t) {
+			return zero[T](), false
+		}
+	}
 
-// dynamicTypeIs returns true if v's dynamic type is T.
-func dynamicTypeIs[T any](v Value) bool {
-	return v.DynamicType == typeOf[T]()
-}
+	if v.DynamicType.Implements(t) {
+		return v.Value.Interface().(T), true
+	}
 
-// staticTypeIs returns true if v's static type is T.
-func staticTypeIs[T any](v Value) bool {
-	return v.StaticType == typeOf[T]()
+	return zero[T](), false
 }
 
 // typeOf returns the [reflect.Type] for T.
 func typeOf[T any]() reflect.Type {
 	return reflect.TypeOf((*T)(nil)).Elem()
+}
+
+// zero returns the zero value of T.
+func zero[T any]() (_ T) {
+	return
 }

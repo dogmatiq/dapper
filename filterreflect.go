@@ -18,18 +18,20 @@ func (ReflectFilter) Render(
 	_ Config,
 	p FilterPrinter,
 ) error {
-	if implements[reflect.Type](v) {
-		return renderReflectType(w, v)
+	if t, ok := implements[reflect.Type](v); ok {
+		return renderReflectType(w, v, t)
 	}
 	return ErrFilterNotApplicable
 }
 
-func renderReflectType(w io.Writer, v Value) error {
-	t := as[reflect.Type](v)
-
+func renderReflectType(
+	w io.Writer,
+	v Value,
+	t reflect.Type,
+) error {
 	// Render the type if the static type is ambiguous or something other than
 	// [reflect.Type] (i.e, some user defined interface).
-	ambiguous := v.IsAmbiguousStaticType || !staticTypeIs[reflect.Type](v)
+	ambiguous := v.IsAmbiguousStaticType || v.StaticType != typeOf[reflect.Type]()
 
 	if ambiguous {
 		must.WriteString(w, "reflect.Type(")

@@ -10,7 +10,7 @@ import (
 
 // visitString formats values with a kind of reflect.String.
 func (vis *visitor) visitString(w io.Writer, v Value) {
-	if v.IsAmbiguousType() && !dynamicTypeIs[string](v) {
+	if v.IsAmbiguousType() && v.DynamicType != typeOf[string]() {
 		must.WriteString(w, vis.FormatTypeName(v))
 		must.Fprintf(w, "(%#v)", v.Value.String())
 	} else {
@@ -20,7 +20,7 @@ func (vis *visitor) visitString(w io.Writer, v Value) {
 
 // visitBool formats values with a kind of reflect.Bool.
 func (vis *visitor) visitBool(w io.Writer, v Value) {
-	if v.IsAmbiguousType() && !dynamicTypeIs[bool](v) {
+	if v.IsAmbiguousType() && v.DynamicType != typeOf[bool]() {
 		must.WriteString(w, vis.FormatTypeName(v))
 		must.Fprintf(w, "(%#v)", v.Value.Bool())
 	} else {

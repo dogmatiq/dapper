@@ -1,6 +1,7 @@
 package dapper
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"reflect"
@@ -55,7 +56,7 @@ func (vis *visitor) Write(w io.Writer, v Value) {
 
 		err := f.Render(w, v, vis.config, p)
 
-		if err == ErrFilterNotApplicable {
+		if errors.Is(err, ErrFilterNotApplicable) {
 			continue
 		} else if err != nil {
 			panic(must.PanicSentinel{Cause: err})

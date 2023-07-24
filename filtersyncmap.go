@@ -4,8 +4,6 @@ import (
 	"io"
 	"reflect"
 	"sync"
-
-	"github.com/dogmatiq/iago/must"
 )
 
 func renderSyncMap(
@@ -13,9 +11,7 @@ func renderSyncMap(
 	v Value,
 	c Config,
 	p FilterPrinter,
-) (err error) {
-	defer must.Recover(&err)
-
+) error {
 	r := mapRenderer{
 		Map:       v,
 		KeyType:   typeOf[any](),
@@ -24,7 +20,8 @@ func renderSyncMap(
 		Indent:    c.Indent,
 	}
 
-	ptr[sync.Map](v).Range(
+	m := v.Value.Addr().Interface().(*sync.Map)
+	m.Range(
 		func(key, val any) bool {
 			r.Add(
 				reflect.ValueOf(key),
@@ -36,5 +33,5 @@ func renderSyncMap(
 
 	r.Print(w)
 
-	return
+	return nil
 }
