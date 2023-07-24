@@ -6,8 +6,8 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/dogmatiq/dapper/internal/indent"
 	"github.com/dogmatiq/dapper/internal/natsort"
-	"github.com/dogmatiq/iago/indent"
 	"github.com/dogmatiq/iago/must"
 )
 
@@ -108,7 +108,11 @@ func (r *mapRenderer) Print(w io.Writer) {
 
 	must.WriteString(w, "{\n")
 
-	indenter := indent.NewIndenter(w, r.Indent)
+	indenter := &indent.Indenter{
+		Target: w,
+		Indent: r.Indent,
+	}
+
 	for _, p := range r.pairs {
 		p.Write(indenter, r.alignment)
 	}

@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/dogmatiq/iago/indent"
+	"github.com/dogmatiq/dapper/internal/indent"
 	"github.com/dogmatiq/iago/must"
 )
 
@@ -31,7 +31,13 @@ func (vis *visitor) visitStruct(w io.Writer, v Value) {
 	}
 
 	must.WriteString(w, "{\n")
-	vis.visitStructFields(indent.NewIndenter(w, vis.config.Indent), v)
+	vis.visitStructFields(
+		&indent.Indenter{
+			Target: w,
+			Indent: vis.config.Indent,
+		},
+		v,
+	)
 	must.WriteByte(w, '}')
 }
 

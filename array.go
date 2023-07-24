@@ -5,7 +5,7 @@ import (
 	"io"
 	"reflect"
 
-	"github.com/dogmatiq/iago/indent"
+	"github.com/dogmatiq/dapper/internal/indent"
 	"github.com/dogmatiq/iago/must"
 )
 
@@ -20,13 +20,16 @@ func (vis *visitor) visitArray(w io.Writer, v Value) {
 		return
 	}
 
-	i := indent.NewIndenter(w, vis.config.Indent)
+	indenter := &indent.Indenter{
+		Target: w,
+		Indent: vis.config.Indent,
+	}
 
 	must.WriteString(w, "{\n")
 	if v.DynamicType.Elem() == typeOf[byte]() {
-		vis.visitByteArrayValues(i, v)
+		vis.visitByteArrayValues(indenter, v)
 	} else {
-		vis.visitArrayValues(i, v)
+		vis.visitArrayValues(indenter, v)
 	}
 	must.WriteByte(w, '}')
 }
