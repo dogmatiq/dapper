@@ -2,24 +2,23 @@ package dapper
 
 import (
 	"io"
-
-	"github.com/dogmatiq/iago/must"
 )
 
 // visitPtr formats values with a kind of reflect.Ptr.
-func (vis *visitor) visitPtr(w io.Writer, v Value) {
+func (vis *visitor) visitPtr(w io.Writer, v Value) error {
 	if v.Value.IsNil() {
-		vis.renderNil(w, v)
-		return
+		return vis.renderNil(w, v)
 	}
 
 	if v.IsAmbiguousType() {
-		must.WriteByte(w, '*')
+		if _, err := w.Write(asterisk); err != nil {
+			return err
+		}
 	}
 
 	elem := v.Value.Elem()
 
-	vis.Write(
+	return vis.Write(
 		w,
 		Value{
 			Value:                  elem,

@@ -3,8 +3,6 @@ package dapper
 import (
 	"io"
 	"reflect"
-
-	"github.com/dogmatiq/iago/must"
 )
 
 // ReflectFilter is a filter that formats various types from the [reflect]
@@ -34,22 +32,38 @@ func renderReflectType(
 	ambiguous := v.IsAmbiguousStaticType || v.StaticType != typeOf[reflect.Type]()
 
 	if ambiguous {
-		must.WriteString(w, "reflect.Type(")
+		if _, err := io.WriteString(w, "reflect.Type"); err != nil {
+			return err
+		}
+
+		if _, err := w.Write(openParen); err != nil {
+			return err
+		}
 	}
 
 	if s := t.PkgPath(); s != "" {
-		must.WriteString(w, s)
-		must.WriteByte(w, '.')
+		if _, err := io.WriteString(w, s); err != nil {
+			return err
+		}
+
+		if _, err := w.Write(dot); err != nil {
+			return err
+		}
 	}
 
-	if s := t.Name(); s != "" {
-		must.WriteString(w, s)
-	} else {
-		must.WriteString(w, t.String())
+	name := t.Name()
+	if name == "" {
+		name = t.String()
+	}
+
+	if _, err := io.WriteString(w, name); err != nil {
+		return err
 	}
 
 	if ambiguous {
-		must.WriteByte(w, ')')
+		if _, err := w.Write(closeParen); err != nil {
+			return err
+		}
 	}
 
 	return nil

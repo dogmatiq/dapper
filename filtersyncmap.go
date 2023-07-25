@@ -31,7 +31,5 @@ func renderSyncMap(
 		},
 	)
 
-	r.Print(w)
-
-	return nil
+	return r.Print(w)
 }

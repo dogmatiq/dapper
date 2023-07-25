@@ -4,135 +4,140 @@ import (
 	"fmt"
 	"io"
 	"strconv"
-
-	"github.com/dogmatiq/iago/must"
 )
 
 // visitString formats values with a kind of reflect.String.
-func (vis *visitor) visitString(w io.Writer, v Value) {
-	if v.IsAmbiguousType() && v.DynamicType != typeOf[string]() {
-		must.WriteString(w, vis.FormatTypeName(v))
-		must.Fprintf(w, "(%#v)", v.Value.String())
-	} else {
-		must.Fprintf(w, "%#v", v.Value.String())
+func (vis *visitor) visitString(w io.Writer, v Value) error {
+	if v.DynamicType == typeOf[string]() {
+		_, err := fmt.Fprintf(w, "%#v", v.Value.String())
+		return err
 	}
+
+	return formatWithTypeName(
+		vis,
+		w,
+		v,
+		"%#v",
+		v.Value.String(),
+	)
 }
 
 // visitBool formats values with a kind of reflect.Bool.
-func (vis *visitor) visitBool(w io.Writer, v Value) {
-	if v.IsAmbiguousType() && v.DynamicType != typeOf[bool]() {
-		must.WriteString(w, vis.FormatTypeName(v))
-		must.Fprintf(w, "(%#v)", v.Value.Bool())
-	} else {
-		must.Fprintf(w, "%#v", v.Value.Bool())
+func (vis *visitor) visitBool(w io.Writer, v Value) error {
+	if v.DynamicType == typeOf[bool]() {
+		_, err := fmt.Fprintf(w, "%#v", v.Value.Bool())
+		return err
 	}
+
+	return formatWithTypeName(
+		vis,
+		w,
+		v,
+		"%#v",
+		v.Value.Bool(),
+	)
 }
 
 // visitInt formats values with a kind of reflect.Int, and the related
 // fixed-sized types.
-func (vis *visitor) visitInt(w io.Writer, v Value) {
-	if v.IsAmbiguousType() {
-		must.WriteString(w, vis.FormatTypeName(v))
-		must.Fprintf(w, "(%v)", v.Value.Int())
-	} else {
-		must.Fprintf(w, "%v", v.Value.Int())
-	}
+func (vis *visitor) visitInt(w io.Writer, v Value) error {
+	return formatWithTypeName(
+		vis,
+		w,
+		v,
+		"%v",
+		v.Value.Int(),
+	)
 }
 
 // visitUint formats values with a kind of reflect.Uint, and the related
 // fixed-sized types.
-func (vis *visitor) visitUint(w io.Writer, v Value) {
-	if v.IsAmbiguousType() {
-		must.WriteString(w, vis.FormatTypeName(v))
-		must.Fprintf(w, "(%v)", v.Value.Uint())
-	} else {
-		must.Fprintf(w, "%v", v.Value.Uint())
-	}
+func (vis *visitor) visitUint(w io.Writer, v Value) error {
+	return formatWithTypeName(
+		vis,
+		w,
+		v,
+		"%v",
+		v.Value.Uint(),
+	)
 }
 
 // visitFloat formats values with a kind of reflect.Float32 and Float64.
-func (vis *visitor) visitFloat(w io.Writer, v Value) {
-	if v.IsAmbiguousType() {
-		must.WriteString(w, vis.FormatTypeName(v))
-		must.Fprintf(w, "(%v)", v.Value.Float())
-	} else {
-		must.Fprintf(w, "%v", v.Value.Float())
-	}
+func (vis *visitor) visitFloat(w io.Writer, v Value) error {
+	return formatWithTypeName(
+		vis,
+		w,
+		v,
+		"%v",
+		v.Value.Float(),
+	)
 }
 
 // visitComplex formats values with a kind of reflect.Complex64 and Complex128.
-func (vis *visitor) visitComplex(w io.Writer, v Value) {
-	// note that %v formats a complex number already surrounded in parenthesis
-	s := fmt.Sprintf("%v", v.Value.Complex())
+func (vis *visitor) visitComplex(w io.Writer, v Value) error {
+	formatted := fmt.Sprintf("%v", v.Value.Complex())
+	formatted = formatted[1 : len(formatted)-1] // trim surrounding parentheses
 
-	if v.IsAmbiguousType() {
-		must.WriteString(w, vis.FormatTypeName(v))
-		must.WriteString(w, s)
-	} else {
-		must.WriteString(w, s[1:len(s)-1]) // trim the opening and closing parenthesis
-	}
+	return formatWithTypeName(
+		vis,
+		w,
+		v,
+		formatted,
+	)
 }
 
 // visitUintptr formats values with a kind of reflect.Uintptr.
-func (vis *visitor) visitUintptr(w io.Writer, v Value) {
-	s := formatPointerHex(uintptr(v.Value.Uint()), false)
-
-	if v.IsAmbiguousType() {
-		must.WriteString(w, vis.FormatTypeName(v))
-		must.Fprintf(w, "(%s)", s)
-	} else {
-		must.WriteString(w, s)
-	}
+func (vis *visitor) visitUintptr(w io.Writer, v Value) error {
+	return formatWithTypeName(
+		vis,
+		w,
+		v,
+		formatPointerHex(uintptr(v.Value.Uint()), false),
+	)
 }
 
 // visitUnsafePointer formats values with a kind of reflect.UnsafePointer.
-func (vis *visitor) visitUnsafePointer(w io.Writer, v Value) {
-	s := formatPointerHex(v.Value.Pointer(), true)
-
-	if v.IsAmbiguousType() {
-		must.WriteString(w, vis.FormatTypeName(v))
-		must.Fprintf(w, "(%s)", s)
-	} else {
-		must.WriteString(w, s)
-	}
+func (vis *visitor) visitUnsafePointer(w io.Writer, v Value) error {
+	return formatWithTypeName(
+		vis,
+		w,
+		v,
+		formatPointerHex(v.Value.Pointer(), true),
+	)
 }
 
 // visitChan formats values with a kind of reflect.Chan.
-func (vis *visitor) visitChan(w io.Writer, v Value) {
-	if v.IsAmbiguousType() {
-		must.WriteString(w, vis.FormatTypeName(v))
-		must.WriteByte(w, '(')
-	}
-
-	must.WriteString(
-		w,
-		formatPointerHex(v.Value.Pointer(), true),
-	)
+func (vis *visitor) visitChan(w io.Writer, v Value) error {
+	ptr := formatPointerHex(v.Value.Pointer(), true)
 
 	if !v.Value.IsNil() && v.Value.Cap() != 0 {
-		must.Fprintf(
+		return formatWithTypeName(
+			vis,
 			w,
-			" %d/%d",
+			v,
+			"%s %d/%d",
+			ptr,
 			v.Value.Len(),
 			v.Value.Cap(),
 		)
 	}
 
-	if v.IsAmbiguousType() {
-		must.WriteByte(w, ')')
-	}
+	return formatWithTypeName(
+		vis,
+		w,
+		v,
+		ptr,
+	)
 }
 
 // visitFunc formats values with a kind of reflect.Func.
-func (vis *visitor) visitFunc(w io.Writer, v Value) {
-	s := formatPointerHex(v.Value.Pointer(), true)
-
-	if v.IsAmbiguousType() {
-		must.WriteString(w, vis.FormatTypeName(v))
-		must.Fprintf(w, "(%s)", s)
-	} else {
-		must.WriteString(w, s)
-	}
+func (vis *visitor) visitFunc(w io.Writer, v Value) error {
+	return formatWithTypeName(
+		vis,
+		w,
+		v,
+		formatPointerHex(v.Value.Pointer(), true),
+	)
 }
 
 // formatPointerHex returns a minimal hexadecimal represenation of v.

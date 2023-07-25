@@ -19,12 +19,10 @@ func (ProtobufFilter) Render(
 	c Config,
 	p FilterPrinter,
 ) error {
-	if _, ok := implements[proto.Message](v); !ok {
-		return ErrFilterNotApplicable
+	if _, ok := implements[proto.Message](v); ok {
+		c.OmitUnexportedFields = true
+		return p.Fallback(w, c)
 	}
 
-	c.OmitUnexportedFields = true
-	p.Fallback(w, c)
-
-	return nil
+	return ErrFilterNotApplicable
 }

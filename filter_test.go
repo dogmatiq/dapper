@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	. "github.com/dogmatiq/dapper"
-	"github.com/dogmatiq/iago/must"
 )
 
 type testType struct {
@@ -52,7 +51,9 @@ func TestPrinter_Filter(t *testing.T) {
 								return ErrFilterNotApplicable
 							}
 
-							must.WriteString(w, "github.com/dogmatiq/dapper_test.testType<")
+							if _, err := io.WriteString(w, "github.com/dogmatiq/dapper_test.testType<"); err != nil {
+								return err
+							}
 
 							fv := v.Value.FieldByName("i")
 
@@ -68,9 +69,8 @@ func TestPrinter_Filter(t *testing.T) {
 								},
 							)
 
-							must.WriteByte(w, '>')
-
-							return nil
+							_, err := io.WriteString(w, ">")
+							return err
 						},
 					},
 				},

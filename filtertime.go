@@ -3,8 +3,6 @@ package dapper
 import (
 	"io"
 	"time"
-
-	"github.com/dogmatiq/iago/must"
 )
 
 // TimeFilter is a filter that formats various values from the [time] package.
@@ -17,12 +15,13 @@ func (TimeFilter) Render(
 	_ Config,
 	_ FilterPrinter,
 ) error {
+	err := ErrFilterNotApplicable
+
 	if t, ok := is[time.Time](v); ok {
-		must.WriteString(w, t.Format(time.RFC3339Nano))
+		_, err = io.WriteString(w, t.Format(time.RFC3339Nano))
 	} else if d, ok := is[time.Duration](v); ok {
-		must.WriteString(w, d.String())
-	} else {
-		return ErrFilterNotApplicable
+		_, err = io.WriteString(w, d.String())
 	}
-	return nil
+
+	return err
 }

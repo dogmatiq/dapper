@@ -3,8 +3,6 @@ package dapper
 import (
 	"io"
 	"reflect"
-
-	"github.com/dogmatiq/iago/must"
 )
 
 func renderMutex(
@@ -23,14 +21,7 @@ func renderMutex(
 		}
 	}
 
-	if v.IsAmbiguousType() {
-		must.WriteString(w, p.FormatTypeName(v))
-		must.Fprintf(w, "(%v)", s)
-	} else {
-		must.Fprintf(w, "%v", s)
-	}
-
-	return nil
+	return formatWithTypeName(p, w, v, s)
 }
 
 func renderRWMutex(
@@ -62,12 +53,5 @@ func renderRWMutex(
 		}
 	}
 
-	if v.IsAmbiguousType() {
-		must.WriteString(w, p.FormatTypeName(v))
-		must.Fprintf(w, "(%v)", s)
-	} else {
-		must.Fprintf(w, "%v", s)
-	}
-
-	return nil
+	return formatWithTypeName(p, w, v, s)
 }

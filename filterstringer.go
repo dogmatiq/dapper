@@ -1,9 +1,8 @@
 package dapper
 
 import (
+	"fmt"
 	"io"
-
-	"github.com/dogmatiq/iago/must"
 )
 
 // Stringer is an interface for types that produce their own Dapper
@@ -28,17 +27,21 @@ func (StringerFilter) Render(
 		return ErrFilterNotApplicable
 	}
 
-	s := stringer.DapperString()
-	if s == "" {
+	str := stringer.DapperString()
+	if str == "" {
 		return ErrFilterNotApplicable
 	}
 
 	if v.IsAmbiguousType() {
-		must.WriteString(w, p.FormatTypeName(v))
-		must.WriteByte(w, ' ')
+		if err := p.WriteTypeName(w, v); err != nil {
+			return err
+		}
+
+		if _, err := w.Write(space); err != nil {
+			return err
+		}
 	}
 
-	must.Fprintf(w, "[%s]", s)
-
-	return nil
+	_, err := fmt.Fprintf(w, "[%s]", str)
+	return err
 }

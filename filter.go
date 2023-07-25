@@ -24,15 +24,16 @@ var ErrFilterNotApplicable = errors.New("filter not applicable")
 
 // FilterPrinter is an interface used by filters to render values and types.
 type FilterPrinter interface {
+	// WriteTypeName writes the name of v's dynamic type to w, rendered as per
+	// the printer's configuration.
+	WriteTypeName(w io.Writer, v Value) error
+
 	// Write writes a pretty-printed representation of v to w.
-	Write(w io.Writer, v Value)
+	Write(w io.Writer, v Value) error
 
-	// FormatTypeName returns the name of v's dynamic type, rendered as per the
-	// printer's configuration.
-	FormatTypeName(v Value) string
-
-	// Fallback writes the filtered value using the standard pretty-printer.
-	Fallback(w io.Writer, c Config)
+	// Fallback writes the filtered value the way it would be rendered if this
+	// filter did not exist.
+	Fallback(w io.Writer, c Config) error
 }
 
 type filterPrinter struct {
@@ -41,7 +42,7 @@ type filterPrinter struct {
 	value         Value
 }
 
-func (p filterPrinter) Fallback(w io.Writer, c Config) {
+func (p filterPrinter) Fallback(w io.Writer, c Config) error {
 	p.leave(p.value)
 
 	vis := &visitor{
@@ -50,5 +51,5 @@ func (p filterPrinter) Fallback(w io.Writer, c Config) {
 		recursionSet: p.recursionSet,
 	}
 
-	vis.Write(w, p.value)
+	return vis.Write(w, p.value)
 }

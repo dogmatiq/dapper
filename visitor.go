@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/dogmatiq/dapper/internal/unsafereflect"
-	"github.com/dogmatiq/iago/must"
 )
 
 // visitor walks a Go value in order to render it.
@@ -28,16 +27,15 @@ type visitor struct {
 }
 
 // Write renders v to w.
-//
-// It panics if an error occurs writing to w.
-func (vis *visitor) Write(w io.Writer, v Value) {
+func (vis *visitor) Write(w io.Writer, v Value) error {
 	if v.Value.Kind() == reflect.Invalid {
-		must.WriteString(w, "interface{}(nil)")
-		return
+		_, err := io.WriteString(w, "interface{}(nil)")
+		return err
 	}
 
-	if vis.enter(w, v) {
-		return
+	ok, err := vis.enter(w, v)
+	if !ok || err != nil {
+		return err
 	}
 	defer vis.leave(v)
 
@@ -56,12 +54,8 @@ func (vis *visitor) Write(w io.Writer, v Value) {
 
 		err := f.Render(w, v, vis.config, p)
 
-		if errors.Is(err, ErrFilterNotApplicable) {
-			continue
-		} else if err != nil {
-			panic(must.PanicSentinel{Cause: err})
-		} else {
-			return
+		if !errors.Is(err, ErrFilterNotApplicable) {
+			return err
 		}
 	}
 
@@ -69,73 +63,72 @@ func (vis *visitor) Write(w io.Writer, v Value) {
 
 	switch v.DynamicType.Kind() {
 	case reflect.String:
-		vis.visitString(w, v)
+		return vis.visitString(w, v)
 	case reflect.Bool:
-		vis.visitBool(w, v)
+		return vis.visitBool(w, v)
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		vis.visitInt(w, v)
+		return vis.visitInt(w, v)
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		vis.visitUint(w, v)
+		return vis.visitUint(w, v)
 	case reflect.Float32, reflect.Float64:
-		vis.visitFloat(w, v)
+		return vis.visitFloat(w, v)
 	case reflect.Complex64, reflect.Complex128:
-		vis.visitComplex(w, v)
+		return vis.visitComplex(w, v)
 	case reflect.Uintptr:
-		vis.visitUintptr(w, v)
+		return vis.visitUintptr(w, v)
 	case reflect.UnsafePointer:
-		vis.visitUnsafePointer(w, v)
+		return vis.visitUnsafePointer(w, v)
 	case reflect.Chan:
-		vis.visitChan(w, v)
+		return vis.visitChan(w, v)
 	case reflect.Func:
-		vis.visitFunc(w, v)
+		return vis.visitFunc(w, v)
 	case reflect.Interface:
-		vis.visitInterface(w, v)
+		return vis.visitInterface(w, v)
 	case reflect.Map:
-		vis.visitMap(w, v)
+		return vis.visitMap(w, v)
 	case reflect.Ptr:
-		vis.visitPtr(w, v)
+		return vis.visitPtr(w, v)
 	case reflect.Array:
-		vis.visitArray(w, v)
+		return vis.visitArray(w, v)
 	case reflect.Slice:
-		vis.visitSlice(w, v)
+		return vis.visitSlice(w, v)
 	case reflect.Struct:
-		vis.visitStruct(w, v)
+		return vis.visitStruct(w, v)
+	default:
+		panic("unsupported kind: " + v.DynamicType.Kind().String())
 	}
 }
 
-// FormatTypeName returns the name of v's dynamic type, rendered as per the
-// printer's configuration.
-func (vis *visitor) FormatTypeName(v Value) string {
+// WriteTypeName writes the name of v's dynamic type to w.
+func (vis *visitor) WriteTypeName(w io.Writer, v Value) error {
 	n := qualifiedTypeName(v.DynamicType, vis.config.OmitPackagePaths)
 	n = strings.Replace(n, "interface {", "interface{", -1)
 	n = strings.Replace(n, "struct {", "struct{", -1)
 
 	if strings.ContainsAny(n, "() \t\n") {
-		return "(" + n + ")"
+		n = "(" + n + ")"
 	}
 
-	return n
+	_, err := io.WriteString(w, n)
+	return err
 }
 
 // enter indicates that a potentially recursive value is about to be formatted.
 //
-// It returns true if the recursion has occurred, indicating that the value
-// should not be rendered.
-func (vis *visitor) enter(w io.Writer, v Value) bool {
+// It returns false if recursion has occurred, indicating that the value should
+// not be rendered.
+func (vis *visitor) enter(w io.Writer, v Value) (bool, error) {
 	if v.canPointer() {
 		ptr := v.Value.Pointer()
 
 		if _, ok := vis.recursionSet[ptr]; ok {
-			if v.IsAmbiguousType() {
-				must.WriteString(w, vis.FormatTypeName(v))
-				must.WriteByte(w, '(')
-				must.WriteString(w, vis.config.RecursionMarker)
-				must.WriteByte(w, ')')
-			} else {
-				must.WriteString(w, vis.config.RecursionMarker)
-			}
-
-			return true
+			return false, formatWithTypeName(
+				vis,
+				w,
+				v,
+				"%s",
+				vis.config.RecursionMarker,
+			)
 		}
 
 		if vis.recursionSet == nil {
@@ -145,7 +138,7 @@ func (vis *visitor) enter(w io.Writer, v Value) bool {
 		vis.recursionSet[ptr] = struct{}{}
 	}
 
-	return false
+	return true, nil
 }
 
 // leave indicates that a potentially recursive value has finished rendering.
@@ -158,12 +151,8 @@ func (vis *visitor) leave(v Value) {
 }
 
 // renderNil renders a nil value of any type.
-func (vis *visitor) renderNil(w io.Writer, v Value) {
-	if v.IsAmbiguousType() {
-		must.WriteString(w, fmt.Sprintf("%s(nil)", vis.FormatTypeName(v)))
-	} else {
-		must.WriteString(w, "nil")
-	}
+func (vis *visitor) renderNil(w io.Writer, v Value) error {
+	return formatWithTypeName(vis, w, v, "nil")
 }
 
 // qualifiedTypeName returns the fully-qualified name of the given type.
@@ -183,4 +172,55 @@ func qualifiedTypeName(rt reflect.Type, omitPath bool) string {
 	}
 
 	return p + "." + n
+}
+
+func renderWithTypeName(
+	p interface {
+		WriteTypeName(w io.Writer, v Value) error
+	},
+	w io.Writer,
+	v Value,
+	fn func(w io.Writer) error,
+) error {
+	if v.IsAmbiguousType() {
+		if err := p.WriteTypeName(w, v); err != nil {
+			return err
+		}
+
+		if _, err := w.Write(openParen); err != nil {
+			return err
+		}
+	}
+
+	if err := fn(w); err != nil {
+		return err
+	}
+
+	if v.IsAmbiguousType() {
+		if _, err := w.Write(closeParen); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func formatWithTypeName(
+	p interface {
+		WriteTypeName(w io.Writer, v Value) error
+	},
+	w io.Writer,
+	v Value,
+	format string,
+	args ...any,
+) error {
+	return renderWithTypeName(
+		p,
+		w,
+		v,
+		func(w io.Writer) error {
+			_, err := fmt.Fprintf(w, format, args...)
+			return err
+		},
+	)
 }

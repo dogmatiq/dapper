@@ -8,7 +8,6 @@ import (
 	"sync"
 
 	"github.com/dogmatiq/dapper/internal/stream"
-	"github.com/dogmatiq/iago/must"
 )
 
 // DefaultIndent is the default indent string used to indent nested values.
@@ -64,9 +63,7 @@ type Printer struct {
 // Write writes a pretty-printed representation of v to w.
 //
 // It returns the number of bytes written.
-func (p *Printer) Write(w io.Writer, v interface{}) (n int, err error) {
-	defer must.Recover(&err)
-
+func (p *Printer) Write(w io.Writer, v interface{}) (int, error) {
 	vis := visitor{
 		config: p.Config,
 	}
@@ -94,7 +91,7 @@ func (p *Printer) Write(w io.Writer, v interface{}) (n int, err error) {
 		Target: w,
 	}
 
-	vis.Write(
+	if err := vis.Write(
 		counter,
 		Value{
 			Value:                  rv,
@@ -104,10 +101,11 @@ func (p *Printer) Write(w io.Writer, v interface{}) (n int, err error) {
 			IsAmbiguousStaticType:  true,
 			IsUnexported:           false,
 		},
-	)
+	); err != nil {
+		return 0, err
+	}
 
-	n = counter.Count()
-	return
+	return counter.Count(), nil
 }
 
 // Format returns a pretty-printed representation of v.
@@ -150,7 +148,6 @@ func Format(v interface{}) string {
 	return DefaultPrinter.Format(v)
 }
 
-var newLine = []byte{'\n'}
 var mux sync.Mutex
 
 // Print writes a pretty-printed representation of v to os.Stdout.

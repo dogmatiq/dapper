@@ -2,8 +2,6 @@ package dapper
 
 import (
 	"io"
-
-	"github.com/dogmatiq/iago/must"
 )
 
 func renderSyncOnce(
@@ -22,12 +20,5 @@ func renderSyncOnce(
 		}
 	}
 
-	if v.IsAmbiguousType() {
-		must.WriteString(w, p.FormatTypeName(v))
-		must.Fprintf(w, "(%v)", s)
-	} else {
-		must.Fprintf(w, "%v", s)
-	}
-
-	return nil
+	return formatWithTypeName(p, w, v, s)
 }
