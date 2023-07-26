@@ -10,6 +10,4 @@ type Filter func(r FilterRenderer, v Value)
 // FilterRenderer is a specialization of [Renderer] for use within a [Filter].
 type FilterRenderer interface {
 	Renderer
-
-	WriteValueWithoutCurrentFilter(Value)
 }

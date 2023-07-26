@@ -32,6 +32,7 @@ type renderer struct {
 	RecursionSet map[uintptr]struct{}
 	HasOutput    bool
 	FilterIndex  int
+	FilterValue  *Value
 }
 
 func (r *renderer) Write(data []byte) (int, error) {
@@ -95,6 +96,7 @@ func (r *renderer) FormatValue(v Value) string {
 		Config:       r.Config,
 		RecursionSet: r.RecursionSet,
 		FilterIndex:  r.FilterIndex,
+		FilterValue:  r.FilterValue,
 	}
 
 	child.WriteValue(v)
@@ -103,35 +105,31 @@ func (r *renderer) FormatValue(v Value) string {
 }
 
 func (r *renderer) WriteValue(v Value) {
-	r.writeValue(v, false)
-}
-
-func (r *renderer) WriteValueWithoutCurrentFilter(v Value) {
-	r.writeValue(v, true)
-}
-
-func (r *renderer) writeValue(v Value, ignoreCurrentFilter bool) {
 	if v.Value.Kind() == reflect.Invalid {
 		r.Print("interface{}(nil)")
 		return
 	}
 
-	if recursive := r.enter(v); recursive {
-		if v.IsAmbiguousType() {
-			r.WriteType(v)
-			r.Print("(%s)", r.Config.RecursionMarker)
-		} else {
-			r.Print("%s", r.Config.RecursionMarker)
-		}
-		return
-	}
+	isFilterValue := r.FilterValue != nil && r.FilterValue.Value == v.Value
 
-	defer r.leave(v)
+	if !isFilterValue {
+		if recursive := r.enter(v); recursive {
+			if v.IsAmbiguousType() {
+				r.WriteType(v)
+				r.Print("(%s)", r.Config.RecursionMarker)
+			} else {
+				r.Print("%s", r.Config.RecursionMarker)
+			}
+			return
+		}
+
+		defer r.leave(v)
+	}
 
 	v.Value = unsafereflect.MakeMutable(v.Value)
 
 	for index, filter := range r.Config.Filters {
-		if ignoreCurrentFilter && r.FilterIndex == index {
+		if r.FilterIndex == index && isFilterValue {
 			continue
 		}
 
@@ -140,6 +138,7 @@ func (r *renderer) writeValue(v Value, ignoreCurrentFilter bool) {
 			Config:       r.Config,
 			RecursionSet: r.RecursionSet,
 			FilterIndex:  index,
+			FilterValue:  &v,
 		}
 
 		filter(fr, v)

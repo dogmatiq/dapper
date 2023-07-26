@@ -15,25 +15,23 @@ func (e errorType) Error() string {
 }
 
 func TestPrinter_ErrorFilter(t *testing.T) {
-	t.Skip()
+	test(
+		t,
+		"error",
+		errorType{"<message>"},
+		"github.com/dogmatiq/dapper_test.errorType{",
+		"    Message: \"<message>\"",
+		"} [error: <message>]",
+	)
 
-	// test(
-	// 	t,
-	// 	"error",
-	// 	errorType{"<message>"},
-	// 	"github.com/dogmatiq/dapper_test.errorType{",
-	// 	"    Message: \"<message>\"",
-	// 	"} [error: <message>]",
-	// )
-
-	// test(
-	// 	t,
-	// 	"string error",
-	// 	errors.New("<error>"),
-	// 	"*errors.errorString{",
-	// 	"    s: \"<error>\"",
-	// 	"} [<error>]",
-	// )
+	test(
+		t,
+		"string error",
+		errors.New("<error>"),
+		"*errors.errorString{",
+		"    s: \"<error>\"",
+		"} [<error>]",
+	)
 
 	test(
 		t,
@@ -50,20 +48,20 @@ func TestPrinter_ErrorFilter(t *testing.T) {
 		"} [<outer>: <inner>]",
 	)
 
-	// type errorTypes struct {
-	// 	e errorType
-	// }
+	type errorTypes struct {
+		e errorType
+	}
 
-	// test(
-	// 	t,
-	// 	"excludes type information if it is not ambiguous",
-	// 	errorTypes{
-	// 		e: errorType{"<message>"},
-	// 	},
-	// 	"github.com/dogmatiq/dapper_test.errorTypes{",
-	// 	"    e: {",
-	// 	"        Message: \"<message>\"",
-	// 	"    } [error: <message>]",
-	// 	"}",
-	// )
+	test(
+		t,
+		"excludes type information if it is not ambiguous",
+		errorTypes{
+			e: errorType{"<message>"},
+		},
+		"github.com/dogmatiq/dapper_test.errorTypes{",
+		"    e: {",
+		"        Message: \"<message>\"",
+		"    } [error: <message>]",
+		"}",
+	)
 }
