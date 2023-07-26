@@ -2,10 +2,10 @@ package dapper
 
 import (
 	"reflect"
+	"sort"
 	"strings"
 
 	"github.com/dogmatiq/dapper/internal/natsort"
-	"golang.org/x/exp/slices"
 )
 
 // renderMapKind renders [reflect.Map] values.
@@ -130,15 +130,13 @@ func renderMap(
 		alignment--
 	}
 
-	slices.SortFunc(
+	sort.Slice(
 		pairs,
-		func(a, b mapPair) int {
-			if natsort.Less(a.Key, b.Key) {
-				return -1
-			} else if natsort.Less(b.Key, a.Key) {
-				return 1
-			}
-			return 0
+		func(i, j int) bool {
+			return natsort.Less(
+				pairs[i].Key,
+				pairs[j].Key,
+			)
 		},
 	)
 

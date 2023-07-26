@@ -31,6 +31,7 @@ preparation for unification of built-in and custom rendering behavior.
 ### Removed
 
 - **[BC]** Removed `DurationFilter`. `TimeFilter` now applies to the entire `time` package.
+- Removed dependency on `dogmatiq/iago`
 
 ### Fixed
 

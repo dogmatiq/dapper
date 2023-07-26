@@ -10,7 +10,7 @@ import (
 	"github.com/dogmatiq/dapper/internal/fixtures"
 )
 
-func TestPrinter_ProtobufFilter(t *testing.T) {
+func TestPrinter_ProtoFilter(t *testing.T) {
 	t.Run(
 		"it formats as expected", func(t *testing.T) {
 			m := &fixtures.Message{
