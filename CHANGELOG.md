@@ -12,20 +12,30 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ## [Unreleased]
 
+This release includes several changes to the experimental `Filter` system in
+preparation for unification of built-in and custom rendering behavior.
+
 ### Added
 
-- Added `ErrFilterNotApplicable` error.
+- Added `Renderer` interface.
+- Added `ErrorFilter`. Output for types that implement `error` now include the error message.
+- Added `Is()`, `AsConcrete()` and `AsImplementationOf()` helpers for use in `Filter` implementations.
 
 ### Changed
 
-- **[BC]** `Filter` is now an interface, rather than a single function.
-- **[BC]** Filters must now return `ErrFilterNotApplicable` to indicate that the
-  filter does not apply to the value, rather than simply rendering no output.
+- **[BC]** The signature of `Filter` has changed to accept a `Renderer` and `Value`.
 - **[BC]** Renamed `ReflectTypeFilter` to `ReflectFilter`, it now applies to the entire `reflect` package.
+- **[BC]** Renamed `ProtobufFilter` to `ProtoFilter`.
+- **[BC]** Changed `Config.Indent` to a `string`.
 
 ### Removed
 
 - **[BC]** Removed `DurationFilter`. `TimeFilter` now applies to the entire `time` package.
+
+### Fixed
+
+- Fixed duplicate application of `Filter` that apply to specific interfaces when
+  when `T` and `*T` both implement the interface.
 
 ## [0.4.6] - 2023-02-27
 

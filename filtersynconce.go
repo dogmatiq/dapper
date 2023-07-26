@@ -1,24 +1,21 @@
 package dapper
 
-import (
-	"io"
-)
-
-func renderSyncOnce(
-	w io.Writer,
-	v Value,
-	p FilterPrinter,
-) error {
+func renderSyncOnce(r Renderer, v Value) {
 	done := v.Value.FieldByName("done")
 
-	s := "<unknown state>"
+	desc := "<unknown state>"
 	if done, ok := asUint(done); ok {
 		if done != 0 {
-			s = "<complete>"
+			desc = "<complete>"
 		} else {
-			s = "<pending>"
+			desc = "<pending>"
 		}
 	}
 
-	return formatWithTypeName(p, w, v, s)
+	printWithTypeIfAmbiguous(
+		r,
+		v,
+		"%s",
+		desc,
+	)
 }

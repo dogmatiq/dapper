@@ -2,19 +2,12 @@ package dapper_test
 
 import "testing"
 
-type multiline struct {
-	Key string
-}
-
 type maps struct {
 	Ints        map[int]int
-	IfaceKeys   map[interface{}]int
-	IfaceValues map[int]interface{}
+	IfaceKeys   map[any]int
+	IfaceValues map[int]any
 	Force       bool // prevent rendering of the zero-value marker
 }
-
-// This test verifies that that map key/value types are not rendered when they can
-// be inferred from the context.
 
 func TestPrinter_Map(t *testing.T) {
 	test(t, "nil map", (map[int]int)(nil), "map[int]int(nil)")
@@ -31,9 +24,9 @@ func TestPrinter_Map(t *testing.T) {
 	)
 }
 
-// This test verifies the formatting of map key/values when the type
-// information omitted because it can be inferred from the context in which the
-// values are rendered.
+// This test verifies the formatting of map key/values when the type information
+// omitted because it can be inferred from the context in which the values are
+// rendered.
 func TestPrinter_MapInNamedStruct(t *testing.T) {
 	test(
 		t,
@@ -109,6 +102,10 @@ func TestPrinter_MapKeySorting(t *testing.T) {
 // This test verifies that values associated with map keys that have a multiline
 // string representation are aligned correctly.
 func TestPrinter_MultilineMapKeyAlignment(t *testing.T) {
+	type multiline struct {
+		Key string
+	}
+
 	test(
 		t,
 		"keys are aligned correctly",
@@ -127,6 +124,7 @@ func TestPrinter_MultilineMapKeyAlignment(t *testing.T) {
 	)
 
 	test(
+
 		t,
 		"keys are aligned correctly when the longest line is part of a multiline key",
 		map[interface{}]string{

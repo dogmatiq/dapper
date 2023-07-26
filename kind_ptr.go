@@ -1,25 +1,19 @@
 package dapper
 
-import (
-	"io"
-)
-
-// visitPtr formats values with a kind of reflect.Ptr.
-func (vis *visitor) visitPtr(w io.Writer, v Value) error {
+// renderPtrKind formats values with a kind of [reflect.Ptr].
+func renderPtrKind(r Renderer, v Value) {
 	if v.Value.IsNil() {
-		return vis.renderNil(w, v)
+		renderNil(r, v)
+		return
 	}
 
 	if v.IsAmbiguousType() {
-		if _, err := w.Write(asterisk); err != nil {
-			return err
-		}
+		r.Print("*")
 	}
 
 	elem := v.Value.Elem()
 
-	return vis.Write(
-		w,
+	r.WriteValue(
 		Value{
 			Value:                  elem,
 			DynamicType:            elem.Type(),

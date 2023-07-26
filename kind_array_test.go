@@ -2,14 +2,6 @@ package dapper_test
 
 import "testing"
 
-type arrays struct {
-	Ints   [3]int
-	Ifaces [3]interface{}
-}
-
-// This test verifies that that array value types are not rendered when they can
-// be inferred from the context.
-
 func TestPrinter_Array(t *testing.T) {
 	test(
 		t,
@@ -47,8 +39,12 @@ func TestPrinter_ByteArray(t *testing.T) {
 // This test verifies the formatting of array values when the type
 // information omitted because it can be inferred from the context in which the
 // values are rendered.
-
 func TestPrinter_ArrayInNamedStruct(t *testing.T) {
+	type arrays struct {
+		Ints   [3]int
+		Ifaces [3]interface{}
+	}
+
 	test(
 		t,
 		"arrays",

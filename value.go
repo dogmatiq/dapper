@@ -3,6 +3,9 @@ package dapper
 import (
 	"fmt"
 	"reflect"
+	"sync/atomic"
+
+	"github.com/dogmatiq/dapper/internal/unsafereflect"
 )
 
 // Value contains information about a Go value that is to be formatted.
@@ -45,28 +48,31 @@ func (v *Value) IsAmbiguousType() bool {
 	return v.IsAmbiguousDynamicType || v.IsAmbiguousStaticType
 }
 
-// canPointer reports if v.Value.Pointer() method can be called without
-// panicking.
-func (v *Value) canPointer() bool {
-	switch v.DynamicType.Kind() {
-	case reflect.Chan, reflect.Func, reflect.Map,
-		reflect.Ptr, reflect.Slice, reflect.UnsafePointer:
-		return true
-	default:
-		return false
+// Is returns true if v's type is exactly T.
+func Is[T any](v Value) bool {
+	t := typeOf[T]()
+	if t.Kind() == reflect.Interface {
+		panic(fmt.Sprintf("%s is an interface", t))
 	}
+
+	if v.DynamicType == t {
+		return true
+	}
+
+	return false
 }
 
-// is returns a v as type T if its dynamic type is T.
-func is[T any](v Value) (T, bool) {
-	if v.DynamicType == typeOf[T]() {
+// AsConcrete returns a v as type T if its dynamic type is exactly T.
+func AsConcrete[T any](v Value) (T, bool) {
+	if Is[T](v) {
 		return v.Value.Interface().(T), true
 	}
 	return zero[T](), false
 }
 
-// implements returns v as a value of type T if it directly implements T.
-func implements[T any](v Value) (T, bool) {
+// AsImplementationOf returns v as a value of type T if it directly implements
+// T.
+func AsImplementationOf[T any](v Value) (T, bool) {
 	t := typeOf[T]()
 	if t.Kind() != reflect.Interface {
 		panic(fmt.Sprintf("%s is not an interface", t))
@@ -102,4 +108,52 @@ func typeOf[T any]() reflect.Type {
 // zero returns the zero value of T.
 func zero[T any]() (_ T) {
 	return
+}
+
+// asInt returns the value of v as an int64, if it is one of the signed integer
+// types, including atomic types.
+func asInt(v reflect.Value) (n int64, ok bool) {
+	switch v.Kind() {
+	case reflect.Int,
+		reflect.Int8,
+		reflect.Int16,
+		reflect.Int32,
+		reflect.Int64:
+		return v.Int(), true
+	}
+
+	v = unsafereflect.MakeMutable(v)
+
+	switch v := v.Interface().(type) {
+	case atomic.Int32:
+		return int64(v.Load()), true
+	case atomic.Int64:
+		return v.Load(), true
+	default:
+		return 0, false
+	}
+}
+
+// asUint returns the value of v as a uint64, if it is one of the unsigned
+// integer types, including atomic types.
+func asUint(v reflect.Value) (n uint64, ok bool) {
+	switch v.Kind() {
+	case reflect.Uint,
+		reflect.Uint8,
+		reflect.Uint16,
+		reflect.Uint32,
+		reflect.Uint64:
+		return v.Uint(), true
+	}
+
+	v = unsafereflect.MakeMutable(v)
+
+	switch v := v.Interface().(type) {
+	case atomic.Uint32:
+		return uint64(v.Load()), true
+	case atomic.Uint64:
+		return v.Load(), true
+	default:
+		return 0, false
+	}
 }

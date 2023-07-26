@@ -83,6 +83,10 @@ func TestPrinter_SyncFilter_MapKeySorting(t *testing.T) {
 // This test verifies that values associated with sync.Map keys that have a
 // multiline string representation are aligned correctly.
 func TestPrinter_SyncFilter_MultilineMapKeyAlignment(t *testing.T) {
+	type multiline struct {
+		Key string
+	}
+
 	var m sync.Map
 
 	m.Store("short", "one")

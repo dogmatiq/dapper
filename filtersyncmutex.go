@@ -1,34 +1,30 @@
 package dapper
 
 import (
-	"io"
 	"reflect"
 )
 
-func renderMutex(
-	w io.Writer,
-	v Value,
-	p FilterPrinter,
-) error {
+func renderMutex(r Renderer, v Value) {
 	state := v.Value.FieldByName("state")
 
-	s := "<unknown state>"
+	desc := "<unknown state>"
 	if state, ok := asInt(state); ok {
 		if state != 0 {
-			s = "<locked>"
+			desc = "<locked>"
 		} else {
-			s = "<unlocked>"
+			desc = "<unlocked>"
 		}
 	}
 
-	return formatWithTypeName(p, w, v, s)
+	printWithTypeIfAmbiguous(
+		r,
+		v,
+		"%s",
+		desc,
+	)
 }
 
-func renderRWMutex(
-	w io.Writer,
-	v Value,
-	p FilterPrinter,
-) error {
+func renderRWMutex(r Renderer, v Value) {
 	wait := v.Value.FieldByName("readerWait")
 	count := v.Value.FieldByName("readerCount")
 	write := v.Value.FieldByName("w")
@@ -38,20 +34,25 @@ func renderRWMutex(
 		state = write.FieldByName("state")
 	}
 
-	s := "<unknown state>"
+	desc := "<unknown state>"
 	if state, ok := asInt(state); ok {
 		if wait, ok := asInt(wait); ok {
 			if count, ok := asInt(count); ok {
 				if wait > 0 || count > 0 {
-					s = "<read locked>"
+					desc = "<read locked>"
 				} else if state != 0 {
-					s = "<write locked>"
+					desc = "<write locked>"
 				} else {
-					s = "<unlocked>"
+					desc = "<unlocked>"
 				}
 			}
 		}
 	}
 
-	return formatWithTypeName(p, w, v, s)
+	printWithTypeIfAmbiguous(
+		r,
+		v,
+		"%s",
+		desc,
+	)
 }

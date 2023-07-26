@@ -1,54 +1,33 @@
 package dapper
 
 import (
-	"io"
 	"reflect"
 )
 
-// ReflectFilter is a filter that formats various types from the [reflect]
+// ReflectFilter is a [Filter] that formats various types from the [reflect]
 // package.
-type ReflectFilter struct{}
-
-// Render writes a formatted representation of v to w.
-func (ReflectFilter) Render(
-	w io.Writer,
-	v Value,
-	_ Config,
-	p FilterPrinter,
-) error {
-	if t, ok := implements[reflect.Type](v); ok {
-		return renderReflectType(w, v, t)
+func ReflectFilter(r Renderer, v Value) {
+	t, ok := AsImplementationOf[reflect.Type](v)
+	if !ok {
+		return
 	}
-	return ErrFilterNotApplicable
-}
 
-func renderReflectType(
-	w io.Writer,
-	v Value,
-	t reflect.Type,
-) error {
 	// Render the type if the static type is ambiguous or something other than
 	// [reflect.Type] (i.e, some user defined interface).
 	ambiguous := v.IsAmbiguousStaticType || v.StaticType != typeOf[reflect.Type]()
 
 	if ambiguous {
-		if _, err := io.WriteString(w, "reflect.Type"); err != nil {
-			return err
-		}
-
-		if _, err := w.Write(openParen); err != nil {
-			return err
-		}
+		// Always render the type as [reflect.Type] (the interface), rather than
+		// whatever internal type actually implements it, as that is generally
+		// meaningless to the user.
+		//
+		// The [reflect.Type] interface includes unexported methods, so there
+		// will never be any non-standard implementations of it.
+		r.Print("reflect.Type(")
 	}
 
-	if s := t.PkgPath(); s != "" {
-		if _, err := io.WriteString(w, s); err != nil {
-			return err
-		}
-
-		if _, err := w.Write(dot); err != nil {
-			return err
-		}
+	if pkg := t.PkgPath(); pkg != "" {
+		r.Print("%s.", pkg)
 	}
 
 	name := t.Name()
@@ -56,15 +35,9 @@ func renderReflectType(
 		name = t.String()
 	}
 
-	if _, err := io.WriteString(w, name); err != nil {
-		return err
-	}
+	r.Print(name)
 
 	if ambiguous {
-		if _, err := w.Write(closeParen); err != nil {
-			return err
-		}
+		r.Print(")")
 	}
-
-	return nil
 }

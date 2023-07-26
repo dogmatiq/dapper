@@ -1,35 +1,28 @@
 package dapper
 
 import (
-	"io"
 	"reflect"
 	"sync"
 )
 
-func renderSyncMap(
-	w io.Writer,
-	v Value,
-	c Config,
-	p FilterPrinter,
-) error {
-	r := mapRenderer{
-		Map:       v,
-		KeyType:   typeOf[any](),
-		ValueType: typeOf[any](),
-		Printer:   p,
-		Indent:    c.Indent,
-	}
+func renderSyncMap(r Renderer, v Value) {
+	renderMap(
+		r,
+		v,
+		typeOf[any](),
+		typeOf[any](),
+		func(emit func(k, v reflect.Value)) {
+			m := v.Value.Addr().Interface().(*sync.Map)
 
-	m := v.Value.Addr().Interface().(*sync.Map)
-	m.Range(
-		func(key, val any) bool {
-			r.Add(
-				reflect.ValueOf(key),
-				reflect.ValueOf(val),
+			m.Range(
+				func(key, val any) bool {
+					emit(
+						reflect.ValueOf(key),
+						reflect.ValueOf(val),
+					)
+					return true
+				},
 			)
-			return true
 		},
 	)
-
-	return r.Print(w)
 }

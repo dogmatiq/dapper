@@ -25,6 +25,8 @@ func TestPrinter_ReflectFilter(t *testing.T) {
 		"reflect.Type(map[string]string)",
 	)
 
+	type named struct{}
+
 	test(
 		t,
 		"named type",

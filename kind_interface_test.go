@@ -2,17 +2,17 @@ package dapper_test
 
 import "testing"
 
-type interfaces struct {
-	Iface interface{}
-	Force bool // prevent rendering of the zero-value marker
-}
-
-type iface interface{}
-
 func TestPrinter_Interface(t *testing.T) {
-	// note that capturing a reflect.Value of a nil interface does NOT produces a
-	// value with a "kind" of reflect.Invalid, NOT reflect.Interface.
-	test(t, "nil interface", interface{}(nil), "interface{}(nil)")
+	type interfaces struct {
+		Iface interface{}
+		Force bool // prevent rendering of the zero-value marker
+	}
+
+	type iface interface{}
+
+	// Note that capturing a reflect.Value of a nil interface does NOT produces
+	// a value with a "kind" of reflect.Invalid, NOT reflect.Interface.
+	test(t, "nil any interface", any(nil), "interface{}(nil)")
 	test(t, "nil named interface", iface(nil), "interface{}(nil)") // interface information is shed when passed to Printer.Write().
 
 	test(
@@ -47,6 +47,7 @@ func TestPrinter_Interface(t *testing.T) {
 	)
 
 	test(
+
 		t,
 		"non-nil interface in anonymous struct",
 		struct {

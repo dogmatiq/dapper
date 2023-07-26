@@ -64,6 +64,7 @@ var (
 )
 
 // This test verifies the formatting of "shallow" values.
+//
 // It verifies that type information is included, as the type information can
 // not be inferred from context.
 //
@@ -95,7 +96,6 @@ func TestPrinter_ShallowValues(t *testing.T) {
 // This test verifies the formatting of "shallow" values when the type
 // information omitted because it can be inferred from the context in which the
 // values are rendered.
-
 func TestPrinter_ShallowValuesInNamedStruct(t *testing.T) {
 	test(
 		t,
@@ -127,9 +127,8 @@ func TestPrinter_ShallowValuesInNamedStruct(t *testing.T) {
 }
 
 // This test verifies the formatting of "shallow" values when the type
-// information included because it can not be inferred from the context in which the
-// values are rendered because they are in an anonymous struct.
-
+// information included because it can not be inferred from the context in which
+// the values are rendered because they are in an anonymous struct.
 func TestPrinter_ShallowValuesInAnonymousStruct(t *testing.T) {
 	anon := struct {
 		String        string
@@ -186,7 +185,6 @@ func TestPrinter_ShallowValuesInAnonymousStruct(t *testing.T) {
 }
 
 // This test provides additional tests for untyped pointer rendering.
-
 func TestPrinter_UntypedPointer(t *testing.T) {
 	test(t, "zero uintptr", uintptr(0), "uintptr(0)")
 	test(t, "nil unsafe.Pointer", unsafe.Pointer(nil), "unsafe.Pointer(nil)")
@@ -212,7 +210,7 @@ func TestPrinter_Channel(t *testing.T) {
 	)
 }
 
-// This test provides additional tests for channel rendering.
+// This test provides additional tests for function rendering.
 func TestPrinter_Func(t *testing.T) {
 	test(t, "nil func", (func(int))(nil), "(func(int))(nil)")
 }
