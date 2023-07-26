@@ -44,7 +44,10 @@ func (r *renderer) Write(data []byte) (int, error) {
 	if n > 0 {
 		r.ProducedOutput = true
 	}
-	return n, err
+	if err != nil {
+		panic(panicSentinel{err})
+	}
+	return n, nil
 }
 
 func (r *renderer) Config() Config {
