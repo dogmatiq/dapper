@@ -25,7 +25,7 @@ const (
 
 // Config holds the configuration for a printer.
 type Config struct {
-	// Filters_ is the set of filters to apply when formatting values.
+	// Filters is the set of filters to apply when formatting values.
 	Filters []Filter
 
 	// Indent is the string used to indent nested values.
@@ -145,7 +145,7 @@ func (p *Printer) Format(v any) string {
 var DefaultPrinter = Printer{
 	Config: Config{
 		Filters: []Filter{
-			// 	StringerFilter{},
+			StringerFilter,
 			ErrorFilter,
 			// 	ProtobufFilter{},
 			// 	ReflectFilter{},

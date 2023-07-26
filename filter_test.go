@@ -21,7 +21,7 @@ func TestPrinter_Filter(t *testing.T) {
 		p := Printer{
 			Config: Config{
 				Filters: []Filter{
-					func(r FilterRenderer, v Value) {
+					func(r Renderer, v Value) {
 						if v.DynamicType != reflect.TypeOf(testType{}) {
 							return
 						}

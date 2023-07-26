@@ -11,8 +11,6 @@ func (s stringer) DapperString() string {
 }
 
 func TestPrinter_StringerFilter(t *testing.T) {
-	t.Skip()
-
 	test(
 		t,
 		"stringer",

@@ -53,8 +53,8 @@ func is[T any](v Value) (T, bool) {
 	return zero[T](), false
 }
 
-// DirectlyImplements returns v as a value of type T if it directly DirectlyImplements T.
-func DirectlyImplements[T any](v Value) (T, bool) {
+// Implements returns v as a value of type T if it directly Implements T.
+func Implements[T any](v Value) (T, bool) {
 	t := typeOf[T]()
 	if t.Kind() != reflect.Interface {
 		panic(fmt.Sprintf("%s is not an interface", t))

@@ -8,35 +8,21 @@ type Stringer interface {
 
 // StringerFilter is a [Filter] that formats implementations of
 // [dapper.Stringer].
-type StringerFilter struct{}
+func StringerFilter(r Renderer, v Value) {
+	stringer, ok := Implements[Stringer](v)
+	if !ok {
+		return
+	}
 
-// // Render writes a formatted representation of v to w.
-// func (StringerFilter) Render(
-// 	w io.Writer,
-// 	v Value,
-// 	c Config,
-// 	p FilterPrinter,
-// ) error {
-// 	stringer, ok := DirectlyImplements[Stringer](v)
-// 	if !ok {
-// 		return ErrFilterNotApplicable
-// 	}
+	str := stringer.DapperString()
+	if str == "" {
+		return
+	}
 
-// 	str := stringer.DapperString()
-// 	if str == "" {
-// 		return ErrFilterNotApplicable
-// 	}
+	if v.IsAmbiguousType() {
+		r.WriteType(v)
+		r.Print(" ")
+	}
 
-// 	if v.IsAmbiguousType() {
-// 		if err := p.WriteTypeName(w, v); err != nil {
-// 			return err
-// 		}
-
-// 		if _, err := w.Write(space); err != nil {
-// 			return err
-// 		}
-// 	}
-
-// 	_, err := fmt.Fprintf(w, "[%s]", str)
-// 	return err
-// }
+	r.Print("[%s]", str)
+}

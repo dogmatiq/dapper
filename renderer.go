@@ -51,19 +51,13 @@ func (r *renderer) Print(format string, args ...any) {
 func (r *renderer) FormatType(v Value) string {
 	var w strings.Builder
 
-	child := &renderer{
-		Writer: &stream.Indenter{
-			Target: &w,
-		},
-		Config:       r.Config,
-		RecursionSet: r.RecursionSet,
-		FilterIndex:  r.FilterIndex,
+	child := r.child()
+	child.Writer = &stream.Indenter{
+		Target: &w,
 	}
-
 	child.WriteType(v)
 
 	return w.String()
-
 }
 
 func (r *renderer) WriteType(v Value) {
@@ -89,16 +83,10 @@ func (r *renderer) WriteType(v Value) {
 func (r *renderer) FormatValue(v Value) string {
 	var w strings.Builder
 
-	child := &renderer{
-		Writer: &stream.Indenter{
-			Target: &w,
-		},
-		Config:       r.Config,
-		RecursionSet: r.RecursionSet,
-		FilterIndex:  r.FilterIndex,
-		FilterValue:  r.FilterValue,
+	child := r.child()
+	child.Writer = &stream.Indenter{
+		Target: &w,
 	}
-
 	child.WriteValue(v)
 
 	return w.String()
@@ -133,17 +121,13 @@ func (r *renderer) WriteValue(v Value) {
 			continue
 		}
 
-		fr := &renderer{
-			Writer:       r.Writer,
-			Config:       r.Config,
-			RecursionSet: r.RecursionSet,
-			FilterIndex:  index,
-			FilterValue:  &v,
-		}
+		child := r.child()
+		child.FilterIndex = index
+		child.FilterValue = &v
 
-		filter(fr, v)
+		filter(child, v)
 
-		if fr.HasOutput {
+		if child.HasOutput {
 			return
 		}
 	}
@@ -192,6 +176,22 @@ func (r *renderer) Indent() {
 
 func (r *renderer) Outdent() {
 	r.Writer.Depth--
+}
+
+func (r *renderer) WithModifiedConfig(modify func(*Config)) Renderer {
+	child := r.child()
+	modify(&child.Config)
+	return child
+}
+
+func (r *renderer) child() *renderer {
+	return &renderer{
+		Writer:       r.Writer,
+		Config:       r.Config,
+		RecursionSet: r.RecursionSet,
+		FilterIndex:  r.FilterIndex,
+		FilterValue:  r.FilterValue,
+	}
 }
 
 // enter indicates that a potentially value is about to be formatted.
