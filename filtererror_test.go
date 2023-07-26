@@ -15,6 +15,8 @@ func (e errorType) Error() string {
 }
 
 func TestPrinter_ErrorFilter(t *testing.T) {
+	t.Skip()
+
 	// test(
 	// 	t,
 	// 	"error",

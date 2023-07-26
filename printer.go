@@ -25,7 +25,7 @@ const (
 
 // Config holds the configuration for a printer.
 type Config struct {
-	// Filters is the set of filters to apply when formatting values.
+	// Filters_ is the set of filters to apply when formatting values.
 	Filters []Filter
 
 	// Indent is the string used to indent nested values.
@@ -60,24 +60,51 @@ type Printer struct {
 	Config Config
 }
 
+// panicSentinel is a panic value that wraps an error that must be returned from
+// [Printer.Write].
+type panicSentinel struct {
+	Err error
+}
+
 // Write writes a pretty-printed representation of v to w.
 //
 // It returns the number of bytes written.
-func (p *Printer) Write(w io.Writer, v interface{}) (int, error) {
-	vis := visitor{
-		config: p.Config,
+func (p *Printer) Write(w io.Writer, v interface{}) (_ int, err error) {
+	defer func() {
+		switch r := recover().(type) {
+		case panicSentinel:
+			err = r.Err
+		default:
+			panic(r)
+		case nil:
+			// no error
+		}
+	}()
+
+	counter := &stream.Counter{
+		Target: w,
 	}
 
-	if len(vis.config.Indent) == 0 {
-		vis.config.Indent = DefaultIndent
+	indenter := &stream.Indenter{
+		Target: counter,
 	}
 
-	if vis.config.ZeroValueMarker == "" {
-		vis.config.ZeroValueMarker = DefaultZeroValueMarker
+	r := &renderer{
+		Writer:       indenter,
+		Config:       p.Config,
+		RecursionSet: map[uintptr]struct{}{},
 	}
 
-	if vis.config.RecursionMarker == "" {
-		vis.config.RecursionMarker = DefaultRecursionMarker
+	if len(r.Config.Indent) == 0 {
+		r.Config.Indent = DefaultIndent
+	}
+
+	if r.Config.ZeroValueMarker == "" {
+		r.Config.ZeroValueMarker = DefaultZeroValueMarker
+	}
+
+	if r.Config.RecursionMarker == "" {
+		r.Config.RecursionMarker = DefaultRecursionMarker
 	}
 
 	rv := reflect.ValueOf(v)
@@ -87,12 +114,7 @@ func (p *Printer) Write(w io.Writer, v interface{}) (int, error) {
 		rt = rv.Type()
 	}
 
-	counter := &stream.Counter{
-		Target: w,
-	}
-
-	if err := vis.Write(
-		counter,
+	r.WriteValue(
 		Value{
 			Value:                  rv,
 			DynamicType:            rt,
@@ -101,15 +123,13 @@ func (p *Printer) Write(w io.Writer, v interface{}) (int, error) {
 			IsAmbiguousStaticType:  true,
 			IsUnexported:           false,
 		},
-	); err != nil {
-		return 0, err
-	}
+	)
 
 	return counter.Count(), nil
 }
 
 // Format returns a pretty-printed representation of v.
-func (p *Printer) Format(v interface{}) string {
+func (p *Printer) Format(v any) string {
 	var b strings.Builder
 
 	if _, err := p.Write(&b, v); err != nil {
@@ -125,12 +145,12 @@ func (p *Printer) Format(v interface{}) string {
 var DefaultPrinter = Printer{
 	Config: Config{
 		Filters: []Filter{
-			StringerFilter{},
-			ErrorFilter{},
-			ProtobufFilter{},
-			ReflectFilter{},
-			SyncFilter{},
-			TimeFilter{},
+			// 	StringerFilter{},
+			// ErrorFilter,
+			// 	ProtobufFilter{},
+			// 	ReflectFilter{},
+			// 	SyncFilter{},
+			// 	TimeFilter{},
 		},
 	},
 }
@@ -148,14 +168,18 @@ func Format(v interface{}) string {
 	return DefaultPrinter.Format(v)
 }
 
-var mux sync.Mutex
+var (
+	mux     sync.Mutex
+	newLine = []byte("\n")
+)
 
 // Print writes a pretty-printed representation of v to os.Stdout.
-func Print(values ...interface{}) {
+func Print(values ...any) {
 	mux.Lock()
 	defer mux.Unlock()
+
 	for _, v := range values {
-		_, _ = DefaultPrinter.Write(os.Stdout, v)
-		_, _ = os.Stdout.Write(newLine)
+		Write(os.Stdout, v)
+		os.Stdout.Write(newLine)
 	}
 }

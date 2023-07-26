@@ -2,15 +2,8 @@ package dapper_test
 
 import "testing"
 
-type slices struct {
-	Ints   []int
-	Ifaces []interface{}
-	Force  bool // prevent rendering of the zero-value marker
-}
-
 // This test verifies that that slice value types are not rendered when they can
 // be inferred from the context.
-
 func TestPrinter_Slice(t *testing.T) {
 	test(t, "empty slice", []int{}, "[]int{}")
 
@@ -48,6 +41,12 @@ func TestPrinter_ByteSlice(t *testing.T) {
 // values are rendered.
 
 func TestPrinter_SliceInNamedStruct(t *testing.T) {
+	type slices struct {
+		Ints   []int
+		Ifaces []interface{}
+		Force  bool // prevent rendering of the zero-value marker
+	}
+
 	test(
 		t,
 		"nil slices",

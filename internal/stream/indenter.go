@@ -13,6 +13,7 @@ var DefaultIndent = []byte("    ")
 type Indenter struct {
 	Target io.Writer
 	Indent []byte
+	Depth  int
 
 	indented bool
 }
@@ -59,6 +60,11 @@ func (w *Indenter) writeIndent() error {
 		indent = DefaultIndent
 	}
 
-	_, err := w.Target.Write(indent)
-	return err
+	for i := 0; i < w.Depth; i++ {
+		if _, err := w.Target.Write(indent); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

@@ -1,56 +1,17 @@
 package dapper_test
 
 import (
-	"github.com/dogmatiq/dapper"
 	"strings"
 	"testing"
 	"unsafe"
+
+	"github.com/dogmatiq/dapper"
 )
-
-type empty struct{}
-
-type named struct {
-	Int   int
-	Iface interface{}
-}
-
-type anonymous struct {
-	Anon struct {
-		Int int
-	}
-}
-
-type unexported struct {
-	vString        string
-	vBool          bool
-	vInt           int
-	vInt8          int8
-	vInt16         int16
-	vInt32         int32
-	vInt64         int64
-	vUint          uint
-	vUint8         uint8
-	vUint16        uint16
-	vUint32        uint32
-	vUint64        uint64
-	vComplex64     complex64
-	vComplex128    complex128
-	vFloat32       float32
-	vFloat64       float64
-	vUintptr       uintptr
-	vUnsafePointer unsafe.Pointer
-	vChannel       chan string
-	vFunc          func(int, string) (bool, error)
-	vIface         interface{}
-	vStruct        struct{}
-	vPtr           *int
-	vSlice         []int
-	vArray         [1]int
-	vMap           map[int]int
-}
 
 // This test verifies that empty structs are rendered on a single line.
 func TestPrinter_EmptyStruct(t *testing.T) {
+	type empty struct{}
+
 	test(t, "empty struct", empty{}, "github.com/dogmatiq/dapper_test.empty{}")
 	test(t, "empty anonymous struct", struct{}{}, "{}")
 }
@@ -58,6 +19,17 @@ func TestPrinter_EmptyStruct(t *testing.T) {
 // This test verifies the inclusion or omission of type information for fields
 // in various nested depths of anonymous and named structs.
 func TestPrinter_StructFieldTypes(t *testing.T) {
+	type named struct {
+		Int   int
+		Iface interface{}
+	}
+
+	type anonymous struct {
+		Anon struct {
+			Int int
+		}
+	}
+
 	test(
 		t,
 		"types are only included for interface fields of named struct",
@@ -132,6 +104,35 @@ func TestPrinter_StructUnexportedFieldsWithOmitUnexpoted(t *testing.T) {
 // This is important because reflect.Value().Interface() panics if called on
 // such a value.
 func TestPrinter_StructUnexportedFields(t *testing.T) {
+	type unexported struct {
+		vString        string
+		vBool          bool
+		vInt           int
+		vInt8          int8
+		vInt16         int16
+		vInt32         int32
+		vInt64         int64
+		vUint          uint
+		vUint8         uint8
+		vUint16        uint16
+		vUint32        uint32
+		vUint64        uint64
+		vComplex64     complex64
+		vComplex128    complex128
+		vFloat32       float32
+		vFloat64       float64
+		vUintptr       uintptr
+		vUnsafePointer unsafe.Pointer
+		vChannel       chan string
+		vFunc          func(int, string) (bool, error)
+		vIface         interface{}
+		vStruct        struct{}
+		vPtr           *int
+		vSlice         []int
+		vArray         [1]int
+		vMap           map[int]int
+	}
+
 	test(
 		t,
 		"unexported fields can be formatted",
@@ -203,6 +204,11 @@ func TestPrinter_StructUnexportedFields(t *testing.T) {
 // This test verifies that zero-value structs are rendered without all of their
 // nested fields only if they are not anonymous.
 func TestPrinter_ZeroValueStruct(t *testing.T) {
+	type named struct {
+		Int   int
+		Iface interface{}
+	}
+
 	test(
 		t,
 		"no fields are rendered for named zero-value structs",

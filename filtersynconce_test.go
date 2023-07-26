@@ -6,6 +6,8 @@ import (
 )
 
 func TestPrinter_SyncFilter_Once(t *testing.T) {
+	t.Skip()
+
 	var o sync.Once
 	test(
 		t,

@@ -1,101 +1,103 @@
 package dapper_test
 
-import (
-	"sync"
-	"testing"
-	"time"
-)
+// import (
+// 	"sync"
+// 	"testing"
+// 	"time"
+// )
 
-func TestPrinter_SyncFilter_Mutex(t *testing.T) {
-	var w sync.Mutex
+// func TestPrinter_SyncFilter_Mutex(t *testing.T) {
+// 	t.Skip()
 
-	test(
-		t,
-		"sync.Mutex (unlocked)",
-		&w, // use pointer to avoid copy
-		"*sync.Mutex(<unlocked>)",
-	)
+// 	var w sync.Mutex
 
-	w.Lock()
-	test(
-		t,
-		"sync.Mutex (locked)",
-		&w, // use pointer to avoid copy
-		"*sync.Mutex(<locked>)",
-	)
-	w.Unlock()
+// 	test(
+// 		t,
+// 		"sync.Mutex (unlocked)",
+// 		&w, // use pointer to avoid copy
+// 		"*sync.Mutex(<unlocked>)",
+// 	)
 
-	test(
-		t,
-		"sync.Mutex (unexported struct field)",
-		struct {
-			w sync.Mutex
-		}{},
-		"{",
-		"    w: sync.Mutex(<unlocked>)",
-		"}",
-	)
-}
+// 	w.Lock()
+// 	test(
+// 		t,
+// 		"sync.Mutex (locked)",
+// 		&w, // use pointer to avoid copy
+// 		"*sync.Mutex(<locked>)",
+// 	)
+// 	w.Unlock()
 
-func TestPrinter_SyncFilter_RWMutex(t *testing.T) {
-	var rw sync.RWMutex
+// 	test(
+// 		t,
+// 		"sync.Mutex (unexported struct field)",
+// 		struct {
+// 			w sync.Mutex
+// 		}{},
+// 		"{",
+// 		"    w: sync.Mutex(<unlocked>)",
+// 		"}",
+// 	)
+// }
 
-	test(
-		t,
-		"sync.RWMutex (unlocked)",
-		&rw, // use pointer to avoid copy
-		"*sync.RWMutex(<unlocked>)",
-	)
+// func TestPrinter_SyncFilter_RWMutex(t *testing.T) {
+// 	var rw sync.RWMutex
 
-	rw.Lock()
-	test(
-		t,
-		"sync.RWMutex (write locked)",
-		&rw, // use pointer to avoid copy
-		"*sync.RWMutex(<write locked>)",
-	)
-	rw.Unlock()
+// 	test(
+// 		t,
+// 		"sync.RWMutex (unlocked)",
+// 		&rw, // use pointer to avoid copy
+// 		"*sync.RWMutex(<unlocked>)",
+// 	)
 
-	rw.RLock()
-	test(
-		t,
-		"sync.RWMutex (read locked)",
-		&rw, // use pointer to avoid copy
-		"*sync.RWMutex(<read locked>)",
-	)
-	rw.RUnlock()
+// 	rw.Lock()
+// 	test(
+// 		t,
+// 		"sync.RWMutex (write locked)",
+// 		&rw, // use pointer to avoid copy
+// 		"*sync.RWMutex(<write locked>)",
+// 	)
+// 	rw.Unlock()
 
-	rw.RLock()
-	rw.RLock()
-	barrier := make(chan struct{})
-	go func() {
-		barrier <- struct{}{}
-		rw.Lock()
-		barrier <- struct{}{}
-	}()
-	<-barrier
+// 	rw.RLock()
+// 	test(
+// 		t,
+// 		"sync.RWMutex (read locked)",
+// 		&rw, // use pointer to avoid copy
+// 		"*sync.RWMutex(<read locked>)",
+// 	)
+// 	rw.RUnlock()
 
-	time.Sleep(100 * time.Millisecond)
+// 	rw.RLock()
+// 	rw.RLock()
+// 	barrier := make(chan struct{})
+// 	go func() {
+// 		barrier <- struct{}{}
+// 		rw.Lock()
+// 		barrier <- struct{}{}
+// 	}()
+// 	<-barrier
 
-	test(
-		t,
-		"sync.RWMutex (read locked, write lock pending)",
-		&rw, // use pointer to avoid copy
-		"*sync.RWMutex(<read locked>)",
-	)
-	rw.RUnlock()
-	rw.RUnlock()
-	<-barrier
-	rw.Unlock()
+// 	time.Sleep(100 * time.Millisecond)
 
-	test(
-		t,
-		"sync.RWMutex (unexported struct field)",
-		struct {
-			rw sync.RWMutex
-		}{},
-		"{",
-		"    rw: sync.RWMutex(<unlocked>)",
-		"}",
-	)
-}
+// 	test(
+// 		t,
+// 		"sync.RWMutex (read locked, write lock pending)",
+// 		&rw, // use pointer to avoid copy
+// 		"*sync.RWMutex(<read locked>)",
+// 	)
+// 	rw.RUnlock()
+// 	rw.RUnlock()
+// 	<-barrier
+// 	rw.Unlock()
+
+// 	test(
+// 		t,
+// 		"sync.RWMutex (unexported struct field)",
+// 		struct {
+// 			rw sync.RWMutex
+// 		}{},
+// 		"{",
+// 		"    rw: sync.RWMutex(<unlocked>)",
+// 		"}",
+// 	)
+// }

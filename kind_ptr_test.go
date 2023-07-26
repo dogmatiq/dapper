@@ -2,11 +2,11 @@ package dapper_test
 
 import "testing"
 
-type ptr struct {
-	Value interface{}
-}
-
 func TestPrinter_Ptr(t *testing.T) {
+	type ptr struct {
+		Value interface{}
+	}
+
 	value := 100
 	test(t, "nil pointer", (*int)(nil), "*int(nil)")
 	test(t, "non-nil pointer", &value, "*int(100)")
@@ -34,14 +34,14 @@ func TestPrinter_Ptr(t *testing.T) {
 	)
 }
 
-type recursive struct {
-	Name  string
-	Child *recursive
-}
-
 // This test verifies that recursive structures are detected, and do not produce
 // an infinite loop or stack overflow.
 func TestPrinter_PtrRecursion(t *testing.T) {
+	type recursive struct {
+		Name  string
+		Child *recursive
+	}
+
 	r := recursive{
 		Name: "one",
 		Child: &recursive{

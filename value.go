@@ -45,18 +45,6 @@ func (v *Value) IsAmbiguousType() bool {
 	return v.IsAmbiguousDynamicType || v.IsAmbiguousStaticType
 }
 
-// canPointer reports if v.Value.Pointer() method can be called without
-// panicking.
-func (v *Value) canPointer() bool {
-	switch v.DynamicType.Kind() {
-	case reflect.Chan, reflect.Func, reflect.Map,
-		reflect.Ptr, reflect.Slice, reflect.UnsafePointer:
-		return true
-	default:
-		return false
-	}
-}
-
 // is returns a v as type T if its dynamic type is T.
 func is[T any](v Value) (T, bool) {
 	if v.DynamicType == typeOf[T]() {
@@ -65,8 +53,8 @@ func is[T any](v Value) (T, bool) {
 	return zero[T](), false
 }
 
-// implements returns v as a value of type T if it directly implements T.
-func implements[T any](v Value) (T, bool) {
+// DirectlyImplements returns v as a value of type T if it directly DirectlyImplements T.
+func DirectlyImplements[T any](v Value) (T, bool) {
 	t := typeOf[T]()
 	if t.Kind() != reflect.Interface {
 		panic(fmt.Sprintf("%s is not an interface", t))
