@@ -9,7 +9,7 @@ type Stringer interface {
 // StringerFilter is a [Filter] that formats implementations of
 // [dapper.Stringer].
 func StringerFilter(r Renderer, v Value) {
-	stringer, ok := Implements[Stringer](v)
+	stringer, ok := AsImplementationOf[Stringer](v)
 	if !ok {
 		return
 	}

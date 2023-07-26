@@ -24,6 +24,8 @@ type Renderer interface {
 	Indent()
 	Outdent()
 	Print(format string, args ...any)
+
+	WithModifiedConfig(func(*Config)) Renderer
 }
 
 type renderer struct {

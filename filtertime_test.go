@@ -6,8 +6,6 @@ import (
 )
 
 func TestPrinter_TimeFilter(t *testing.T) {
-	t.Skip()
-
 	tm := time.Date(
 		2019,
 		time.November,

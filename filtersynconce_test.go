@@ -6,8 +6,6 @@ import (
 )
 
 func TestPrinter_SyncFilter_Once(t *testing.T) {
-	t.Skip()
-
 	var o sync.Once
 	test(
 		t,
@@ -24,9 +22,7 @@ func TestPrinter_SyncFilter_Once(t *testing.T) {
 		"*sync.Once(<complete>)",
 	)
 
-	type syncTypes struct {
-		w     sync.Mutex
-		rw    sync.RWMutex
+	type named struct {
 		once  sync.Once
 		force bool // prevent rendering of the zero-value marker
 	}
@@ -34,10 +30,8 @@ func TestPrinter_SyncFilter_Once(t *testing.T) {
 	test(
 		t,
 		"excludes type information if it is not ambiguous",
-		syncTypes{force: true},
-		"github.com/dogmatiq/dapper_test.syncTypes{",
-		"    w:     <unlocked>",
-		"    rw:    <unlocked>",
+		named{force: true},
+		"github.com/dogmatiq/dapper_test.named{",
 		"    once:  <pending>",
 		"    force: true",
 		"}",

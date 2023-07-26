@@ -12,7 +12,7 @@ func renderNil(r Renderer, v Value) {
 
 // renderStringKind renders a [reflect.String] value.
 func renderStringKind(r Renderer, v Value) {
-	if s, ok := is[string](v); ok {
+	if s, ok := AsConcrete[string](v); ok {
 		r.Print("%#v", s)
 	} else {
 		printWithTypeIfAmbiguous(
@@ -26,7 +26,7 @@ func renderStringKind(r Renderer, v Value) {
 
 // renderBoolKind renders a [reflect.Bool] value.
 func renderBoolKind(r Renderer, v Value) {
-	if b, ok := is[bool](v); ok {
+	if b, ok := AsConcrete[bool](v); ok {
 		r.Print("%t", b)
 	} else {
 		printWithTypeIfAmbiguous(

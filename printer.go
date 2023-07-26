@@ -145,12 +145,12 @@ func (p *Printer) Format(v any) string {
 var DefaultPrinter = Printer{
 	Config: Config{
 		Filters: []Filter{
-			StringerFilter,
+			StringerFilter, // always first
 			ErrorFilter,
 			// 	ProtobufFilter{},
-			// 	ReflectFilter{},
-			// 	SyncFilter{},
-			// 	TimeFilter{},
+			ReflectFilter,
+			SyncFilter,
+			TimeFilter,
 		},
 	},
 }
