@@ -6,7 +6,7 @@ import (
 )
 
 // renderStructKind renders [reflect.Struct] values.
-func renderStructKind(r Renderer, v Value, c Config) {
+func renderStructKind(r Renderer, v Value) {
 	// We don't render anonymous types even if the type is ambiguous. Otherwise
 	// we'd be printing the full type definition of the anonymous type. Instead
 	// we mark each field as ambiguous and render their types inline.
@@ -20,25 +20,26 @@ func renderStructKind(r Renderer, v Value, c Config) {
 	}
 
 	if v.Value.IsZero() && !v.IsAnonymousType() {
-		r.Print("{%s}", c.ZeroValueMarker)
+		r.Print("{%s}", r.Config().ZeroValueMarker)
 		return
 	}
 
 	r.Print("{\n")
 	r.Indent()
 
-	renderStructFields(r, v, c)
+	renderStructFields(r, v)
 
 	r.Outdent()
 	r.Print("}")
 }
 
-func renderStructFields(r Renderer, v Value, c Config) error {
-	alignment := longestFieldName(v.DynamicType, c.OmitUnexportedFields)
+func renderStructFields(r Renderer, v Value) error {
+	omitUnexported := r.Config().OmitUnexportedFields
+	alignment := longestFieldName(v.DynamicType, omitUnexported)
 
 	for i := 0; i < v.DynamicType.NumField(); i++ {
 		f := v.DynamicType.Field(i)
-		if c.OmitUnexportedFields && isUnexportedField(f) {
+		if omitUnexported && isUnexportedField(f) {
 			continue
 		}
 

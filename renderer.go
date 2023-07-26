@@ -15,6 +15,8 @@ import (
 type Renderer interface {
 	io.Writer
 
+	Config() Config
+
 	FormatType(Value) string
 	WriteType(Value)
 
@@ -31,7 +33,7 @@ type Renderer interface {
 type renderer struct {
 	Indenter       stream.Indenter
 	ProducedOutput bool
-	Config         Config
+	Configuration  Config
 	RecursionSet   map[uintptr]struct{}
 	FilterIndex    int
 	FilterValue    *Value
@@ -45,6 +47,10 @@ func (r *renderer) Write(data []byte) (int, error) {
 	return n, err
 }
 
+func (r *renderer) Config() Config {
+	return r.Configuration
+}
+
 func (r *renderer) Print(format string, args ...any) {
 	if _, err := fmt.Fprintf(r, format, args...); err != nil {
 		panic(panicSentinel{err})
@@ -53,7 +59,7 @@ func (r *renderer) Print(format string, args ...any) {
 
 func (r *renderer) FormatType(v Value) string {
 	var w strings.Builder
-	r.child(&w, r.Config).WriteType(v)
+	r.child(&w, r.Configuration).WriteType(v)
 	return w.String()
 }
 
@@ -61,7 +67,7 @@ func (r *renderer) WriteType(v Value) {
 	pkg := v.DynamicType.PkgPath()
 	name := v.DynamicType.Name()
 
-	if r.Config.OmitPackagePaths || name == "" || pkg == "" {
+	if r.Configuration.OmitPackagePaths || name == "" || pkg == "" {
 		name = v.DynamicType.String()
 	} else {
 		name = pkg + "." + name
@@ -79,7 +85,7 @@ func (r *renderer) WriteType(v Value) {
 
 func (r *renderer) FormatValue(v Value) string {
 	var w strings.Builder
-	r.child(&w, r.Config).WriteValue(v)
+	r.child(&w, r.Configuration).WriteValue(v)
 	return w.String()
 }
 
@@ -95,9 +101,9 @@ func (r *renderer) WriteValue(v Value) {
 		if recursive := r.enter(v); recursive {
 			if v.IsAmbiguousType() {
 				r.WriteType(v)
-				r.Print("(%s)", r.Config.RecursionMarker)
+				r.Print("(%s)", r.Configuration.RecursionMarker)
 			} else {
-				r.Print("%s", r.Config.RecursionMarker)
+				r.Print("%s", r.Configuration.RecursionMarker)
 			}
 			return
 		}
@@ -107,12 +113,12 @@ func (r *renderer) WriteValue(v Value) {
 
 	v.Value = unsafereflect.MakeMutable(v.Value)
 
-	for index, filter := range r.Config.Filters {
+	for index, filter := range r.Configuration.Filters {
 		if r.FilterIndex == index && isFilterValue {
 			continue
 		}
 
-		child := r.child(r, r.Config)
+		child := r.child(r, r.Configuration)
 		child.FilterIndex = index
 		child.FilterValue = &v
 
@@ -155,7 +161,7 @@ func (r *renderer) WriteValue(v Value) {
 	case reflect.Slice:
 		renderArrayOrSliceKind(r, v)
 	case reflect.Struct:
-		renderStructKind(r, v, r.Config)
+		renderStructKind(r, v)
 	default:
 		panic("unsupported kind: " + v.DynamicType.Kind().String())
 	}
@@ -170,7 +176,7 @@ func (r *renderer) Outdent() {
 }
 
 func (r *renderer) WithModifiedConfig(modify func(*Config)) Renderer {
-	c := r.Config
+	c := r.Configuration
 	modify(&c)
 	return r.child(r, c)
 }
@@ -181,10 +187,10 @@ func (r *renderer) child(w io.Writer, c Config) *renderer {
 			Target: w,
 			Indent: []byte(c.Indent),
 		},
-		Config:       c,
-		RecursionSet: r.RecursionSet,
-		FilterIndex:  r.FilterIndex,
-		FilterValue:  r.FilterValue,
+		Configuration: c,
+		RecursionSet:  r.RecursionSet,
+		FilterIndex:   r.FilterIndex,
+		FilterValue:   r.FilterValue,
 	}
 }
 

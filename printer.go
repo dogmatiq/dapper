@@ -104,8 +104,8 @@ func (p *Printer) Write(w io.Writer, v interface{}) (_ int, err error) {
 			Target: counter,
 			Indent: []byte(cfg.Indent),
 		},
-		Config:       cfg,
-		RecursionSet: map[uintptr]struct{}{},
+		Configuration: cfg,
+		RecursionSet:  map[uintptr]struct{}{},
 	}
 
 	rv := reflect.ValueOf(v)
