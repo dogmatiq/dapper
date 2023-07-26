@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 [keep a changelog]: https://keepachangelog.com/en/1.0.0/
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
-## [Unreleased]
+## [v0.5.0] - 2023-07-26
 
 This release includes several changes to the experimental `Filter` system in
 preparation for unification of built-in and custom rendering behavior.
@@ -31,7 +31,7 @@ preparation for unification of built-in and custom rendering behavior.
 ### Removed
 
 - **[BC]** Removed `DurationFilter`. `TimeFilter` now applies to the entire `time` package.
-- Removed dependency on `dogmatiq/iago`
+- Removed dependency on [Iago]
 
 ### Fixed
 
@@ -191,6 +191,7 @@ preparation for unification of built-in and custom rendering behavior.
 [0.4.4]: https://github.com/dogmatiq/dapper/releases/tag/v0.4.4
 [0.4.5]: https://github.com/dogmatiq/dapper/releases/tag/v0.4.5
 [0.4.6]: https://github.com/dogmatiq/dapper/releases/tag/v0.4.6
+[0.5.0]: https://github.com/dogmatiq/dapper/releases/tag/v0.5.0
 [#6]: https://github.com/dogmatiq/dapper/issues/6
 [#7]: https://github.com/dogmatiq/dapper/issues/7
 [#8]: https://github.com/dogmatiq/dapper/issues/8
