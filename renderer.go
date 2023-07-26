@@ -29,36 +29,31 @@ type Renderer interface {
 }
 
 type renderer struct {
-	Writer       *stream.Indenter
-	Config       Config
-	RecursionSet map[uintptr]struct{}
-	HasOutput    bool
-	FilterIndex  int
-	FilterValue  *Value
+	Indenter       stream.Indenter
+	ProducedOutput bool
+	Config         Config
+	RecursionSet   map[uintptr]struct{}
+	FilterIndex    int
+	FilterValue    *Value
 }
 
 func (r *renderer) Write(data []byte) (int, error) {
-	r.HasOutput = true
-	return r.Writer.Write(data)
+	n, err := r.Indenter.Write(data)
+	if n > 0 {
+		r.ProducedOutput = true
+	}
+	return n, err
 }
 
 func (r *renderer) Print(format string, args ...any) {
-	r.HasOutput = true
-
-	if _, err := fmt.Fprintf(r.Writer, format, args...); err != nil {
+	if _, err := fmt.Fprintf(r, format, args...); err != nil {
 		panic(panicSentinel{err})
 	}
 }
 
 func (r *renderer) FormatType(v Value) string {
 	var w strings.Builder
-
-	child := r.child()
-	child.Writer = &stream.Indenter{
-		Target: &w,
-	}
-	child.WriteType(v)
-
+	r.child(&w, r.Config).WriteType(v)
 	return w.String()
 }
 
@@ -84,13 +79,7 @@ func (r *renderer) WriteType(v Value) {
 
 func (r *renderer) FormatValue(v Value) string {
 	var w strings.Builder
-
-	child := r.child()
-	child.Writer = &stream.Indenter{
-		Target: &w,
-	}
-	child.WriteValue(v)
-
+	r.child(&w, r.Config).WriteValue(v)
 	return w.String()
 }
 
@@ -123,13 +112,13 @@ func (r *renderer) WriteValue(v Value) {
 			continue
 		}
 
-		child := r.child()
+		child := r.child(r, r.Config)
 		child.FilterIndex = index
 		child.FilterValue = &v
 
 		filter(child, v)
 
-		if child.HasOutput {
+		if child.ProducedOutput {
 			return
 		}
 	}
@@ -173,23 +162,26 @@ func (r *renderer) WriteValue(v Value) {
 }
 
 func (r *renderer) Indent() {
-	r.Writer.Depth++
+	r.Indenter.Depth++
 }
 
 func (r *renderer) Outdent() {
-	r.Writer.Depth--
+	r.Indenter.Depth--
 }
 
 func (r *renderer) WithModifiedConfig(modify func(*Config)) Renderer {
-	child := r.child()
-	modify(&child.Config)
-	return child
+	c := r.Config
+	modify(&c)
+	return r.child(r, c)
 }
 
-func (r *renderer) child() *renderer {
+func (r *renderer) child(w io.Writer, c Config) *renderer {
 	return &renderer{
-		Writer:       r.Writer,
-		Config:       r.Config,
+		Indenter: stream.Indenter{
+			Target: w,
+			Indent: []byte(c.Indent),
+		},
+		Config:       c,
 		RecursionSet: r.RecursionSet,
 		FilterIndex:  r.FilterIndex,
 		FilterValue:  r.FilterValue,

@@ -5,9 +5,6 @@ import (
 	"io"
 )
 
-// DefaultIndent is the text used to make an DefaultIndent.
-var DefaultIndent = []byte("    ")
-
 // Indenter is an [io.Writer] that prefixes each line of text with a fixed
 // indent.
 type Indenter struct {
@@ -55,13 +52,8 @@ func (w *Indenter) Write(data []byte) (int, error) {
 }
 
 func (w *Indenter) writeIndent() error {
-	indent := w.Indent
-	if len(indent) == 0 {
-		indent = DefaultIndent
-	}
-
 	for i := 0; i < w.Depth; i++ {
-		if _, err := w.Target.Write(indent); err != nil {
+		if _, err := w.Target.Write(w.Indent); err != nil {
 			return err
 		}
 	}

@@ -11,7 +11,7 @@ import (
 )
 
 // DefaultIndent is the default indent string used to indent nested values.
-var DefaultIndent = []byte("    ")
+const DefaultIndent = "    "
 
 const (
 	// DefaultZeroValueMarker is the default string to display when rendering a
@@ -30,7 +30,7 @@ type Config struct {
 
 	// Indent is the string used to indent nested values.
 	// If it is empty, DefaultIndent is used.
-	Indent []byte
+	Indent string
 
 	// ZeroValueMarker is a string that is displayed instead of a structs field
 	// list when it is the zero-value. If it is empty, DefaultZeroValueMarker is
@@ -81,30 +81,31 @@ func (p *Printer) Write(w io.Writer, v interface{}) (_ int, err error) {
 		}
 	}()
 
+	cfg := p.Config
+
+	if len(cfg.Indent) == 0 {
+		cfg.Indent = DefaultIndent
+	}
+
+	if cfg.ZeroValueMarker == "" {
+		cfg.ZeroValueMarker = DefaultZeroValueMarker
+	}
+
+	if cfg.RecursionMarker == "" {
+		cfg.RecursionMarker = DefaultRecursionMarker
+	}
+
 	counter := &stream.Counter{
 		Target: w,
 	}
 
-	indenter := &stream.Indenter{
-		Target: counter,
-	}
-
 	r := &renderer{
-		Writer:       indenter,
-		Config:       p.Config,
+		Indenter: stream.Indenter{
+			Target: counter,
+			Indent: []byte(cfg.Indent),
+		},
+		Config:       cfg,
 		RecursionSet: map[uintptr]struct{}{},
-	}
-
-	if len(r.Config.Indent) == 0 {
-		r.Config.Indent = DefaultIndent
-	}
-
-	if r.Config.ZeroValueMarker == "" {
-		r.Config.ZeroValueMarker = DefaultZeroValueMarker
-	}
-
-	if r.Config.RecursionMarker == "" {
-		r.Config.RecursionMarker = DefaultRecursionMarker
 	}
 
 	rv := reflect.ValueOf(v)
@@ -147,7 +148,7 @@ var DefaultPrinter = Printer{
 		Filters: []Filter{
 			StringerFilter, // always first
 			ErrorFilter,
-			// 	ProtobufFilter{},
+			ProtoFilter,
 			ReflectFilter,
 			SyncFilter,
 			TimeFilter,

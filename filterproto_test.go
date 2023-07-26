@@ -11,8 +11,6 @@ import (
 )
 
 func TestPrinter_ProtobufFilter(t *testing.T) {
-	t.Skip()
-
 	t.Run(
 		"it formats as expected", func(t *testing.T) {
 			m := &fixtures.Message{
