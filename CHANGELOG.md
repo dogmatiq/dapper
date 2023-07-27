@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 [keep a changelog]: https://keepachangelog.com/en/1.0.0/
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
-## [v0.5.0] - 2023-07-26
+## [0.5.0] - 2023-07-26
 
 This release includes several changes to the experimental `Filter` system in
 preparation for unification of built-in and custom rendering behavior.
