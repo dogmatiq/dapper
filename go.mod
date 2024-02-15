@@ -1,6 +1,6 @@
 module github.com/dogmatiq/dapper
 
-go 1.19
+go 1.21
 
 require google.golang.org/protobuf v1.32.0
 
