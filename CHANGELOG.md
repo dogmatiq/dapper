@@ -10,6 +10,12 @@ The format is based on [Keep a Changelog], and this project adheres to
 [keep a changelog]: https://keepachangelog.com/en/1.0.0/
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
+## [0.5.1] - 2024-03-04
+
+### Changed
+
+- Use zero-allocation natural sorting algorithm from `dogmatiq/jumble`.
+
 ## [0.5.0] - 2023-07-26
 
 This release includes several changes to the experimental `Filter` system in
@@ -192,6 +198,7 @@ preparation for unification of built-in and custom rendering behavior.
 [0.4.5]: https://github.com/dogmatiq/dapper/releases/tag/v0.4.5
 [0.4.6]: https://github.com/dogmatiq/dapper/releases/tag/v0.4.6
 [0.5.0]: https://github.com/dogmatiq/dapper/releases/tag/v0.5.0
+[0.5.1]: https://github.com/dogmatiq/dapper/releases/tag/v0.5.1
 [#6]: https://github.com/dogmatiq/dapper/issues/6
 [#7]: https://github.com/dogmatiq/dapper/issues/7
 [#8]: https://github.com/dogmatiq/dapper/issues/8
