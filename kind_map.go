@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/dogmatiq/dapper/internal/natsort"
+	"github.com/dogmatiq/jumble/natsort"
 )
 
 // renderMapKind renders [reflect.Map] values.
