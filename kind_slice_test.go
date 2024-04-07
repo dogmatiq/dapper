@@ -5,9 +5,11 @@ import "testing"
 // This test verifies that that slice value types are not rendered when they can
 // be inferred from the context.
 func TestPrinter_Slice(t *testing.T) {
+	type named []int
 	type local struct{}
 
 	test(t, "empty slice", []int{}, "[]int{}")
+	test(t, "named slice", named{}, "github.com/dogmatiq/dapper_test.named{}")
 	test(t, "package path", []local{}, "[]github.com/dogmatiq/dapper_test.local{}")
 
 	test(

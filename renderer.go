@@ -69,6 +69,11 @@ func (r *renderer) FormatType(v Value) string {
 func (r *renderer) WriteType(v Value) {
 	t := v.DynamicType
 
+	if t.Name() != "" {
+		renderType(r, r.Configuration, t)
+		return
+	}
+
 	switch t.Kind() {
 	case reflect.Chan:
 		renderChanType(r, r.Configuration, t)

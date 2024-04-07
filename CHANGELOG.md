@@ -10,6 +10,12 @@ The format is based on [Keep a Changelog], and this project adheres to
 [keep a changelog]: https://keepachangelog.com/en/1.0.0/
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
+## [0.5.3] - 2024-04-08
+
+### Fixed
+
+- Fixed rendering of named types that was accidentally removed in [0.5.2].
+
 ## [0.5.2] - 2024-04-08
 
 ### Changed
@@ -211,6 +217,7 @@ preparation for unification of built-in and custom rendering behavior.
 [0.5.0]: https://github.com/dogmatiq/dapper/releases/tag/v0.5.0
 [0.5.1]: https://github.com/dogmatiq/dapper/releases/tag/v0.5.1
 [0.5.2]: https://github.com/dogmatiq/dapper/releases/tag/v0.5.2
+[0.5.3]: https://github.com/dogmatiq/dapper/releases/tag/v0.5.3
 [#6]: https://github.com/dogmatiq/dapper/issues/6
 [#7]: https://github.com/dogmatiq/dapper/issues/7
 [#8]: https://github.com/dogmatiq/dapper/issues/8

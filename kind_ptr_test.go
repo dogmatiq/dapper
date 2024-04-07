@@ -3,6 +3,7 @@ package dapper_test
 import "testing"
 
 func TestPrinter_Ptr(t *testing.T) {
+	type named *int
 	type ptr struct {
 		Value any
 	}
@@ -10,6 +11,7 @@ func TestPrinter_Ptr(t *testing.T) {
 	value := 100
 	test(t, "nil pointer", (*int)(nil), "*int(nil)")
 	test(t, "non-nil pointer", &value, "*int(100)")
+	test(t, "named pointer", named(nil), "github.com/dogmatiq/dapper_test.named(nil)")
 	test(t, "package path", &ptr{}, "*github.com/dogmatiq/dapper_test.ptr{<zero>}")
 
 	test(

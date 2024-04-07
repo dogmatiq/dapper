@@ -3,9 +3,11 @@ package dapper_test
 import "testing"
 
 func TestPrinter_Array(t *testing.T) {
+	type named [3]int
 	type local struct{}
 
 	test(t, "zero-value array", [3]int{}, "[3]int{<zero>}")
+	test(t, "named array", named{}, "github.com/dogmatiq/dapper_test.named{<zero>}")
 	test(t, "package path", [3]local{}, "[3]github.com/dogmatiq/dapper_test.local{<zero>}")
 
 	test(
