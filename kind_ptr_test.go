@@ -4,7 +4,7 @@ import "testing"
 
 func TestPrinter_Ptr(t *testing.T) {
 	type ptr struct {
-		Value interface{}
+		Value any
 	}
 
 	value := 100

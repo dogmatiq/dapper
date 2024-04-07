@@ -42,7 +42,7 @@ func TestPrinter_ByteArray(t *testing.T) {
 func TestPrinter_ArrayInNamedStruct(t *testing.T) {
 	type arrays struct {
 		Ints   [3]int
-		Ifaces [3]interface{}
+		Ifaces [3]any
 	}
 
 	test(
@@ -50,7 +50,7 @@ func TestPrinter_ArrayInNamedStruct(t *testing.T) {
 		"arrays",
 		arrays{
 			Ints:   [3]int{100, 200, 300},
-			Ifaces: [3]interface{}{400, 500, 600},
+			Ifaces: [3]any{400, 500, 600},
 		},
 		"github.com/dogmatiq/dapper_test.arrays{",
 		"    Ints:   {",

@@ -5,10 +5,10 @@ import (
 )
 
 type stringer string
+type stringerPtr string
 
-func (s stringer) DapperString() string {
-	return string(s)
-}
+func (s stringer) DapperString() string     { return string(s) }
+func (s *stringerPtr) DapperString() string { return string(*s) }
 
 func TestPrinter_StringerFilter(t *testing.T) {
 	test(
@@ -16,6 +16,14 @@ func TestPrinter_StringerFilter(t *testing.T) {
 		"stringer",
 		stringer("<stringer>"),
 		"github.com/dogmatiq/dapper_test.stringer [<stringer>]",
+	)
+
+	p := stringerPtr("<stringer>")
+	test(
+		t,
+		"stringer (pointer receiver)",
+		&p,
+		"*github.com/dogmatiq/dapper_test.stringerPtr [<stringer>]",
 	)
 
 	type stringerTypes struct {

@@ -16,12 +16,12 @@ type Value struct {
 	// DynamicType is the value's type.
 	DynamicType reflect.Type
 
-	// StaticType is the type of the "variable" that the value is stored in, which
-	// may not be the same as its dynamic type.
+	// StaticType is the type of the "variable" that the value is stored in,
+	// which may not be the same as its dynamic type.
 	//
-	// For example, when formatting the values within a slice of interface{}
-	// containing integers, such as []interface{}{1, 2, 3}, the DynamicType will be
-	// "int", but the static type will be "interface{}".
+	// For example, when formatting the values within a slice of "any"
+	// containing integers, such as []any{1, 2, 3}, the DynamicType will be
+	// "int", but the static type will be "any".
 	StaticType reflect.Type
 
 	// IsAmbiguousDynamicType is true if the value's dynamic type is not clear from

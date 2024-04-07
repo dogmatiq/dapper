@@ -43,7 +43,7 @@ func TestPrinter_ByteSlice(t *testing.T) {
 func TestPrinter_SliceInNamedStruct(t *testing.T) {
 	type slices struct {
 		Ints   []int
-		Ifaces []interface{}
+		Ifaces []any
 		Force  bool // prevent rendering of the zero-value marker
 	}
 
@@ -63,7 +63,7 @@ func TestPrinter_SliceInNamedStruct(t *testing.T) {
 		"empty slices",
 		slices{
 			Ints:   []int{},
-			Ifaces: []interface{}{},
+			Ifaces: []any{},
 		},
 		"github.com/dogmatiq/dapper_test.slices{",
 		"    Ints:   {}",
@@ -77,7 +77,7 @@ func TestPrinter_SliceInNamedStruct(t *testing.T) {
 		"slices",
 		slices{
 			Ints:   []int{100, 200, 300},
-			Ifaces: []interface{}{400, 500, 600},
+			Ifaces: []any{400, 500, 600},
 		},
 		"github.com/dogmatiq/dapper_test.slices{",
 		"    Ints:   {",
@@ -98,15 +98,15 @@ func TestPrinter_SliceInNamedStruct(t *testing.T) {
 // This test verifies that recursive slices are detected, and do not produce
 // an infinite loop or stack overflow.
 func TestPrinter_SliceRecursion(t *testing.T) {
-	r := []interface{}{0}
+	r := []any{0}
 	r[0] = r
 
 	test(
 		t,
 		"recursive slice",
 		r,
-		"[]interface{}{",
-		`    []interface{}(<recursion>)`,
+		"[]any{",
+		`    []any(<recursion>)`,
 		"}",
 	)
 }

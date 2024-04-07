@@ -21,7 +21,7 @@ func TestPrinter_EmptyStruct(t *testing.T) {
 func TestPrinter_StructFieldTypes(t *testing.T) {
 	type named struct {
 		Int   int
-		Iface interface{}
+		Iface any
 	}
 
 	type anonymous struct {
@@ -48,7 +48,7 @@ func TestPrinter_StructFieldTypes(t *testing.T) {
 		"types are always included fields of anonymous struct",
 		struct {
 			Int   int
-			Iface interface{}
+			Iface any
 		}{
 			Int:   100,
 			Iface: 200,
@@ -125,7 +125,7 @@ func TestPrinter_StructUnexportedFields(t *testing.T) {
 		vUnsafePointer unsafe.Pointer
 		vChannel       chan string
 		vFunc          func(int, string) (bool, error)
-		vIface         interface{}
+		vIface         any
 		vStruct        struct{}
 		vPtr           *int
 		vSlice         []int
@@ -206,7 +206,7 @@ func TestPrinter_StructUnexportedFields(t *testing.T) {
 func TestPrinter_ZeroValueStruct(t *testing.T) {
 	type named struct {
 		Int   int
-		Iface interface{}
+		Iface any
 	}
 
 	test(
@@ -221,11 +221,11 @@ func TestPrinter_ZeroValueStruct(t *testing.T) {
 		"fields are always rendered for anonymous zero-value structs",
 		struct {
 			Int   int
-			Iface interface{}
+			Iface any
 		}{},
 		"{",
 		"    Int:   int(0)",
-		"    Iface: interface{}(nil)",
+		"    Iface: any(nil)",
 		"}",
 	)
 }

@@ -45,8 +45,8 @@ func TestPrinter_MapInNamedStruct(t *testing.T) {
 		"empty maps",
 		maps{
 			Ints:        map[int]int{},
-			IfaceKeys:   map[interface{}]int{},
-			IfaceValues: map[int]interface{}{},
+			IfaceKeys:   map[any]int{},
+			IfaceValues: map[int]any{},
 		},
 		"github.com/dogmatiq/dapper_test.maps{",
 		"    Ints:        {}",
@@ -61,8 +61,8 @@ func TestPrinter_MapInNamedStruct(t *testing.T) {
 		"maps",
 		maps{
 			Ints:        map[int]int{1: 100, 2: 200},
-			IfaceKeys:   map[interface{}]int{3: 300, 4: 400},
-			IfaceValues: map[int]interface{}{5: 500, 6: 600},
+			IfaceKeys:   map[any]int{3: 300, 4: 400},
+			IfaceValues: map[int]any{5: 500, 6: 600},
 		},
 		"github.com/dogmatiq/dapper_test.maps{",
 		"    Ints:        {",
@@ -109,12 +109,12 @@ func TestPrinter_MultilineMapKeyAlignment(t *testing.T) {
 	test(
 		t,
 		"keys are aligned correctly",
-		map[interface{}]string{
+		map[any]string{
 			"short": "one",
 			"the longest key in the galaxy must be longer than it was before": "two",
 			multiline{Key: "multiline key"}:                                   "three",
 		},
-		"map[interface{}]string{",
+		"map[any]string{",
 		`    "short":                                                           "one"`,
 		`    "the longest key in the galaxy must be longer than it was before": "two"`,
 		"    github.com/dogmatiq/dapper_test.multiline{",
@@ -127,11 +127,11 @@ func TestPrinter_MultilineMapKeyAlignment(t *testing.T) {
 
 		t,
 		"keys are aligned correctly when the longest line is part of a multiline key",
-		map[interface{}]string{
+		map[any]string{
 			"short":                         "one",
 			multiline{Key: "multiline key"}: "three",
 		},
-		"map[interface{}]string{",
+		"map[any]string{",
 		`    "short":                                   "one"`,
 		"    github.com/dogmatiq/dapper_test.multiline{",
 		`        Key: "multiline key"`,
@@ -143,15 +143,15 @@ func TestPrinter_MultilineMapKeyAlignment(t *testing.T) {
 // This test verifies that recursive maps are detected, and do not produce
 // an infinite loop or stack overflow.
 func TestPrinter_MapRecursion(t *testing.T) {
-	r := map[string]interface{}{}
+	r := map[string]any{}
 	r["child"] = r
 
 	test(
 		t,
 		"recursive map",
 		r,
-		"map[string]interface{}{",
-		`    "child": map[string]interface{}(<recursion>)`,
+		"map[string]any{",
+		`    "child": map[string]any(<recursion>)`,
 		"}",
 	)
 }

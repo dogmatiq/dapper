@@ -69,7 +69,7 @@ type panicSentinel struct {
 // Write writes a pretty-printed representation of v to w.
 //
 // It returns the number of bytes written.
-func (p *Printer) Write(w io.Writer, v interface{}) (_ int, err error) {
+func (p *Printer) Write(w io.Writer, v any) (_ int, err error) {
 	defer func() {
 		switch r := recover().(type) {
 		case panicSentinel:
@@ -160,12 +160,12 @@ var DefaultPrinter = Printer{
 // printer settings.
 //
 // It returns the number of bytes written.
-func Write(w io.Writer, v interface{}) (int, error) {
+func Write(w io.Writer, v any) (int, error) {
 	return DefaultPrinter.Write(w, v)
 }
 
 // Format returns a pretty-printed representation of v.
-func Format(v interface{}) string {
+func Format(v any) string {
 	return DefaultPrinter.Format(v)
 }
 

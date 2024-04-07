@@ -67,17 +67,24 @@ func (r *renderer) FormatType(v Value) string {
 }
 
 func (r *renderer) WriteType(v Value) {
-	pkg := v.DynamicType.PkgPath()
-	name := v.DynamicType.Name()
+	t := v.DynamicType
+	if t.Kind() == reflect.Ptr {
+		r.Print("*")
+		t = t.Elem()
+	}
+
+	pkg := t.PkgPath()
+	name := t.Name()
 
 	if r.Configuration.OmitPackagePaths || name == "" || pkg == "" {
-		name = v.DynamicType.String()
+		name = t.String()
 	} else {
 		name = pkg + "." + name
 	}
 
-	name = strings.Replace(name, "interface {", "interface{", -1)
-	name = strings.Replace(name, "struct {", "struct{", -1)
+	name = strings.ReplaceAll(name, "interface {}", "any")
+	name = strings.ReplaceAll(name, "interface {", "interface{")
+	name = strings.ReplaceAll(name, "struct {", "struct{")
 
 	if strings.ContainsAny(name, "() \t\n") {
 		name = "(" + name + ")"
@@ -94,7 +101,7 @@ func (r *renderer) FormatValue(v Value) string {
 
 func (r *renderer) WriteValue(v Value) {
 	if v.Value.Kind() == reflect.Invalid {
-		r.Print("interface{}(nil)")
+		r.Print("any(nil)")
 		return
 	}
 

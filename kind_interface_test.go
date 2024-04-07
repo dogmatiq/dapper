@@ -4,16 +4,16 @@ import "testing"
 
 func TestPrinter_Interface(t *testing.T) {
 	type interfaces struct {
-		Iface interface{}
+		Iface any
 		Force bool // prevent rendering of the zero-value marker
 	}
 
-	type iface interface{}
+	type iface any
 
 	// Note that capturing a reflect.Value of a nil interface does NOT produces
 	// a value with a "kind" of reflect.Invalid, NOT reflect.Interface.
-	test(t, "nil any interface", any(nil), "interface{}(nil)")
-	test(t, "nil named interface", iface(nil), "interface{}(nil)") // interface information is shed when passed to Printer.Write().
+	test(t, "nil any interface", any(nil), "any(nil)")
+	test(t, "nil named interface", iface(nil), "any(nil)") // interface information is shed when passed to Printer.Write().
 
 	test(
 		t,
@@ -39,10 +39,10 @@ func TestPrinter_Interface(t *testing.T) {
 		t,
 		"nil interface in anonymous struct",
 		struct {
-			Iface interface{}
+			Iface any
 		}{},
 		"{",
-		"    Iface: interface{}(nil)",
+		"    Iface: any(nil)",
 		"}",
 	)
 
@@ -51,7 +51,7 @@ func TestPrinter_Interface(t *testing.T) {
 		t,
 		"non-nil interface in anonymous struct",
 		struct {
-			Iface interface{}
+			Iface any
 		}{uint(100)},
 		"{",
 		"    Iface: uint(100)",

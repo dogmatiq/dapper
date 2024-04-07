@@ -38,7 +38,7 @@ import (
 
 type TreeNode struct {
 	Name     string
-	Value    interface{}
+	Value    any
 	Children []*TreeNode
 }
 

@@ -11,7 +11,7 @@ import (
 func ExamplePrinter() {
 	type TreeNode struct {
 		Name     string
-		Value    interface{}
+		Value    any
 		Children []*TreeNode
 	}
 
@@ -56,7 +56,7 @@ func ExamplePrinter() {
 func ExamplePrinter_Config() {
 	type TreeNode struct {
 		Name     string
-		Value    interface{}
+		Value    any
 		Children []*TreeNode
 	}
 

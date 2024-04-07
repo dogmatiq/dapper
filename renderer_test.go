@@ -11,7 +11,7 @@ import (
 func test(
 	t *testing.T,
 	n string,
-	v interface{},
+	v any,
 	lines ...string,
 ) {
 	t.Helper()
