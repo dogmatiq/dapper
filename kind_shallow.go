@@ -2,6 +2,7 @@ package dapper
 
 import (
 	"fmt"
+	"reflect"
 	"strconv"
 )
 
@@ -128,6 +129,25 @@ func renderChanKind(r Renderer, v Value) {
 
 }
 
+func renderChanType(r Renderer, c Config, t reflect.Type) {
+	r.Print("(")
+
+	if t.ChanDir() == reflect.RecvDir {
+		r.Print("<-")
+	}
+
+	r.Print("chan")
+
+	if t.ChanDir() == reflect.SendDir {
+		r.Print("<-")
+	}
+
+	r.Print(" ")
+	renderType(r, c, t.Elem())
+
+	r.Print(")")
+}
+
 // renderFuncKind renders a [reflect.Func] value.
 func renderFuncKind(r Renderer, v Value) {
 	printWithTypeIfAmbiguous(
@@ -136,6 +156,47 @@ func renderFuncKind(r Renderer, v Value) {
 		"%s",
 		formatPointer(v.Value.Pointer(), true),
 	)
+}
+
+func renderFuncType(r Renderer, c Config, t reflect.Type) {
+	r.Print("(func")
+	defer r.Print(")")
+
+	r.Print("(")
+	for i := 0; i < t.NumIn(); i++ {
+		if i > 0 {
+			r.Print(", ")
+		}
+
+		if t.IsVariadic() && i == t.NumIn()-1 {
+			r.Print("...")
+			renderType(r, c, t.In(i).Elem())
+		} else {
+			renderType(r, c, t.In(i))
+		}
+	}
+	r.Print(")")
+
+	if t.NumOut() == 0 {
+		return
+	}
+
+	r.Print(" ")
+
+	if t.NumOut() == 1 {
+		renderType(r, c, t.Out(0))
+		return
+	}
+
+	r.Print("(")
+	for i := 0; i < t.NumOut(); i++ {
+		if i > 0 {
+			r.Print(", ")
+		}
+
+		renderType(r, c, t.Out(i))
+	}
+	r.Print(")")
 }
 
 // formatPointer returns a minimal hexadecimal represenation of p.

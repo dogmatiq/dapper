@@ -1,5 +1,7 @@
 package dapper
 
+import "reflect"
+
 // renderPtrKind formats values with a kind of [reflect.Ptr].
 func renderPtrKind(r Renderer, v Value) {
 	if v.Value.IsNil() {
@@ -23,4 +25,9 @@ func renderPtrKind(r Renderer, v Value) {
 			IsUnexported:           v.IsUnexported,
 		},
 	)
+}
+
+func renderPtrType(r Renderer, c Config, t reflect.Type) {
+	r.Print("*")
+	renderType(r, c, t.Elem())
 }

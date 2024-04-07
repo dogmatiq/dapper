@@ -10,8 +10,11 @@ type maps struct {
 }
 
 func TestPrinter_Map(t *testing.T) {
+	type local struct{}
+
 	test(t, "nil map", (map[int]int)(nil), "map[int]int(nil)")
 	test(t, "empty map", map[int]int{}, "map[int]int{}")
+	test(t, "package path", map[local]local{}, "map[github.com/dogmatiq/dapper_test.local]github.com/dogmatiq/dapper_test.local{}")
 
 	test(
 		t,

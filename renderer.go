@@ -68,15 +68,30 @@ func (r *renderer) FormatType(v Value) string {
 
 func (r *renderer) WriteType(v Value) {
 	t := v.DynamicType
-	if t.Kind() == reflect.Ptr {
-		r.Print("*")
-		t = t.Elem()
-	}
 
+	switch t.Kind() {
+	case reflect.Chan:
+		renderChanType(r, r.Configuration, t)
+	case reflect.Func:
+		renderFuncType(r, r.Configuration, t)
+	case reflect.Map:
+		renderMapType(r, r.Configuration, t)
+	case reflect.Ptr:
+		renderPtrType(r, r.Configuration, t)
+	case reflect.Array:
+		renderArrayType(r, r.Configuration, t)
+	case reflect.Slice:
+		renderSliceType(r, r.Configuration, t)
+	default:
+		renderType(r, r.Configuration, t)
+	}
+}
+
+func renderType(r Renderer, c Config, t reflect.Type) {
 	pkg := t.PkgPath()
 	name := t.Name()
 
-	if r.Configuration.OmitPackagePaths || name == "" || pkg == "" {
+	if c.OmitPackagePaths || name == "" || pkg == "" {
 		name = t.String()
 	} else {
 		name = pkg + "." + name

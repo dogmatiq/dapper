@@ -22,6 +22,11 @@ func renderArrayOrSliceKind(r Renderer, v Value) {
 		return
 	}
 
+	if v.Value.IsZero() {
+		r.Print("{%s}", r.Config().ZeroValueMarker)
+		return
+	}
+
 	r.Print("{\n")
 	r.Indent()
 
@@ -33,6 +38,16 @@ func renderArrayOrSliceKind(r Renderer, v Value) {
 
 	r.Outdent()
 	r.Print("}")
+}
+
+func renderArrayType(r Renderer, c Config, t reflect.Type) {
+	r.Print("[%d]", t.Len())
+	renderType(r, c, t.Elem())
+}
+
+func renderSliceType(r Renderer, c Config, t reflect.Type) {
+	r.Print("[]")
+	renderType(r, c, t.Elem())
 }
 
 func renderArrayElements(r Renderer, v Value) {

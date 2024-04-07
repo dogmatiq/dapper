@@ -10,6 +10,7 @@ func TestPrinter_Ptr(t *testing.T) {
 	value := 100
 	test(t, "nil pointer", (*int)(nil), "*int(nil)")
 	test(t, "non-nil pointer", &value, "*int(100)")
+	test(t, "package path", &ptr{}, "*github.com/dogmatiq/dapper_test.ptr{<zero>}")
 
 	test(
 		t,

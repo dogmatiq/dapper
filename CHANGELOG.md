@@ -15,6 +15,11 @@ The format is based on [Keep a Changelog], and this project adheres to
 ### Changed
 
 - `interface{}` is now rendered as `any`.
+- Zero-valued arrays are now rendered with the "zero value marker", similarly to structs.
+
+### Fixed
+
+- Fixed inconsistent rendering of "element" type names within pointers, channels, maps, slices and functions.
 
 ## [0.5.1] - 2024-03-04
 

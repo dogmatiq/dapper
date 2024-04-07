@@ -31,6 +31,13 @@ func renderMapKind(r Renderer, v Value) {
 	)
 }
 
+func renderMapType(r Renderer, c Config, t reflect.Type) {
+	r.Print("map[")
+	renderType(r, c, t.Key())
+	r.Print("]")
+	renderType(r, c, t.Elem())
+}
+
 // randerMap renders a map-like structure.
 func renderMap(
 	r Renderer,

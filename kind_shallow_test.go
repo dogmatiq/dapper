@@ -192,9 +192,12 @@ func TestPrinter_UntypedPointer(t *testing.T) {
 
 // This test provides additional tests for channel rendering.
 func TestPrinter_Channel(t *testing.T) {
+	type local struct{}
+
 	test(t, "nil channel", (chan string)(nil), "(chan string)(nil)")
 	test(t, "recv-only channel", (<-chan string)(nil), "(<-chan string)(nil)")
 	test(t, "send-only channel", (chan<- string)(nil), "(chan<- string)(nil)")
+	test(t, "package path", (chan local)(nil), "(chan github.com/dogmatiq/dapper_test.local)(nil)")
 
 	// a buffered channel will show it's "usage" ratio
 	ch := make(chan string, 10)
@@ -212,7 +215,17 @@ func TestPrinter_Channel(t *testing.T) {
 
 // This test provides additional tests for function rendering.
 func TestPrinter_Func(t *testing.T) {
-	test(t, "nil func", (func(int))(nil), "(func(int))(nil)")
+	type local struct{}
+
+	test(t, "no inputs or outputs", (func())(nil), "(func())(nil)")
+	test(t, "single input", (func(int))(nil), "(func(int))(nil)")
+	test(t, "multiple inputs", (func(int, bool))(nil), "(func(int, bool))(nil)")
+	test(t, "variadic", (func(...int))(nil), "(func(...int))(nil)")
+	test(t, "variadic with multiple inputs", (func(string, ...int))(nil), "(func(string, ...int))(nil)")
+	test(t, "single return value", (func() int)(nil), "(func() int)(nil)")
+	test(t, "multiple return values", (func() (int, bool))(nil), "(func() (int, bool))(nil)")
+	test(t, "package path", (func(local))(nil), "(func(github.com/dogmatiq/dapper_test.local))(nil)")
+	test(t, "everything", (func(local, ...int) (int, bool))(nil), "(func(github.com/dogmatiq/dapper_test.local, ...int) (int, bool))(nil)")
 }
 
 // See https://github.com/dogmatiq/dapper/issues/6
