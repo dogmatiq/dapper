@@ -31,7 +31,7 @@ func ExamplePrinter() {
 		},
 	}
 
-	p := Printer{}
+	p := &Printer{}
 	s := p.Format(v)
 	fmt.Println(s)
 
@@ -76,7 +76,11 @@ func ExamplePrinter_Config() {
 		},
 	}
 
-	p := Printer{Config: Config{OmitPackagePaths: true}}
+	p := &Printer{
+		Config: Config{
+			OmitPackagePaths: true,
+		},
+	}
 	s := p.Format(v)
 	fmt.Println(s)
 

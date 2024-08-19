@@ -18,7 +18,7 @@ func TestPrinter_Filter(t *testing.T) {
 			i: 100,
 		}
 
-		p := Printer{
+		p := &Printer{
 			Config: Config{
 				Filters: []Filter{
 					func(r Renderer, v Value) {

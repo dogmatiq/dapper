@@ -5,7 +5,7 @@ import (
 	"testing"
 	"unsafe"
 
-	"github.com/dogmatiq/dapper"
+	. "github.com/dogmatiq/dapper"
 )
 
 // This test verifies that empty structs are rendered on a single line.
@@ -77,9 +77,9 @@ func TestPrinter_StructFieldTypes(t *testing.T) {
 
 // Verifies not exported fields in a struct are omitted when configured to do so
 func TestPrinter_StructUnexportedFieldsWithOmitUnexpoted(t *testing.T) {
-	config := dapper.DefaultPrinter.Config
+	config := DefaultPrinter.Config
 	config.OmitUnexportedFields = true
-	printer := &dapper.Printer{Config: config}
+	printer := &Printer{Config: config}
 	writer := &strings.Builder{}
 
 	_, err := printer.Write(writer, struct {
