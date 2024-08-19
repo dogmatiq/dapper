@@ -10,10 +10,10 @@ import (
 	"github.com/dogmatiq/dapper/internal/stream"
 )
 
-// DefaultIndent is the default indent string used to indent nested values.
-const DefaultIndent = "    "
-
 const (
+	// DefaultIndent is the default indent string used to indent nested values.
+	DefaultIndent = "    "
+
 	// DefaultZeroValueMarker is the default string to display when rendering a
 	// zero-value struct.
 	DefaultZeroValueMarker = "<zero>"
@@ -29,17 +29,19 @@ type Config struct {
 	Filters []Filter
 
 	// Indent is the string used to indent nested values.
-	// If it is empty, DefaultIndent is used.
+	// If it is empty, [DefaultIndent] is used.
 	Indent string
 
 	// ZeroValueMarker is a string that is displayed instead of a structs field
-	// list when it is the zero-value. If it is empty, DefaultZeroValueMarker is
-	// used.
+	// list when it is the zero-value.
+	//
+	// If it is empty, [DefaultZeroValueMarker] is used.
 	ZeroValueMarker string
 
 	// RecursionMarker is a string that is displayed instead of a value's
 	// representation when recursion has been detected.
-	// If it is empty, DefaultRecursionMarker is used.
+	//
+	// If it is empty, [DefaultRecursionMarker] is used instead.
 	RecursionMarker string
 
 	// OmitPackagePaths, when true, causes the printer to omit the
@@ -142,7 +144,7 @@ func (p *Printer) Format(v any) string {
 	return b.String()
 }
 
-// DefaultPrinter is the printer used by Write(), Format() and Print().
+// DefaultPrinter is the printer used by [Write], [Format] and [Print].
 var DefaultPrinter = Printer{
 	Config: Config{
 		Filters: []Filter{
@@ -156,28 +158,29 @@ var DefaultPrinter = Printer{
 	},
 }
 
-// Write writes a pretty-printed representation of v to w using the default
-// printer settings.
+// Write writes a pretty-printed representation of v to w using
+// [DefaultPrinter].
 //
 // It returns the number of bytes written.
 func Write(w io.Writer, v any) (int, error) {
 	return DefaultPrinter.Write(w, v)
 }
 
-// Format returns a pretty-printed representation of v.
+// Format returns a pretty-printed representation of v using [DefaultPrinter].
 func Format(v any) string {
 	return DefaultPrinter.Format(v)
 }
 
 var (
-	mux     sync.Mutex
+	stdoutM sync.Mutex
 	newLine = []byte("\n")
 )
 
-// Print writes a pretty-printed representation of v to os.Stdout.
+// Print writes a pretty-printed representation of v to [os.Stdout] using
+// [DefaultPrinter].
 func Print(values ...any) {
-	mux.Lock()
-	defer mux.Unlock()
+	stdoutM.Lock()
+	defer stdoutM.Unlock()
 
 	for _, v := range values {
 		Write(os.Stdout, v)
