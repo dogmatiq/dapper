@@ -15,8 +15,26 @@ func test(
 	lines ...string,
 ) {
 	t.Helper()
+	testWithConfig(
+		t,
+		DefaultPrinter.Config,
+		n,
+		v,
+		lines...,
+	)
+}
+
+func testWithConfig(
+	t *testing.T,
+	cfg Config,
+	n string,
+	v any,
+	lines ...string,
+) {
+	t.Helper()
 
 	x := strings.Join(lines, "\n")
+	p := &Printer{cfg}
 
 	t.Run(
 		n,
@@ -24,7 +42,7 @@ func test(
 			t.Helper()
 
 			var w strings.Builder
-			n, err := Write(&w, v)
+			n, err := p.Write(&w, v)
 
 			if err != nil {
 				t.Fatal(err)
