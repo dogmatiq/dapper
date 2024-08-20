@@ -10,6 +10,13 @@ The format is based on [Keep a Changelog], and this project adheres to
 [keep a changelog]: https://keepachangelog.com/en/1.0.0/
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
+## [Unreleased]
+
+### Added
+
+- Added `Annotator` type and `Config.Annotators` configuration, to add
+  user-defined annotations to values.
+
 ## [0.5.3] - 2024-04-08
 
 ### Fixed

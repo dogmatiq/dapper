@@ -117,12 +117,32 @@ func (r *renderer) FormatValue(v Value) string {
 }
 
 func (r *renderer) WriteValue(v Value) {
+	isFilterValue := r.FilterValue != nil && r.FilterValue.Value == v.Value
+
+	if !isFilterValue {
+		var annotations []string
+		for _, annotate := range r.Configuration.Annotators {
+			if a := annotate(v); a != "" {
+				annotations = append(annotations, a)
+			}
+		}
+
+		if len(annotations) > 0 {
+			defer func() {
+				r.Print(
+					" %s%s%s",
+					r.Configuration.AnnotationPrefix,
+					strings.Join(annotations, ", "),
+					r.Configuration.AnnotationSuffix,
+				)
+			}()
+		}
+	}
+
 	if v.Value.Kind() == reflect.Invalid {
 		r.Print("any(nil)")
 		return
 	}
-
-	isFilterValue := r.FilterValue != nil && r.FilterValue.Value == v.Value
 
 	if !isFilterValue {
 		if recursive := r.enter(v); recursive {

@@ -21,12 +21,29 @@ const (
 	// DefaultRecursionMarker is the default string to display when recursion
 	// is detected within a Go value.
 	DefaultRecursionMarker = "<recursion>"
+
+	// DefaultAnnotationPrefix is the default string to display before
+	// annotations.
+	DefaultAnnotationPrefix = "<<"
+
+	// DefaultAnnotationSuffix is the default string to display after
+	// annotations.
+	DefaultAnnotationSuffix = ">>"
 )
 
 // Config holds the configuration for a printer.
 type Config struct {
 	// Filters is the set of filters to apply when formatting values.
+	//
+	// Filters are applied in the order they are provided. If any filter renders
+	// output all subsequent filters and the default rendering logic are
+	// skipped. Any annotations are still applied.
 	Filters []Filter
+
+	// Annotators is a set of functions that can annotate values with additional
+	// information, regardless of whether the value is rendered by a filter or
+	// the default rendering logic.
+	Annotators []Annotator
 
 	// Indent is the string used to indent nested values.
 	// If it is empty, [DefaultIndent] is used.
@@ -43,6 +60,13 @@ type Config struct {
 	//
 	// If it is empty, [DefaultRecursionMarker] is used instead.
 	RecursionMarker string
+
+	// AnnotationPrefix and AnnotationSuffix are the strings that are displayed
+	// before and after annotations, respectively.
+	//
+	// If they are empty, [DefaultAnnotationOpen] and [DefaultAnnotationClose]
+	// are used instead.
+	AnnotationPrefix, AnnotationSuffix string
 
 	// OmitPackagePaths, when true, causes the printer to omit the
 	// fully-qualified package path from the rendered type names.
@@ -95,6 +119,14 @@ func (p *Printer) Write(w io.Writer, v any) (_ int, err error) {
 
 	if cfg.RecursionMarker == "" {
 		cfg.RecursionMarker = DefaultRecursionMarker
+	}
+
+	if cfg.AnnotationPrefix == "" {
+		cfg.AnnotationPrefix = DefaultAnnotationPrefix
+	}
+
+	if cfg.AnnotationSuffix == "" {
+		cfg.AnnotationSuffix = DefaultAnnotationSuffix
 	}
 
 	counter := &stream.Counter{
@@ -173,6 +205,7 @@ func Format(v any) string {
 
 var (
 	stdoutM sync.Mutex
+	space   = []byte(" ")
 	newLine = []byte("\n")
 )
 
