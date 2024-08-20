@@ -20,7 +20,7 @@ func renderStructKind(r Renderer, v Value) {
 	}
 
 	if v.Value.IsZero() && !v.IsAnonymousType() {
-		r.Print("{%s}", r.Config().ZeroValueMarker)
+		r.Print("{%s}", zeroValueMarker)
 		return
 	}
 

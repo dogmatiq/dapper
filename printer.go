@@ -11,24 +11,19 @@ import (
 )
 
 const (
-	// DefaultIndent is the default indent string used to indent nested values.
-	DefaultIndent = "    "
+	// zeroValueMarker is the string to display when rendering a zero-value
+	// struct.
+	zeroValueMarker = "<zero>"
 
-	// DefaultZeroValueMarker is the default string to display when rendering a
-	// zero-value struct.
-	DefaultZeroValueMarker = "<zero>"
+	// recursionMarker is the string to display when recursion is detected
+	// within a value.
+	recursionMarker = "<recursion>"
 
-	// DefaultRecursionMarker is the default string to display when recursion
-	// is detected within a Go value.
-	DefaultRecursionMarker = "<recursion>"
+	// annotationPrefix is the string to display before annotations.
+	annotationPrefix = "<<"
 
-	// DefaultAnnotationPrefix is the default string to display before
-	// annotations.
-	DefaultAnnotationPrefix = "<<"
-
-	// DefaultAnnotationSuffix is the default string to display after
-	// annotations.
-	DefaultAnnotationSuffix = ">>"
+	// annotationSuffix is the string to display after annotations.
+	annotationSuffix = ">>"
 )
 
 // Config holds the configuration for a printer.
@@ -44,29 +39,6 @@ type Config struct {
 	// information, regardless of whether the value is rendered by a filter or
 	// the default rendering logic.
 	Annotators []Annotator
-
-	// Indent is the string used to indent nested values.
-	// If it is empty, [DefaultIndent] is used.
-	Indent string
-
-	// ZeroValueMarker is a string that is displayed instead of a structs field
-	// list when it is the zero-value.
-	//
-	// If it is empty, [DefaultZeroValueMarker] is used.
-	ZeroValueMarker string
-
-	// RecursionMarker is a string that is displayed instead of a value's
-	// representation when recursion has been detected.
-	//
-	// If it is empty, [DefaultRecursionMarker] is used instead.
-	RecursionMarker string
-
-	// AnnotationPrefix and AnnotationSuffix are the strings that are displayed
-	// before and after annotations, respectively.
-	//
-	// If they are empty, [DefaultAnnotationOpen] and [DefaultAnnotationClose]
-	// are used instead.
-	AnnotationPrefix, AnnotationSuffix string
 
 	// OmitPackagePaths, when true, causes the printer to omit the
 	// fully-qualified package path from the rendered type names.
@@ -109,26 +81,6 @@ func (p *Printer) Write(w io.Writer, v any) (_ int, err error) {
 
 	cfg := p.Config
 
-	if len(cfg.Indent) == 0 {
-		cfg.Indent = DefaultIndent
-	}
-
-	if cfg.ZeroValueMarker == "" {
-		cfg.ZeroValueMarker = DefaultZeroValueMarker
-	}
-
-	if cfg.RecursionMarker == "" {
-		cfg.RecursionMarker = DefaultRecursionMarker
-	}
-
-	if cfg.AnnotationPrefix == "" {
-		cfg.AnnotationPrefix = DefaultAnnotationPrefix
-	}
-
-	if cfg.AnnotationSuffix == "" {
-		cfg.AnnotationSuffix = DefaultAnnotationSuffix
-	}
-
 	counter := &stream.Counter{
 		Target: w,
 	}
@@ -136,7 +88,6 @@ func (p *Printer) Write(w io.Writer, v any) (_ int, err error) {
 	r := &renderer{
 		Indenter: stream.Indenter{
 			Target: counter,
-			Indent: []byte(cfg.Indent),
 		},
 		Configuration: cfg,
 		RecursionSet:  map[uintptr]struct{}{},

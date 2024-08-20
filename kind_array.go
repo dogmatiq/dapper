@@ -23,7 +23,7 @@ func renderArrayOrSliceKind(r Renderer, v Value) {
 	}
 
 	if v.Value.IsZero() {
-		r.Print("{%s}", r.Config().ZeroValueMarker)
+		r.Print("{%s}", zeroValueMarker)
 		return
 	}
 

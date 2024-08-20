@@ -131,9 +131,9 @@ func (r *renderer) WriteValue(v Value) {
 			defer func() {
 				r.Print(
 					" %s%s%s",
-					r.Configuration.AnnotationPrefix,
+					annotationPrefix,
 					strings.Join(annotations, ", "),
-					r.Configuration.AnnotationSuffix,
+					annotationSuffix,
 				)
 			}()
 		}
@@ -148,9 +148,9 @@ func (r *renderer) WriteValue(v Value) {
 		if recursive := r.enter(v); recursive {
 			if v.IsAmbiguousType() {
 				r.WriteType(v)
-				r.Print("(%s)", r.Configuration.RecursionMarker)
+				r.Print("(%s)", recursionMarker)
 			} else {
-				r.Print("%s", r.Configuration.RecursionMarker)
+				r.Print("%s", recursionMarker)
 			}
 			return
 		}
@@ -232,7 +232,6 @@ func (r *renderer) child(w io.Writer, c Config) *renderer {
 	return &renderer{
 		Indenter: stream.Indenter{
 			Target: w,
-			Indent: []byte(c.Indent),
 		},
 		Configuration: c,
 		RecursionSet:  r.RecursionSet,
