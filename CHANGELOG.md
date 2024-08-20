@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 [keep a changelog]: https://keepachangelog.com/en/1.0.0/
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
-## [Unreleased]
+## [0.6.0] - 2024-08-21
 
 This release is largely centered around a refactoring of the `Config` type and
 the way that a `Printer` is configured. It should not affect most users, but
@@ -232,6 +232,7 @@ preparation for unification of built-in and custom rendering behavior.
 
 <!-- references -->
 
+[iago]: https://github.com/dogmatiq/iago
 [unreleased]: https://github.com/dogmatiq/dapper
 [0.1.0]: https://github.com/dogmatiq/dapper/releases/tag/v0.1.0
 [0.1.1]: https://github.com/dogmatiq/dapper/releases/tag/v0.1.1
@@ -253,6 +254,10 @@ preparation for unification of built-in and custom rendering behavior.
 [0.5.1]: https://github.com/dogmatiq/dapper/releases/tag/v0.5.1
 [0.5.2]: https://github.com/dogmatiq/dapper/releases/tag/v0.5.2
 [0.5.3]: https://github.com/dogmatiq/dapper/releases/tag/v0.5.3
+[0.6.0]: https://github.com/dogmatiq/dapper/releases/tag/v0.6.0
+
+<!-- issues -->
+
 [#6]: https://github.com/dogmatiq/dapper/issues/6
 [#7]: https://github.com/dogmatiq/dapper/issues/7
 [#8]: https://github.com/dogmatiq/dapper/issues/8
@@ -262,7 +267,6 @@ preparation for unification of built-in and custom rendering behavior.
 [#23]: https://github.com/dogmatiq/dapper/issues/23
 [#24]: https://github.com/dogmatiq/dapper/issues/24
 [#45]: https://github.com/dogmatiq/dapper/issues/45
-[iago]: https://github.com/dogmatiq/iago
 
 <!-- outside contributors -->
 
