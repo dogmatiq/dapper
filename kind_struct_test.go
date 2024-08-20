@@ -76,10 +76,8 @@ func TestPrinter_StructFieldTypes(t *testing.T) {
 }
 
 // Verifies not exported fields in a struct are omitted when configured to do so
-func TestPrinter_StructUnexportedFieldsWithOmitUnexpoted(t *testing.T) {
-	config := DefaultPrinter.Config
-	config.OmitUnexportedFields = true
-	printer := &Printer{Config: config}
+func TestPrinter_WithUnexportedStructFields(t *testing.T) {
+	printer := NewPrinter(WithUnexportedStructFields(false))
 	writer := &strings.Builder{}
 
 	_, err := printer.Write(writer, struct {

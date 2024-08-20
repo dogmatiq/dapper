@@ -15,18 +15,18 @@ func test(
 	lines ...string,
 ) {
 	t.Helper()
-	testWithConfig(
+	testWithPrinter(
 		t,
-		DefaultPrinter.Config,
+		NewPrinter(),
 		n,
 		v,
 		lines...,
 	)
 }
 
-func testWithConfig(
+func testWithPrinter(
 	t *testing.T,
-	cfg Config,
+	p *Printer,
 	n string,
 	v any,
 	lines ...string,
@@ -34,7 +34,6 @@ func testWithConfig(
 	t.Helper()
 
 	x := strings.Join(lines, "\n")
-	p := &Printer{cfg}
 
 	t.Run(
 		n,

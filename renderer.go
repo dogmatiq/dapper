@@ -31,9 +31,10 @@ type Renderer interface {
 }
 
 type renderer struct {
+	cfg Config
+
 	Indenter       stream.Indenter
 	ProducedOutput bool
-	Configuration  Config
 	RecursionSet   map[uintptr]struct{}
 	FilterIndex    int
 	FilterValue    *Value
@@ -48,7 +49,7 @@ func (r *renderer) Write(data []byte) (int, error) {
 }
 
 func (r *renderer) Config() Config {
-	return r.Configuration
+	return r.cfg.clone()
 }
 
 func (r *renderer) Print(format string, args ...any) {
@@ -59,7 +60,7 @@ func (r *renderer) Print(format string, args ...any) {
 
 func (r *renderer) FormatType(v Value) string {
 	var w strings.Builder
-	r.child(&w, r.Configuration).WriteType(v)
+	r.child(&w, r.cfg).WriteType(v)
 	return w.String()
 }
 
@@ -67,25 +68,25 @@ func (r *renderer) WriteType(v Value) {
 	t := v.DynamicType
 
 	if t.Name() != "" {
-		renderType(r, r.Configuration, t)
+		renderType(r, r.cfg, t)
 		return
 	}
 
 	switch t.Kind() {
 	case reflect.Chan:
-		renderChanType(r, r.Configuration, t)
+		renderChanType(r, r.cfg, t)
 	case reflect.Func:
-		renderFuncType(r, r.Configuration, t)
+		renderFuncType(r, r.cfg, t)
 	case reflect.Map:
-		renderMapType(r, r.Configuration, t)
+		renderMapType(r, r.cfg, t)
 	case reflect.Ptr:
-		renderPtrType(r, r.Configuration, t)
+		renderPtrType(r, r.cfg, t)
 	case reflect.Array:
-		renderArrayType(r, r.Configuration, t)
+		renderArrayType(r, r.cfg, t)
 	case reflect.Slice:
-		renderSliceType(r, r.Configuration, t)
+		renderSliceType(r, r.cfg, t)
 	default:
-		renderType(r, r.Configuration, t)
+		renderType(r, r.cfg, t)
 	}
 }
 
@@ -93,7 +94,7 @@ func renderType(r Renderer, c Config, t reflect.Type) {
 	pkg := t.PkgPath()
 	name := t.Name()
 
-	if c.OmitPackagePaths || name == "" || pkg == "" {
+	if !c.RenderPackagePaths || name == "" || pkg == "" {
 		name = t.String()
 	} else {
 		name = pkg + "." + name
@@ -112,7 +113,7 @@ func renderType(r Renderer, c Config, t reflect.Type) {
 
 func (r *renderer) FormatValue(v Value) string {
 	var w strings.Builder
-	r.child(&w, r.Configuration).WriteValue(v)
+	r.child(&w, r.cfg).WriteValue(v)
 	return w.String()
 }
 
@@ -121,7 +122,7 @@ func (r *renderer) WriteValue(v Value) {
 
 	if !isFilterValue {
 		var annotations []string
-		for _, annotate := range r.Configuration.Annotators {
+		for _, annotate := range r.cfg.Annotators {
 			if a := annotate(v); a != "" {
 				annotations = append(annotations, a)
 			}
@@ -160,12 +161,12 @@ func (r *renderer) WriteValue(v Value) {
 
 	v.Value = unsafereflect.MakeMutable(v.Value)
 
-	for index, filter := range r.Configuration.Filters {
+	for index, filter := range r.cfg.Filters {
 		if r.FilterIndex == index && isFilterValue {
 			continue
 		}
 
-		child := r.child(r, r.Configuration)
+		child := r.child(r, r.cfg)
 		child.FilterIndex = index
 		child.FilterValue = &v
 
@@ -223,7 +224,7 @@ func (r *renderer) Outdent() {
 }
 
 func (r *renderer) WithModifiedConfig(modify func(*Config)) Renderer {
-	c := r.Configuration
+	c := r.cfg.clone()
 	modify(&c)
 	return r.child(r, c)
 }
@@ -233,10 +234,10 @@ func (r *renderer) child(w io.Writer, c Config) *renderer {
 		Indenter: stream.Indenter{
 			Target: w,
 		},
-		Configuration: c,
-		RecursionSet:  r.RecursionSet,
-		FilterIndex:   r.FilterIndex,
-		FilterValue:   r.FilterValue,
+		cfg:          c,
+		RecursionSet: r.RecursionSet,
+		FilterIndex:  r.FilterIndex,
+		FilterValue:  r.FilterValue,
 	}
 }
 

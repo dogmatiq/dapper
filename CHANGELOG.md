@@ -12,10 +12,38 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ## [Unreleased]
 
+This release is largely centered around a refactoring of the `Config` type and
+the way that a `Printer` is configured. It should not affect most users, but
+does introduce some breaking changes for filter authors.
+
 ### Added
 
-- Added `Annotator` type and `Config.Annotators` configuration, to add
-  user-defined annotations to values.
+- Added `Annotator`, `Config.Annotators` and `WithAnnotator`, to add
+  user-defined text annotations to rendered values.
+- Added `NewPrinter()` function, that accepts the following functional options:
+  - `WithFilter()`
+  - `WithDefaultFilters()`
+  - `WithAnnotator()`
+  - `WithUnexportedStructFields()`
+  - `WithPackagePaths()`
+
+### Changed
+
+- **[BC]** Replaced `Config.OmitUnexportedFields` with `RenderUnexportedStructFields`, note the logic is inverted.
+- **[BC]** Replaced `Config.OmitPackagePaths` with `RenderPackagePaths`, note the logic is inverted.
+- Bumped the minimum supported Go version to 1.21.
+
+### Removed
+
+- **[BC]** Removed `DefaultPrinter`, use `NewPrinter()` instead.
+- **[BC]** Removed `Config.Indent` and `DefaultIndent` constant.
+- **[BC]** Removed `Config.RecursionMarker` and `DefaultRecursionMarker` constant.
+- **[BC]** Removed `Config.ZeroValueMarker` and `DefaultZeroValueMarker` constant.
+
+### Fixed
+
+- `Renderer.Config()` and `Renderer.WithModifiedConfig()` now properly clone the
+  slices within `Config`.
 
 ## [0.5.3] - 2024-04-08
 

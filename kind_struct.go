@@ -34,12 +34,12 @@ func renderStructKind(r Renderer, v Value) {
 }
 
 func renderStructFields(r Renderer, v Value) error {
-	omitUnexported := r.Config().OmitUnexportedFields
-	alignment := longestFieldName(v.DynamicType, omitUnexported)
+	renderUnexported := r.Config().RenderUnexportedStructFields
+	alignment := longestFieldName(v.DynamicType, renderUnexported)
 
 	for i := 0; i < v.DynamicType.NumField(); i++ {
 		f := v.DynamicType.Field(i)
-		if omitUnexported && isUnexportedField(f) {
+		if !renderUnexported && isUnexportedField(f) {
 			continue
 		}
 
@@ -79,12 +79,12 @@ func isUnexportedField(f reflect.StructField) bool {
 }
 
 // longestFieldName returns the length of the longest field name in a struct.
-func longestFieldName(rt reflect.Type, exportedOnly bool) int {
+func longestFieldName(rt reflect.Type, includeUnexported bool) int {
 	width := 0
 
 	for i := 0; i < rt.NumField(); i++ {
 		f := rt.Field(i)
-		if !exportedOnly || !isUnexportedField(f) {
+		if includeUnexported || !isUnexportedField(f) {
 			n := len(f.Name)
 
 			if n > width {

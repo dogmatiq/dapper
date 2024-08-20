@@ -8,7 +8,7 @@ import (
 	. "github.com/dogmatiq/dapper"
 )
 
-func ExamplePrinter() {
+func ExampleNewPrinter() {
 	type TreeNode struct {
 		Name     string
 		Value    any
@@ -31,7 +31,7 @@ func ExamplePrinter() {
 		},
 	}
 
-	p := &Printer{}
+	p := NewPrinter()
 	s := p.Format(v)
 	fmt.Println(s)
 
@@ -53,7 +53,7 @@ func ExamplePrinter() {
 	// }
 }
 
-func ExamplePrinter_Config() {
+func ExampleNewPrinter_options() {
 	type TreeNode struct {
 		Name     string
 		Value    any
@@ -76,11 +76,7 @@ func ExamplePrinter_Config() {
 		},
 	}
 
-	p := &Printer{
-		Config: Config{
-			OmitPackagePaths: true,
-		},
-	}
+	p := NewPrinter(WithPackagePaths(false))
 	s := p.Format(v)
 	fmt.Println(s)
 

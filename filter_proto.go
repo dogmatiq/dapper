@@ -8,7 +8,7 @@ func ProtoFilter(r Renderer, v Value) {
 		r.
 			WithModifiedConfig(
 				func(c *Config) {
-					c.OmitUnexportedFields = true
+					c.RenderUnexportedStructFields = false
 				},
 			).
 			WriteValue(v)

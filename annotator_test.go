@@ -161,12 +161,14 @@ func TestPrinter_Annotator(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run(c.Name, func(t *testing.T) {
-			cfg := DefaultPrinter.Config
-			cfg.Annotators = c.Annotators
+			var options []Option
+			for _, a := range c.Annotators {
+				options = append(options, WithAnnotator(a))
+			}
 
-			testWithConfig(
+			testWithPrinter(
 				t,
-				cfg,
+				NewPrinter(options...),
 				c.Name,
 				c.Value,
 				c.Output...,

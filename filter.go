@@ -6,3 +6,12 @@ package dapper
 // The filter uses r to render v. If r is unused v is rendered using the default
 // formatting logic.
 type Filter func(r Renderer, v Value)
+
+var defaultFilters = []Filter{
+	StringerFilter, // always first
+	ErrorFilter,
+	ProtoFilter,
+	ReflectFilter,
+	SyncFilter,
+	TimeFilter,
+}
