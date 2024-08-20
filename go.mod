@@ -1,6 +1,6 @@
 module github.com/dogmatiq/dapper
 
-go 1.21
+go 1.22
 
 require (
 	github.com/dogmatiq/jumble v0.1.0
