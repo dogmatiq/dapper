@@ -4,7 +4,7 @@ go 1.22
 
 require (
 	github.com/dogmatiq/jumble v0.1.0
-	google.golang.org/protobuf v1.36.3
+	google.golang.org/protobuf v1.36.4
 )
 
 require github.com/google/go-cmp v0.5.8 // indirect
