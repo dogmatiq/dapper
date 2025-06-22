@@ -10,6 +10,12 @@ The format is based on [Keep a Changelog], and this project adheres to
 [keep a changelog]: https://keepachangelog.com/en/1.0.0/
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
+## [Unreleased]
+
+### Fixed
+
+- Fixed rendering of `sync.Mutex` and `sync.RWMutex` under Go v1.24.
+
 ## [0.6.0] - 2024-08-21
 
 This release is largely centered around a refactoring of the `Config` type and

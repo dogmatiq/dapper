@@ -5,10 +5,9 @@ import (
 )
 
 func renderMutex(r Renderer, v Value) {
-	state := v.Value.FieldByName("state")
-
 	desc := "<unknown state>"
-	if state, ok := asInt(state); ok {
+
+	if state, ok := extractMutexState(v.Value); ok {
 		if state != 0 {
 			desc = "<locked>"
 		} else {
@@ -25,17 +24,14 @@ func renderMutex(r Renderer, v Value) {
 }
 
 func renderRWMutex(r Renderer, v Value) {
-	wait := v.Value.FieldByName("readerWait")
-	count := v.Value.FieldByName("readerCount")
-	write := v.Value.FieldByName("w")
+	rv := v.Value
 
-	var state reflect.Value
-	if write.Kind() == reflect.Struct {
-		state = write.FieldByName("state")
-	}
+	wait := rv.FieldByName("readerWait")
+	count := rv.FieldByName("readerCount")
+	write := rv.FieldByName("w")
 
 	desc := "<unknown state>"
-	if state, ok := asInt(state); ok {
+	if state, ok := extractMutexState(write); ok {
 		if wait, ok := asInt(wait); ok {
 			if count, ok := asInt(count); ok {
 				if wait > 0 || count > 0 {
@@ -55,4 +51,19 @@ func renderRWMutex(r Renderer, v Value) {
 		"%s",
 		desc,
 	)
+}
+
+func extractMutexState(v reflect.Value) (int64, bool) {
+	// At some point, the internals of [sync.Mutex] were moved into a separate
+	// internal/sync package, and the implementation was replaced with a single
+	// "mu" field.
+	if mu := v.FieldByName("mu"); mu.IsValid() {
+		v = mu
+	}
+
+	if state := v.FieldByName("state"); state.IsValid() {
+		return asInt(state)
+	}
+
+	return 0, false
 }
