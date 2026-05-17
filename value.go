@@ -133,27 +133,3 @@ func asInt(v reflect.Value) (n int64, ok bool) {
 		return 0, false
 	}
 }
-
-// asUint returns the value of v as a uint64, if it is one of the unsigned
-// integer types, including atomic types.
-func asUint(v reflect.Value) (n uint64, ok bool) {
-	switch v.Kind() {
-	case reflect.Uint,
-		reflect.Uint8,
-		reflect.Uint16,
-		reflect.Uint32,
-		reflect.Uint64:
-		return v.Uint(), true
-	}
-
-	v = unsafereflect.MakeMutable(v)
-
-	switch v := v.Interface().(type) {
-	case atomic.Uint32:
-		return uint64(v.Load()), true
-	case atomic.Uint64:
-		return v.Load(), true
-	default:
-		return 0, false
-	}
-}
