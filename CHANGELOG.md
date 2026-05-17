@@ -9,12 +9,20 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 [keep a changelog]: https://keepachangelog.com/en/1.0.0/
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
+[bc]: https://github.com/dogmatiq/.github/blob/main/VERSIONING.md#changelogs
 
-## [Unreleased]
+## [0.6.1] - 2026-05-18
+
+### Added
+
+- Added `Config.RenderStructFieldPredicate`, a predicate that controls which
+  struct fields are rendered.
+- Added support for rendering protobuf messages that use the "opaque" API.
 
 ### Fixed
 
-- Fixed rendering of `sync.Mutex` and `sync.RWMutex` under Go v1.24.
+- Fixed rendering of `sync.Mutex` and `sync.RWMutex` under Go v1.24+.
+- Fixed rendering of `sync.Once` under Go v1.25+.
 
 ## [0.6.0] - 2024-08-21
 
@@ -261,6 +269,7 @@ preparation for unification of built-in and custom rendering behavior.
 [0.5.2]: https://github.com/dogmatiq/dapper/releases/tag/v0.5.2
 [0.5.3]: https://github.com/dogmatiq/dapper/releases/tag/v0.5.3
 [0.6.0]: https://github.com/dogmatiq/dapper/releases/tag/v0.6.0
+[0.6.1]: https://github.com/dogmatiq/dapper/releases/tag/v0.6.1
 
 <!-- issues -->
 

@@ -3,9 +3,13 @@ package dapper
 func renderSyncOnce(r Renderer, v Value) {
 	done := v.Value.FieldByName("done")
 
-	desc := "<pending>"
-	if done.IsValid() && !done.IsZero() {
-		desc = "<complete>"
+	desc := "<unknown state>"
+	if done.IsValid() {
+		if done.IsZero() {
+			desc = "<pending>"
+		} else {
+			desc = "<complete>"
+		}
 	}
 
 	printWithTypeIfAmbiguous(
