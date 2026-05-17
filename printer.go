@@ -61,6 +61,13 @@ type Config struct {
 	// RenderUnexportedStructFields, when true, causes the printer to render
 	// unexported struct fields.
 	RenderUnexportedStructFields bool
+
+	// RenderStructFieldPredicate, when non-nil, is called for each struct field
+	// to determine whether it should be rendered.
+	//
+	// It is only called with unexported fields when
+	// [Config.RenderUnexportedStructFields] is true.
+	RenderStructFieldPredicate func(reflect.StructField) bool
 }
 
 func (c Config) clone() Config {

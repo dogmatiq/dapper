@@ -34,16 +34,12 @@ func renderStructKind(r Renderer, v Value) {
 }
 
 func renderStructFields(r Renderer, v Value) error {
-	renderUnexported := r.Config().RenderUnexportedStructFields
-	alignment := longestFieldName(v.DynamicType, renderUnexported)
+	cfg := r.Config()
+	fields := visibleStructFields(v.DynamicType, cfg)
+	alignment := longestFieldName(fields)
 
-	for i := 0; i < v.DynamicType.NumField(); i++ {
-		f := v.DynamicType.Field(i)
-		if !renderUnexported && isUnexportedField(f) {
-			continue
-		}
-
-		fv := v.Value.Field(i)
+	for _, f := range fields {
+		fv := v.Value.Field(f.Index[0])
 
 		isInterface := f.Type.Kind() == reflect.Interface
 
@@ -78,18 +74,36 @@ func isUnexportedField(f reflect.StructField) bool {
 	return f.PkgPath != ""
 }
 
-// longestFieldName returns the length of the longest field name in a struct.
-func longestFieldName(rt reflect.Type, includeUnexported bool) int {
+// visibleStructFields returns the struct fields that should be rendered with
+// the given configuration.
+func visibleStructFields(rt reflect.Type, cfg Config) []reflect.StructField {
+	var fields []reflect.StructField
+
+	for i := range rt.NumField() {
+		f := rt.Field(i)
+
+		if !cfg.RenderUnexportedStructFields && isUnexportedField(f) {
+			continue
+		}
+
+		if cfg.RenderStructFieldPredicate != nil && !cfg.RenderStructFieldPredicate(f) {
+			continue
+		}
+
+		fields = append(fields, f)
+	}
+
+	return fields
+}
+
+// longestFieldName returns the length of the longest field name among the given
+// struct fields.
+func longestFieldName(fields []reflect.StructField) int {
 	width := 0
 
-	for i := 0; i < rt.NumField(); i++ {
-		f := rt.Field(i)
-		if includeUnexported || !isUnexportedField(f) {
-			n := len(f.Name)
-
-			if n > width {
-				width = n
-			}
+	for _, f := range fields {
+		if n := len(f.Name); n > width {
+			width = n
 		}
 	}
 

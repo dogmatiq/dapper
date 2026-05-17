@@ -1,0 +1,22 @@
+edition = "2024";
+
+package dogmatiq.dapper.fixtures;
+
+option go_package = "github.com/dogmatiq/dapper/internal/fixtures";
+
+message MessageEditions {
+  string str = 1;
+  EnumEditions enum = 2;
+  NestedEditions nested = 3;
+}
+
+message NestedEditions {
+  string nested_a = 1;
+  bytes nested_b = 2;
+}
+
+enum EnumEditions {
+  UNKNOWN_EDITIONS = 0;
+  FOO_EDITIONS = 1;
+  BAR_EDITIONS = 2;
+}

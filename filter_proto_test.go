@@ -119,6 +119,55 @@ func TestPrinter_ProtoFilter(t *testing.T) {
 	)
 }
 
+func TestPrinter_ProtoFilter_Editions(t *testing.T) {
+	t.Run(
+		"it formats an editions message as expected", func(t *testing.T) {
+			nested := &fixtures.NestedEditions{}
+			nested.SetNestedA("foo")
+			nested.SetNestedB([]byte("<bytes>"))
+
+			m := &fixtures.MessageEditions{}
+			m.SetStr("hello")
+			m.SetEnum(fixtures.EnumEditions_FOO_EDITIONS)
+			m.SetNested(nested)
+
+			// Trigger population of internal state to make sure it does not
+			// render.
+			_ = m.String()
+
+			actual := dapper.Format(m)
+			expected := strings.Join([]string{
+				`*github.com/dogmatiq/dapper/internal/fixtures.MessageEditions{`,
+				`    xxx_hidden_Str:    "hello"`,
+				`    xxx_hidden_Enum:   1`,
+				`    xxx_hidden_Nested: {`,
+				`        xxx_hidden_NestedA: "foo"`,
+				`        xxx_hidden_NestedB: {`,
+				`            00000000  3c 62 79 74 65 73 3e                              |<bytes>|`,
+				`        }`,
+				`    }`,
+				`}`,
+			}, "\n")
+
+			if !matchProtoFormat(actual, expected) {
+				t.Errorf("Expected\n%s\nbut got\n%s", expected, actual)
+			}
+		},
+	)
+
+	t.Run(
+		"it renders the zero-marker when the editions message is empty", func(t *testing.T) {
+			m := &fixtures.MessageEditions{}
+			expected := `*github.com/dogmatiq/dapper/internal/fixtures.MessageEditions{<zero>}`
+			actual := dapper.Format(m)
+
+			if actual != expected {
+				t.Errorf("Expected\n%s\nbut got\n%s", expected, actual)
+			}
+		},
+	)
+}
+
 // matchProtoFormat works around non-deterministic behaviour introduced by the
 // protobuf package.
 //
