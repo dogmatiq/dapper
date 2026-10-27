@@ -11,7 +11,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 [bc]: https://github.com/dogmatiq/.github/blob/main/VERSIONING.md#changelogs
 
-## [Unreleased]
+## [0.7.0] - 2026-10-27
 
 ### Added
 
@@ -288,6 +288,7 @@ preparation for unification of built-in and custom rendering behavior.
 [0.5.3]: https://github.com/dogmatiq/dapper/releases/tag/v0.5.3
 [0.6.0]: https://github.com/dogmatiq/dapper/releases/tag/v0.6.0
 [0.6.1]: https://github.com/dogmatiq/dapper/releases/tag/v0.6.1
+[0.7.0]: https://github.com/dogmatiq/dapper/releases/tag/v0.7.0
 
 <!-- issues -->
 
