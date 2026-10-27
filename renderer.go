@@ -118,6 +118,12 @@ func (r *renderer) FormatValue(v Value) string {
 }
 
 func (r *renderer) WriteValue(v Value) {
+	// This must happen before the annotators run, otherwise they panic if they
+	// call Interface() on a value from an unexported struct field.
+	if v.Value.IsValid() {
+		v.Value = unsafereflect.MakeMutable(v.Value)
+	}
+
 	isFilterValue := r.FilterValue != nil && r.FilterValue.Value == v.Value
 
 	if !isFilterValue {
@@ -158,8 +164,6 @@ func (r *renderer) WriteValue(v Value) {
 
 		defer r.leave(v)
 	}
-
-	v.Value = unsafereflect.MakeMutable(v.Value)
 
 	for index, filter := range r.cfg.Filters {
 		if r.FilterIndex == index && isFilterValue {

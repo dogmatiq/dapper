@@ -232,6 +232,46 @@ func TestPrinter_ProtoFilter_Editions(t *testing.T) {
 			t.Errorf("Expected\n%s\nbut got\n%s", expected, actual)
 		}
 	})
+
+	t.Run("it allows annotators to access the interface of values within an editions message", func(t *testing.T) {
+		nested := &fixtures.NestedEditions{}
+		nested.SetNestedA("foo")
+
+		m := &fixtures.MessageEditions{}
+		m.SetStr("hello")
+		m.SetNested(nested)
+
+		// Trigger population of internal state to make sure it does not
+		// render.
+		_ = m.String()
+
+		p := dapper.NewPrinter(
+			dapper.WithAnnotator(func(v dapper.Value) string {
+				if v.Value.Type() == reflect.TypeFor[*fixtures.NestedEditions]() {
+					if v.Value.Interface() == nested {
+						return "the nested message"
+					}
+				}
+				return ""
+			}),
+		)
+
+		actual := p.Format(m)
+		expected := strings.Join([]string{
+			`*github.com/dogmatiq/dapper/internal/fixtures.MessageEditions{`,
+			`    Str:    "hello"`,
+			`    Enum:   0`,
+			`    Nested: {`,
+			`        NestedA: "foo"`,
+			`        NestedB: nil`,
+			`    } <<the nested message>>`,
+			`}`,
+		}, "\n")
+
+		if !matchProtoFormat(actual, expected) {
+			t.Errorf("Expected\n%s\nbut got\n%s", expected, actual)
+		}
+	})
 }
 
 func TestPrinter_ProtoFilter_ComposesConfig(t *testing.T) {

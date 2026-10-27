@@ -23,6 +23,12 @@ The format is based on [Keep a Changelog], and this project adheres to
 - Protobuf messages that use the "opaque" API now render their fields without
   the `xxx_hidden_` prefix.
 
+### Fixed
+
+- Fixed a panic when an annotator calls `reflect.Value.Interface()` on a value
+  obtained from an unexported struct field, such as the hidden fields of
+  protobuf messages that use the "opaque" API.
+
 ## [0.6.1] - 2026-05-18
 
 ### Added
