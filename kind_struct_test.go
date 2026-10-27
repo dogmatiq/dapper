@@ -1,6 +1,7 @@
 package dapper_test
 
 import (
+	"reflect"
 	"strings"
 	"testing"
 	"unsafe"
@@ -91,6 +92,50 @@ func TestPrinter_WithUnexportedStructFields(t *testing.T) {
 
 	expected := "{\n    Exported: false\n}"
 	result := writer.String()
+	if expected != result {
+		t.Errorf("Expected \n'%s' but got \n'%s'", expected, result)
+	}
+}
+
+// This test verifies that struct field names can be changed via the
+// configuration, and that the field values remain aligned.
+func TestPrinter_RenderStructFieldName(t *testing.T) {
+	type renamed struct {
+		A      int
+		Longer int
+	}
+
+	printer := NewPrinter(
+		WithFilter(
+			func(r Renderer, v Value) {
+				if v.DynamicType != reflect.TypeFor[renamed]() {
+					return
+				}
+
+				r.
+					WithModifiedConfig(
+						func(c *Config) {
+							c.RenderStructFieldName = func(f reflect.StructField) string {
+								if f.Name == "A" {
+									return "Alpha"
+								}
+								return "B"
+							}
+						},
+					).
+					WriteValue(v)
+			},
+		),
+	)
+
+	expected := strings.Join([]string{
+		`github.com/dogmatiq/dapper_test.renamed{`,
+		`    Alpha: 1`,
+		`    B:     2`,
+		`}`,
+	}, "\n")
+
+	result := printer.Format(renamed{1, 2})
 	if expected != result {
 		t.Errorf("Expected \n'%s' but got \n'%s'", expected, result)
 	}

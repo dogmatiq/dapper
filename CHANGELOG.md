@@ -11,6 +11,18 @@ The format is based on [Keep a Changelog], and this project adheres to
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 [bc]: https://github.com/dogmatiq/.github/blob/main/VERSIONING.md#changelogs
 
+## [Unreleased]
+
+### Added
+
+- Added `Config.RenderStructFieldName`, a function that controls the name
+  displayed for each struct field.
+
+### Changed
+
+- Protobuf messages that use the "opaque" API now render their fields without
+  the `xxx_hidden_` prefix.
+
 ## [0.6.1] - 2026-05-18
 
 ### Added

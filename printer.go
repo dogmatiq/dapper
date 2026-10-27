@@ -67,7 +67,19 @@ type Config struct {
 	//
 	// It is only called with unexported fields when
 	// [Config.RenderUnexportedStructFields] is true.
+	//
+	// Filters that set this field should call any existing predicate rather
+	// than replacing it outright.
 	RenderStructFieldPredicate func(reflect.StructField) bool
+
+	// RenderStructFieldName, when non-nil, is called for each rendered struct
+	// field to determine the name to display.
+	//
+	// If it is nil, the field's name is displayed as-is.
+	//
+	// Filters that set this field should call any existing function rather
+	// than replacing it outright.
+	RenderStructFieldName func(reflect.StructField) string
 }
 
 func (c Config) clone() Config {

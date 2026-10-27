@@ -36,19 +36,20 @@ func renderStructKind(r Renderer, v Value) {
 func renderStructFields(r Renderer, v Value) error {
 	cfg := r.Config()
 	fields := visibleStructFields(v.DynamicType, cfg)
-	alignment := longestFieldName(fields)
+	alignment := longestFieldName(fields, cfg)
 
 	for _, f := range fields {
 		fv := v.Value.Field(f.Index[0])
 
 		isInterface := f.Type.Kind() == reflect.Interface
+		name := structFieldName(f, cfg)
 
 		r.Print(
 			"%s: %s",
-			f.Name,
+			name,
 			strings.Repeat(
 				" ",
-				alignment-len(f.Name),
+				alignment-len(name),
 			),
 		)
 
@@ -96,13 +97,22 @@ func visibleStructFields(rt reflect.Type, cfg Config) []reflect.StructField {
 	return fields
 }
 
+// structFieldName returns the name to display for f with the given
+// configuration.
+func structFieldName(f reflect.StructField, cfg Config) string {
+	if cfg.RenderStructFieldName != nil {
+		return cfg.RenderStructFieldName(f)
+	}
+	return f.Name
+}
+
 // longestFieldName returns the length of the longest field name among the given
 // struct fields.
-func longestFieldName(fields []reflect.StructField) int {
+func longestFieldName(fields []reflect.StructField, cfg Config) int {
 	width := 0
 
 	for _, f := range fields {
-		if n := len(f.Name); n > width {
+		if n := len(structFieldName(f, cfg)); n > width {
 			width = n
 		}
 	}

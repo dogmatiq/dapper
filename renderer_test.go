@@ -35,32 +35,29 @@ func testWithPrinter(
 
 	x := strings.Join(lines, "\n")
 
-	t.Run(
-		n,
-		func(t *testing.T) {
-			t.Helper()
+	t.Run(n, func(t *testing.T) {
+		t.Helper()
 
-			var w strings.Builder
-			n, err := p.Write(&w, v)
+		var w strings.Builder
+		n, err := p.Write(&w, v)
 
-			if err != nil {
-				t.Fatal(err)
-			}
+		if err != nil {
+			t.Fatal(err)
+		}
 
-			t.Log("expected:\n\n" + x + "\n")
+		t.Log("expected:\n\n" + x + "\n")
 
-			s := w.String()
-			if s != x {
-				t.Fatal("actual:\n\n" + s + "\n")
-			}
+		s := w.String()
+		if s != x {
+			t.Fatal("actual:\n\n" + s + "\n")
+		}
 
-			if n != len(x) {
-				t.Fatalf(
-					"incorrect byte count: %d != %d",
-					n,
-					len(x),
-				)
-			}
-		},
-	)
+		if n != len(x) {
+			t.Fatalf(
+				"incorrect byte count: %d != %d",
+				n,
+				len(x),
+			)
+		}
+	})
 }
