@@ -1,0 +1,7 @@
+name: dapper
+version: 0.0.0
+targets:
+  - claude
+dependencies:
+  apm:
+    - dogmatiq/agent-config#v0.1.0
