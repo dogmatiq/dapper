@@ -1,4 +1,4 @@
 /artifacts/
 /.makefiles/
-/.claude/skills/
 apm_modules/
+/apm.lock.yaml
