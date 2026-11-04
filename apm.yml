@@ -2,4 +2,4 @@ name: dapper
 version: 0.0.0
 dependencies:
   apm:
-    - dogmatiq/agent-config#v0.1.0
+    - dogmatiq/agent-config/internal#v0.1.0
